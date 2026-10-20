@@ -2,10 +2,18 @@
 
 Un globo interattivo per la scuola che ripercorre la storia della Terra, dalla sua formazione a oggi: continenti in movimento, climi e ghiacci, fossili reali, organismi con immagini e schede, eventi geologici e biologici, scenari ingranditi (dinosauri, estinzioni, Homo sapiens, Neanderthal e Denisova, megafauna…) e ambienti 3D di ogni epoca.
 
-Il file da pubblicare è **`index.html`** (unico, autonomo: contiene librerie, dati e codice).
-Serve internet solo per i caratteri, le immagini di Wikipedia e i link esterni.
+Accanto c'è un secondo globo, **«Sapiens in Tempore»** (`sapiens.html`), dedicato agli ultimi 60 000 anni. Mostra:
+- Homo sapiens che colonizza il mondo, insieme alle altre specie umane (Neanderthal, Denisoviani, Homo floresiensis, Homo luzonensis);
+- la fine della megafauna e le estinzioni storiche;
+- la biodiversità di oggi, con oltre 200 specie, il loro stato nella Lista Rossa IUCN, le osservazioni GBIF sul globo e i punti caldi della biodiversità;
+- gli scienziati della vita, da Linneo, Darwin e Mendel a Pääbo.
 
-**Pubblicazione su GitHub Pages:** caricare `index.html` nella radice del repository e attivare Pages
+Entrambi i globi hanno una **ricerca** per qualsiasi specie o genere. Mostra quando è comparso (Paleobiology Database), dove vive (GBIF), lo stato IUCN e il collegamento a OneZoom.
+
+I file da pubblicare sono **`index.html`** e **`sapiens.html`**. Ognuno è unico e autonomo: contiene librerie, dati e codice.
+Internet serve per i caratteri, le immagini di Wikipedia, la ricerca e i link esterni.
+
+**Pubblicazione su GitHub Pages:** caricare `index.html` e `sapiens.html` nella radice del repository e attivare Pages
 (Settings → Pages → Deploy from a branch → `main` / root). Le cartelle `data/occ` e `data/paleodem` (dati grezzi, oltre 300 MB) sono escluse da `.gitignore`.
 
 **Fonti principali:** PaleoDEM di Scotese & Wright 2018 (PALEOMAP, CC BY 4.0) per rilievi e mari; modelli di placche PALEOMAP e Merdith et al. 2021 (GPlates Web Service, EarthByte); Paleobiology Database (CC BY 4.0) per i fossili; carta cronostratigrafica ICS; Wikipedia/Wikimedia Commons; Open Tree of Life e OneZoom.

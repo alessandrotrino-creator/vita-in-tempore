@@ -2,7 +2,13 @@
 
 Atlante didattico in italiano per la scuola: un globo interattivo che ripercorre la storia della Terra dalla formazione (4,57 miliardi di anni fa) a oggi. Mostra continenti in movimento, clima e ghiacci, fossili reali, organismi «protagonisti» con immagini, eventi, scenari ingranditi e ambienti 3D di ogni epoca. Fa coppia con «Lupus in Tempore» (atlante storico di una collega, Wolf Team · I.C. Almese).
 
-Pubblicato su GitHub Pages: il file pubblicato è **`index.html`** nella radice del repository. È un file unico e autonomo: librerie, dati e codice sono inclusi. Internet serve solo per i caratteri (Google Fonts), le immagini e i testi di Wikipedia e i link esterni.
+Il progetto contiene **due globi collegati tra loro**:
+- **`index.html` — «Vita in Tempore»**: la storia della Terra da 4,57 miliardi di anni fa a oggi.
+- **`sapiens.html` — «Sapiens in Tempore»**: da 60 000 anni fa a oggi. Colonizzazione del mondo da parte di Homo sapiens, le altre specie umane (Neanderthal, Denisoviani, H. floresiensis, H. luzonensis), la megafauna e le estinzioni, la biodiversità di oggi con lo stato IUCN e gli scienziati che l'hanno studiata.
+
+Entrambi hanno una **barra di ricerca** (`src/cerca.js`) per qualsiasi specie o genere: quando è comparso (PBDB), dove vive (GBIF), stato IUCN, classificazione, OneZoom.
+
+Pubblicato su GitHub Pages: i file pubblicati sono **`index.html`** e **`sapiens.html`** nella radice del repository. Ognuno è un file unico e autonomo: librerie, dati e codice sono inclusi. Internet serve per i caratteri (Google Fonts), le immagini e i testi di Wikipedia, la ricerca, le osservazioni GBIF e i link esterni.
 
 Il gioco deve funzionare bene su PC, smartphone (verticale e orizzontale) e LIM (lavagna interattiva, schermi da 1920×1080 in su). Ogni modifica va verificata su tutti e tre.
 
@@ -12,7 +18,7 @@ Il gioco deve funzionare bene su PC, smartphone (verticale e orizzontale) e LIM 
 - **Correttezza scientifica prima di tutto.** Ogni dato deve essere coerente con la letteratura recente e condivisa: per la geologia la carta ICS e i modelli GPlates, per la paleontologia la Paleobiology Database e la letteratura primaria, per l'evoluzione umana gli studi dei gruppi di riferimento (Pääbo/MPI-EVA, Reich, Stringer, Hublin, Manzi, Barbujani, la scuola di Cavalli-Sforza). Se una data o un'interpretazione è dibattuta, il testo lo dice. Non inventare date, siti o coordinate.
 - Interfaccia e testi in **italiano**, chiari per studenti dalle medie alle superiori; spiegare i termini tecnici. Niente «anello mancante», «discende dalla scimmia» o «razze» umane.
 - **Non toccare ciò che non serve**: cambia solo ciò che la richiesta riguarda.
-- Dopo ogni modifica l'utente carica il nuovo `index.html` su GitHub: ricordaglielo.
+- Dopo ogni modifica l'utente carica su GitHub il file rigenerato (`index.html` e/o `sapiens.html`): ricordaglielo.
 
 ## Struttura
 
@@ -56,6 +62,28 @@ Il gioco deve funzionare bene su PC, smartphone (verticale e orizzontale) e LIM 
 - **Ambienti 3D**: `loadThree`, `openEnvChooser`, `openEnv`.
 - **Avvio**: `start()`; il parametro `?t=<Ma>` sceglie l'epoca iniziale (predefinita 67 Ma).
 
+## Il globo «Sapiens in Tempore» (`sapiens.html`)
+
+| Percorso | Contenuto |
+|---|---|
+| `src/sapiens/template.html` | pagina; `/*@BASECSS*/` riceve lo stile di `src/template.html` (stesso aspetto dei due globi) |
+| `src/sapiens/app.js` | motore (IUCN, specie con foto, areali umani, GBIF, scienziati, Lista Rossa) |
+| `src/sapiens/SCHEMA.md` | **formato dei contenuti**: leggerlo prima di modificarli |
+| `src/sapiens/umani.js` | specie umane, domestiche, `SAP.dispersal` (arrivi di Homo sapiens), eventi, 4 scenari, popolazione mondiale |
+| `src/sapiens/estinte.js` | megafauna ed estinzioni dal 1500, eventi, scenari «La fine dei giganti» e «La sesta estinzione» |
+| `src/sapiens/viventi.js` | specie di oggi con stato IUCN, punti caldi della biodiversità, eventi di conservazione, scenari, numeri di oggi |
+| `src/sapiens/scienziati.js` | `SAP.people` (scienziati: anche nel globo principale), eventi della scienza, scenari |
+| `src/cerca.js` | `window.Cerca`: ricerca (Wikidata, GBIF, PBDB, Open Tree, Wikipedia), comune ai due globi |
+| `data/terra.json` | ETOPO1 (NOAA) ogni 0,25°, stesso formato compresso di `dem.json` (da `tools/7-terra.ps1`) |
+| `data/bluemarble.jpg` | NASA Blue Marble Next Generation (luglio 2004, con rilievo e batimetria) 2048×1024 |
+| `data/sapiens-enrich.json` | per ogni specie: OTT (OneZoom), chiave GBIF, IUCN secondo GBIF (controllo), immagini; per ogni scienziato: ritratto. Si rigenera con `tools/arricchisci.html` |
+
+- **Texture**: l'immagine di oggi (Blue Marble) si sposta della differenza tra il clima dell'epoca e quello attuale calcolata con lo stesso modello dei biomi del globo principale; il mare si abbassa con `SEA` e scopre le piattaforme (colore del modello); `ICE_SHEETS` per le calotte; `greenSahara(t)` per il periodo umido africano. Ricalcolata solo quando cambia la chiave `texKey`.
+- **Sovrapposizioni equirettangolari** campionate in `renderOrtho`: `HOV` (aree delle specie umane, solo sulle terre emerse dell'epoca) e `OV` (osservazioni GBIF della specie scelta, dalle mappe `api.gbif.org/v2/map`, EPSG:4326, zoom 0).
+- **Simboli**: `collectSpecies`/`collectPeople` → `placeMarks` li dispone per importanza evitando le sovrapposizioni; bordo = colore IUCN vicino al presente, colore del gruppo nel passato.
+- **Parametri**: `?t=<Ma>`, `?cerca=<nome scientifico>`, `?persona=<id>` (anche `index.html?cerca=`).
+- **Arricchimento**: con `tools/serve.ps1` attivo aprire `http://localhost:8766/tools/arricchisci.html` (`?tutto=1` rifà tutto). Il server accetta `POST /salva/<nome>.json` solo per scrivere in `data/`. Al termine la pagina elenca specie senza immagine/OTT e le differenze tra lo stato IUCN nei file e quello riportato da GBIF: controllarle.
+
 ## Rigenerare
 
 ```
@@ -63,7 +91,8 @@ powershell -ExecutionPolicy Bypass -File tools\1-coste.ps1           # coste dal
 powershell -ExecutionPolicy Bypass -File tools\2-fossili-scarica.ps1 # occorrenze PBDB a pagine (lento; -Only "gruppo1,gruppo2")
 powershell -ExecutionPolicy Bypass -File tools\3-fossili-aggrega.ps1 # celle di 2° × piani + plate ID
 powershell -ExecutionPolicy Bypass -File tools\4-rotazioni.ps1       # rotazioni Merdith (incrementale)
-powershell -ExecutionPolicy Bypass -File tools\build.ps1             # monta index.html
+powershell -ExecutionPolicy Bypass -File tools\7-terra.ps1           # rilievo ETOPO e Blue Marble per sapiens.html
+powershell -ExecutionPolicy Bypass -File tools\build.ps1             # monta index.html e sapiens.html
 ```
 
 ## Insidie note
@@ -71,9 +100,11 @@ powershell -ExecutionPolicy Bypass -File tools\build.ps1             # monta ind
 - In PowerShell `R` è un alias di `Invoke-History`: non usarlo come nome di funzione.
 - I CSV della PBDB possono iniziare con righe di avviso prima dell'intestazione (l'aggregatore le salta).
 - Wikimedia accetta solo alcune larghezze di miniatura: 640 px dà errore, 500 px funziona.
+- L'API di Wikipedia blocca le richieste troppo fitte (errore 429): `tools/arricchisci.html` fa 2 richieste alla volta, con pause e nuovi tentativi. Per questo le immagini delle specie del globo Sapiens sono precalcolate in `data/sapiens-enrich.json` e non chieste al caricamento.
+- iucnredlist.org risponde 403 agli strumenti automatici: per controllare gli stati IUCN usare la checklist IUCN su GBIF (`api.gbif.org/v1/species/{chiave}/iucnRedListCategory`) e i comunicati IUCN.
 - `[hidden]{display:none!important}` è nello stile: nascondere gli elementi con `el.hidden`.
 - Un `</script` dentro i dati chiuderebbe il tag: `build.ps1` lo trasforma in `<\/script`.
-- **Test nel browser integrato**: non apre `file://`. Usare `tools/serve.ps1` (server PowerShell, http://localhost:8765/). Se la finestra di anteprima è nascosta, `requestAnimationFrame` si ferma e gli screenshot possono scadere: riprovare o usare `read_page`/JavaScript.
+- **Test nel browser integrato**: non apre `file://`. Usare `tools/serve.ps1` (server PowerShell, http://localhost:8765/; con `-Port 8766` come in `.claude/launch.json`). Se la finestra di anteprima è nascosta, `requestAnimationFrame` si ferma e gli screenshot possono scadere: riprovare o usare `read_page`/JavaScript.
 - **Test su telefono**: provare sempre con il meta viewport (è già nel template), altrimenti il browser simula una pagina da PC.
 
 ## Layout responsive
