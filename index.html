@@ -3976,7 +3976,393 @@ const SCENARI = [
 
 ];
 </script>
-<script>/* Vita in Tempore — ambienti naturali del passato, esplorabili in 3D.
+<script>/* =====================================================================
+   Ecosistemi di oggi in 3D. Si aggancia al motore di src/ambienti.js
+   (che chiama window.PaleoEcosistemi con i suoi attrezzi) e aggiunge
+   nuovi ambienti (ENVS, con now: true), paesaggi (LAND) e modelli.
+   Ogni cartello può avere un terzo elemento: l'id della specie nel globo
+   «Sapiens in Tempore» (src/sapiens/*.js), per aprirne la scheda.
+   ===================================================================== */
+window.PaleoEcosistemi = (X) => {
+  "use strict";
+  const {ENVS, LAND, PL, AN, G, mk, eyes, legs4, shag, tailW, rr, fbm, vnoise, smooth, lerp, dist, PI, TAU, C_, NQ, pm, amat, smat, sea, ringList, group, walkSp, farHills} = X;
+  const T = () => X.T3();
+
+  /* ---------- nuovi modelli ---------- */
+  // grande felino (leone, giaguaro): o.col, o.spots, o.mane, o.tuft
+  AN.felid = (o = {}) => {
+    const b = mk(), C = new (T().Color)(o.col || '#c8a060'), D = new (T().Color)(o.spot || '#2e2216');
+    const cf = o.spots ? (x, y, z, c) => { c.copy(C); const v = vnoise(x * 16 + 3, y * 16 + z * 16), w = Math.abs(v - .62); if (w < .05) c.lerp(D, .95); else if (v > .7) c.lerp(D, .35); } : (x, y, z, c) => c.copy(C);
+    b.add(G.loft([[-1.0, .82, 0, .05], [-.88, .9, 0, .2], [-.75, .92, 0, .25, .22], [-.2, .88, 0, .27, .23], [.45, .98, 0, .28, .25], [.75, 1.03, 0, .19, .17], [.95, 1.05, 0, .17, .16], [1.15, .99, 0, .12, .12], [1.25, .95, 0, .08, .09]], 10), cf, {belly: o.bel || '#eadfc6'});
+    b.add(G.loft([[-.95, .86, 0, .04], [-1.35, .66, 0, .03], [-1.6, .5, 0, .025]], 5, true), cf, {wave: .6});
+    if (o.tuft) b.add(G.tr(G.ell(.06, .08, .06, 6, 4), -1.62, .48, 0), '#3a2a1a');
+    if (o.mane) b.add(G.organic(G.tr(G.ell(.3, .34, .32, 10, 8), .88, 1.04, 0), .08, 3), shag(o.mane, 6, .35));
+    for (const z of [-1, 1]) b.add(G.tr(G.ell(.04, .06, .05, 6, 4), 1.03, 1.18, z * .11), o.col || '#c8a060');
+    eyes(b, 1.18, 1.06, .08, .016, '#3a3010');
+    legs4(b, .45, -.7, .16, .16, .72, .76, .1, .1, cf, {f: {kn: -.02, an: .02, ft: .07}, h: {kn: .1, an: -.12, ft: .07}});
+    return b.geo({ao: .8, aoH: .35});
+  };
+  // zebra: corpo di cavallo con le strisce
+  AN.zebra = (o = {}) => {
+    const b = mk(), s = o.s || 1, W = new (T().Color)('#f2efe6'), K = new (T().Color)('#1d1b19');
+    const cf = (x, y, z, c) => { const v = y < 1.0 * s ? y * 34 / s : x * 21 / s + Math.sin(y * 5) * .7; c.copy(Math.sin(v) > 0 ? W : K); if (x > 1.35 * s && y < 1.6 * s) c.copy(K); };
+    b.add(G.loft([[-.95, 1.32, 0, .33, .28], [-.3, 1.3, 0, .38, .32], [.45, 1.32, 0, .36, .3], [.7, 1.45, 0, .28, .22], [.95, 1.75, 0, .18, .14], [1.1, 1.9, 0, .13, .1], [1.35, 1.64, 0, .11, .09], [1.5, 1.44, 0, .08, .07]].map(p => [p[0] * s, p[1] * s, 0, p[3] * s, p[4] * s]), 10), cf);
+    b.add(G.loft([[-1.0 * s, 1.35 * s, 0, .05 * s], [-1.15 * s, 1.0 * s, 0, .05 * s], [-1.2 * s, .7 * s, 0, .03 * s]], 5, true), '#2a2622', {wave: .6});
+    b.add(G.loft([[.65 * s, 1.62 * s, 0, .05 * s, .03 * s], [.95 * s, 1.95 * s, 0, .06 * s, .03 * s], [1.1 * s, 2.02 * s, 0, .04 * s, .02 * s]], 4, true), cf);
+    for (const z of [-1, 1]) b.add(G.tr(G.cone(.045 * s, .16 * s, 4), 1.12 * s, 1.95 * s, z * .06 * s), '#e8e4da');
+    eyes(b, 1.3 * s, 1.75 * s, .085 * s, .018 * s);
+    legs4(b, .48 * s, -.82 * s, .16 * s, .16 * s, 1.08 * s, 1.15 * s, .075 * s, .1 * s, cf, {f: {kn: -.03 * s, an: .02 * s, ft: .05 * s}, h: {kn: .14 * s, an: -.14 * s, ft: .05 * s}});
+    return b.geo({ao: .8, aoH: .35});
+  };
+  // tartaruga marina
+  AN.turtle = (L = 1, o = {}) => {
+    const b = mk(), sh = o.col || '#6a5a32';
+    b.add(G.organic(G.tr(G.ell(.5 * L, .15 * L, .4 * L, 16, 8), 0, .05 * L, 0), .015 * L, 5 / L), (x, y, z, c) => { c.set(sh); const v = Math.sin(x / L * 22) * Math.sin(z / L * 22); if (v > .3) c.multiplyScalar(.7); else if (v < -.5) c.lerp(C_('#a08a50'), .5); });
+    b.add(G.tr(G.ell(.46 * L, .06 * L, .36 * L, 14, 6), 0, -.02 * L, 0), '#d8c8a0');
+    b.add(G.loft([[.4 * L, .02 * L, 0, .07 * L], [.58 * L, .04 * L, 0, .075 * L], [.7 * L, .03 * L, 0, .06 * L]], 8, true), '#7a7050');
+    eyes(b, .66 * L, .07 * L, .05 * L, .012 * L);
+    for (const z of [-1, 1]) {
+      const f = G.leaf(.55 * L, .17 * L, 4, 0); f.rotateY(z * -(PI / 2 + .45)); f.translate(.2 * L, 0, z * .3 * L); b.add(f, '#7a7050', {wing: 1.1, upN: .4});
+      const r = G.leaf(.22 * L, .1 * L, 3, 0); r.rotateY(z * -(PI / 2 + 2.2)); r.translate(-.35 * L, 0, z * .22 * L); b.add(r, '#7a7050', {wing: .6, upN: .4});
+    }
+    return b.geo({});
+  };
+  // manta: un grande «aquilone» che batte le ali
+  AN.manta = (L = 4) => {
+    const b = mk(), w = L * .5;
+    const body = G.shape([[.45 * L, 0], [.05 * L, w], [-.25 * L, 0], [.05 * L, -w]]); body.rotateX(PI / 2);
+    b.add(body, (x, y, z, c) => c.set('#2a2e34'), {wing: .9});
+    b.add(G.tr(G.ell(.3 * L, .06 * L, .16 * L, 12, 6), .05 * L, 0, 0), '#30343a', {belly: '#e8e8e4'});
+    for (const z of [-1, 1]) b.add(G.loft([[.3 * L, 0, z * .1 * L, .02 * L], [.45 * L, 0, z * .12 * L, .015 * L]], 4, true), '#2a2e34');
+    b.add(G.loft([[-.2 * L, 0, 0, .015 * L], [-.6 * L, 0, 0, .005 * L]], 4, true), '#2a2e34');
+    return b.geo({});
+  };
+  /* ---------- nuove piante e coralli ---------- */
+  PL.baobab = (h = 12) => {
+    const b = mk(), tc = '#9a8a78';
+    b.add(G.organic(G.loft([[0, 0, 0, h * .17], [0, h * .35, 0, h * .16], [0, h * .62, 0, h * .11], [0, h * .7, 0, h * .06]], 12, true), h * .02, .4), (x, y, z, c) => c.set(tc).multiplyScalar(.85 + .2 * Math.sin(Math.atan2(z, x) * 9 + y)));
+    for (let i = 0; i < 7; i++) { const a = i / 7 * TAU + rr(0, .5), l = h * rr(.18, .3), ex = Math.cos(a) * l, ez = Math.sin(a) * l, y = h * .66;
+      b.add(G.loft([[0, y, 0, h * .035], [ex * .6, y + l * .5, ez * .6, h * .022], [ex, y + l * .75, ez, h * .012]], 6, true), tc);
+      b.add(G.organic(G.tr(G.ico(h * .07, 1), ex, y + l * .82, ez), h * .02, 3), '#6a7f3a', {k: rr(.85, 1.1)}); }
+    return b.geo({ao: .6, aoH: .7, wave: (x, y) => Math.max(0, y - h * .75) / h * .5});
+  };
+  PL.mound = (h = 2.5, col = '#b07a4a') => mk().add(G.organic(G.loft([[0, 0, 0, h * .32], [0, h * .5, 0, h * .2], [.05 * h, h * .85, 0, h * .09], [.08 * h, h, 0, h * .03]], 9, true), h * .06, 2 / h), col).geo({ao: .6, aoH: .8});
+  PL.staghorn = (h = .8, col = '#c86a8a') => {
+    const parts = [];
+    const br = (p, dir, len, r, d) => { const e = p.clone().addScaledVector(dir, len); parts.push(G.loft([[p.x, p.y, p.z, r], [e.x, e.y, e.z, r * .8]], 6, true)); if (d === 0) return;
+      for (let i = 0; i < 2; i++) br(e, dir.clone().applyAxisAngle(new (T().Vector3)(rr(-1, 1), 0, rr(-1, 1)).normalize(), rr(.35, .7)).normalize(), len * rr(.7, .9), r * .8, d - 1); };
+    for (let i = 0; i < 3; i++) br(new (T().Vector3)(rr(-.1, .1), 0, rr(-.1, .1)), new (T().Vector3)(rr(-.4, .4), 1, rr(-.4, .4)).normalize(), h * .35, h * .06, 3);
+    const C = new (T().Color)(col);
+    return mk().add(X.cat ? X.cat(parts) : parts[0], (x, y, z, c) => c.copy(C).lerp(C_('#f4e8e0'), smooth(h * .7, h * 1.2, y) * .6)).geo({ao: .6, aoH: .5});
+  };
+  PL.fanCoral = (h = 1.2, col = '#8a3a9a') => {
+    const g = new (T().CircleGeometry)(h * .55, 18, 0, PI); const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 3) * .05 * h);
+    g.computeVertexNormals();
+    const C = new (T().Color)(col);
+    return mk().add(g, (x, y, z, c) => { c.copy(C); if (Math.sin(x * 40) * Math.sin(y * 40) > .5) c.multiplyScalar(.6); }).add(G.loft([[0, -.1 * h, 0, .03 * h], [0, .05 * h, 0, .025 * h]], 5, true), col).geo({wave: (x, y) => Math.max(0, y) / h * .7});
+  };
+  PL.anemone = (r = .5, col = '#e070a0') => {
+    const parts = []; for (let i = 0; i < 40; i++) { const a = rr(0, TAU), d = rr(0, r * .8), x = Math.cos(a) * d, z = Math.sin(a) * d, l = r * rr(.5, .9);
+      parts.push(G.loft([[x, 0, z, r * .035], [x * 1.2, l * .6, z * 1.2, r * .03], [x * 1.4, l, z * 1.4, r * .02]], 4, true)); }
+    parts.push(G.tr(G.ell(r * .85, r * .2, r * .85, 12, 6), 0, 0, 0));
+    const C = new (T().Color)(col);
+    return mk().add(X.cat ? X.cat(parts) : parts[0], (x, y, z, c) => c.copy(C).lerp(C_('#ffe0f0'), smooth(r * .3, r * .9, y) * .7)).geo({wave: (x, y) => y / r * .8});
+  };
+  PL.clam = (L = 1) => mk().add(G.organic(G.tr(G.ell(.5 * L, .22 * L, .3 * L, 14, 8), 0, .1 * L, 0), .04 * L, 6 / L), (x, y, z, c) => { c.set('#d8d0b8'); if (y > .16 * L) c.set(Math.sin(x / L * 30) > 0 ? '#2a5ab8' : '#3aa0a8'); }).geo({});
+  PL.lily = (r = 1) => { const g = G.cyl(r, r * 1.02, .06, 24); return mk().add(g, (x, y, z, c) => { c.set('#4a7a2a'); if (Math.hypot(x, z) > r * .93) c.set('#8a3a3a'); else if (Math.sin(Math.atan2(z, x) * 12) > .9) c.multiplyScalar(.8); }).geo({}); };
+
+  /* ---------- elenco ---------- */
+  const E = (o) => ENVS.push(Object.assign({now: true, era: 'Oggi', when: 'ecosistema di oggi', from: 0.0117, to: 0, ma: 0}, o));
+  E({id: 'eco-savana', name: 'La savana africana', place: 'Serengeti (Tanzania)', lat: -2.33, lon: 34.83, color: '#d0a040',
+    intro: 'Una prateria punteggiata di acacie e baobab, con una pozza d’acqua. È la stagione della grande migrazione: mandrie di gnu e zebre attraversano la pianura, gli elefanti vanno a bere, i leoni riposano all’ombra e gli avvoltoi volteggiano nel cielo.',
+    facts: [
+      ['L’elefante africano di savana', 'È il più grande animale terrestre: un maschio può superare le 6 tonnellate. Abbattendo alberi e scavando pozze crea spazi aperti e acqua per molte altre specie. È «In pericolo» (IUCN 2021) a causa del bracconaggio per l’avorio e della perdita di territorio.', 'elefante-savana'],
+      ['La grande migrazione', 'Ogni anno circa un milione e mezzo di gnu, con centinaia di migliaia di zebre e gazzelle, compie un grande giro tra il Serengeti e il Masai Mara seguendo le piogge e l’erba fresca. È uno degli spettacoli naturali più grandi del pianeta.'],
+      ['Il leone', 'È l’unico felino che vive in gruppi, i branchi. Le femmine cacciano insieme, i maschi difendono il territorio. In Africa ne restano poche decine di migliaia: è «Vulnerabile» per la perdita di prede e territorio e per i conflitti con gli allevatori.', 'leone'],
+      ['La giraffa', 'Con il collo lungo arriva alle foglie più alte delle acacie, nonostante le spine. Ha lo stesso numero di vertebre del collo di un essere umano: sette, ma lunghe fino a 25 cm. È «Vulnerabile»: in 30 anni le giraffe sono diminuite di circa il 40%.', 'giraffa'],
+      ['Acacie e baobab', 'Le acacie si difendono con spine e, alcune, ospitando formiche che pungono gli erbivori. Il baobab immagazzina migliaia di litri d’acqua nel tronco e può vivere più di mille anni.', 'baobab-africano'],
+      ['Gli spazzini del cielo', 'Gli avvoltoi ripuliscono la savana dalle carcasse e così limitano le malattie. Molte specie africane sono crollate per avvelenamenti: l’avvoltoio dorsobianco africano è «In pericolo critico».', 'avvoltoio-dorsobianco']]});
+  E({id: 'eco-amazzonia', name: 'La foresta amazzonica', place: 'Foresta pluviale lungo un fiume, Amazzonia (Brasile)', lat: -3.1, lon: -60.0, color: '#2e8a4a',
+    intro: 'Una foresta pluviale calda e umida lungo un fiume. Alberi altissimi formano un tetto di foglie, sotto c’è penombra. Nel fiume nuotano i delfini rosa e sulle rive aspettano i caimani; tra i rami passano scimmie e pappagalli.',
+    facts: [
+      ['La foresta più grande del mondo', 'L’Amazzonia copre circa 5,5 milioni di km², quasi 20 volte l’Italia, in nove paesi. Ospita circa una specie conosciuta su dieci e ogni anno se ne scoprono di nuove. Il suo fiume porta al mare un quinto di tutta l’acqua dolce dei fiumi della Terra.'],
+      ['Una foresta a piani', 'In alto spuntano alberi giganti oltre i 50 metri; sotto c’è la volta, un tetto continuo di chiome dove vive gran parte degli animali; più in basso il sottobosco, in penombra, con felci, palme e giovani alberi che aspettano un raggio di luce.'],
+      ['L’ara giacinto', 'È il pappagallo più grande del mondo, lungo fino a un metro, blu cobalto. Con il becco fortissimo apre le noci di palma. È «Vulnerabile» per la cattura per il commercio e la perdita di habitat.', 'ara-giacinto'],
+      ['Il delfino rosa', 'Il boto vive solo nei fiumi del Sud America. Il collo flessibile gli permette di nuotare tra i tronchi della foresta allagata. È «In pericolo»: muore nelle reti e viene ucciso per farne esca.', 'boto'],
+      ['La noce del Brasile', 'Questo albero gigante produce frutti solo se le sue api impollinatrici trovano la foresta intatta intorno. I semi li spargono gli agouti, roditori che li nascondono e poi li dimenticano.', 'noce-brasile'],
+      ['Una foresta in pericolo', 'Circa un quinto della foresta amazzonica è già stato abbattuto, soprattutto per pascoli e campi di soia. Gli scienziati temono che oltre una certa soglia parte della foresta possa trasformarsi in savana.']]});
+  E({id: 'eco-barriera', name: 'La barriera corallina', place: 'Grande Barriera Corallina (Australia)', lat: -18.3, lon: 147.7, color: '#20a0c0',
+    intro: 'Un mare caldo e trasparente, pochi metri sotto la superficie. Coralli di tutte le forme e colori, anemoni, pesci a sciami, una tartaruga verde che nuota e una manta che passa lenta: la barriera corallina è la «foresta pluviale del mare».',
+    facts: [
+      ['I coralli sono animali', 'Ogni corallo è una colonia di minuscoli polipi, parenti delle meduse, che costruiscono uno scheletro di calcare. Dentro di loro vivono alghe microscopiche che con la luce del sole producono cibo: per questo i coralli crescono solo in acque limpide e poco profonde.'],
+      ['Lo sbiancamento', 'Se l’acqua resta troppo calda per settimane, i coralli espellono le alghe e diventano bianchi: se il caldo dura, muoiono. Tra il 2023 e il 2025 c’è stato il più grande evento di sbiancamento mai registrato, che ha colpito oltre l’80% delle barriere del mondo.'],
+      ['Il pesce pagliaccio', 'Vive tra i tentacoli urticanti dell’anemone, protetto da uno strato di muco. In cambio pulisce l’anemone e lo difende. Tutti i pesci pagliaccio nascono maschi: il più grande del gruppo diventa femmina.', 'pesce-pagliaccio'],
+      ['La tartaruga verde', 'Bruca le praterie di alghe e fanerogame marine e torna a deporre le uova sulla stessa spiaggia dove è nata. Grazie a decenni di protezione molte popolazioni sono in ripresa: nel 2025 la IUCN l’ha spostata nella categoria «Minor preoccupazione».', 'tartaruga-verde'],
+      ['Il pesce Napoleone', 'Può superare i 2 metri e vivere 30 anni. Mangia anche le stelle marine corona di spine che distruggono i coralli. È «In pericolo» perché è molto ricercato nei ristoranti di pesce vivo.', 'pesce-napoleone'],
+      ['La tridacna gigante', 'È il più grande mollusco con conchiglia: supera il metro e i 200 kg. Come i coralli, ospita alghe che le danno cibo e colori. Raccolta per la carne e la conchiglia, è stata dichiarata «In pericolo critico» nel 2024.', 'tridacna-gigante']]});
+
+  /* ---------- paesaggi ---------- */
+  LAND['eco-savana'] = (k) => {
+    const WH = [6, -30, 6];
+    const H = (x, z) => { let h = .3 + fbm(x * .02, z * .02, 3) * 1.1 + farHills(x, z, 9, 90, 150); const dw = dist(x - WH[0], z - WH[1]); return h - smooth(WH[2] + 2, WH[2] - 2, dw) * 1.2; };
+    k.H = H;
+    const wet = (x, z) => dist(x - WH[0], z - WH[1]) < WH[2] + .4;
+    k.sky({top: '#4a88d0', hor: '#ece2c8', fog: [90, 460], sunDir: [.45, .7, -.4]});
+    k.lights({sky: '#e0e8f0', ground: '#a08a50', hemi: 1, sun: '#fff0d6', sunI: 1.45, dir: [.45, .7, -.4]});
+    k.clouds(18, 70, 130, {op: .85});
+    k.terrain(H, (x, y, z, s, c) => { c.set('#a89a5a'); c.lerp(C_('#7e8442'), smooth(.4, .7, fbm(x * .08, z * .08, 3)) * .7); if (y < -.2) c.lerp(C_('#6a5a40'), .8); });
+    k.water(-.35, '#7a7048', .85, (WH[2] + 3) * 2, (WH[2] + 3) * 2, WH[0], WH[1], {round: true});
+    const open = (n, r0, r1, f) => ringList(k, n, r0, r1, (x, z) => wet(x, z) ? null : f(x, z));
+    k.plant(PL.tuft(.8, '#9a9a50', '#e2cf8a'), open(NQ(k, 3200), 2, 60, (x, z) => ({x, z, s: rr(.6, 1.3)})), pm(k, .12, 1.4), {shadow: false, v: .25});
+    k.plant(PL.tuft(.9, '#a8a058', '#e8d898', 5), open(NQ(k, 1500), 55, 130, (x, z) => ({x, z, s: rr(1, 1.8)})), pm(k, .12, 1.4), {shadow: false, v: .25});
+    k.plant(PL.acacia(7, '#6a8a38'), open(NQ(k, 45), 14, 130, (x, z) => ({x, z, s: rr(.7, 1.3)})), pm(k, .2, .7), {rad: 1});
+    const BAO = [[-26, -34], [34, 12], [-50, 30]];
+    k.plant(PL.acacia(7.5, '#6a8a38'), [{x: -15, z: -19, y: H(-15, -19), r: 1, s: 1.15}, {x: 22, z: -22, y: H(22, -22), r: 2, s: 1}], pm(k, .2, .7), {rad: 1});
+    k.plant(PL.baobab(13), BAO.map(([x, z]) => ({x, z, y: H(x, z), r: rr(0, TAU), s: rr(.9, 1.15)})), smat(k), {rad: 2});
+    k.plant(PL.mound(2.4), open(NQ(k, 14), 10, 90, (x, z) => ({x, z, s: rr(.6, 1.2)})), smat(k), {rad: .8});
+    k.plant(PL.shrub(.8, '#6a7a3a'), open(NQ(k, 70), 6, 100, (x, z) => ({x, z, s: rr(.5, 1.3)})), pm(k, .05, .8), {shadow: false});
+    k.plant(PL.rock(2, '#9a8a78'), open(NQ(k, 20), 50, 120, (x, z) => ({x, z, s: rr(.6, 2.2), sy: rr(.5, .9)})), smat(k), {rad: 1.5});
+    // tutti gli animali sono nel campo visivo iniziale (si guarda verso −z) o subito dietro
+    k.herd(AN.proboscid({tusk: 'up', col: '#7d746c', bel: '#8a8178', s: 1.05, tl: .62, tw: .8, ear: 1}), amat(k, {leg: .28, sp: walkSp(.6, 2.6), wave: .1, k: .5}), group(k, 5, WH[0], WH[1], WH[2] + 4, .025, {da: .35, dr: 1.5, s0: .7, s1: 1.1}));
+    k.herd(AN.bison({col: '#5c5852'}), amat(k, {leg: .35, sp: walkSp(.9, 1.15)}), group(k, NQ(k, 30), -30, -52, 22, .04, {da: .07, dr: 5, sc: 3, s0: .62, s1: .72}), {shadow: false});
+    k.herd(AN.zebra(), amat(k, {leg: .4, sp: walkSp(.95, 1.1)}), group(k, NQ(k, 12), -30, -52, 17, .04, {da: .12, dr: 3, sc: 2}), {shadow: false});
+    k.herd(AN.zebra(), amat(k, {leg: .4, sp: walkSp(.95, 1.1)}), group(k, 5, 4, 26, 9, -.04, {da: .3, dr: 2}), {shadow: false});
+    k.herd(AN.giraffe(), amat(k, {leg: .35, sp: walkSp(.6, 2.2)}), group(k, 3, 24, -21, 5, -.03, {da: .6, dr: 1.5}));
+    k.herd(AN.felid({col: '#c9a466', mane: '#6a4424', tuft: true}), amat(k, {wave: .02, k: 0, sp: .4}), [{path: k.stay(-13, -17, 1.2), s: 1.25}]);
+    k.herd(AN.felid({col: '#cfac70', tuft: true}), amat(k, {wave: .02, k: 0, sp: .4}), [{path: k.stay(-17, -16, 2.5), s: 1.1}, {path: k.stay(-15, -21.5, -.6), s: 1.1}]);
+    k.herd(AN.bird(2.2, '#4a3a2a'), amat(k, {flap: .15, sp: 1.2}, true), Array.from({length: NQ(k, 5)}, (_, i) => ({path: k.circ(rr(-8, 8), -26 + rr(-6, 6), rr(10, 18), (i % 2 ? 1 : -1) * rr(.14, .2), rr(0, TAU), rr(18, 28), 2), roll: (i % 2 ? -1 : 1) * .35})), {shadow: false});
+    return {H, spawn: [0, 4, 0], inside: (x, z) => dist(x, z) < 80 && !wet(x, z), signOk: (x, z) => !wet(x, z), exp: .9, envI: .75};
+  };
+
+  LAND['eco-amazzonia'] = (k) => {
+    const zc = x => -18 + Math.sin(x * .025) * 9;
+    const H = (x, z) => .6 + fbm(x * .03, z * .03, 3) * 1.4 - smooth(13, 5, Math.abs(z - zc(x))) * 2.6 + farHills(x, z, 8, 90, 150);
+    k.H = H;
+    const river = (x, z) => H(x, z) < .05;
+    k.sky({top: '#7aa6c8', hor: '#d8e4d8', fog: [24, 170], fogCol: '#a8bca8', sunDir: [.3, .8, -.4], haze: .6});
+    k.lights({sky: '#d8ecd8', ground: '#3a4a2a', hemi: 1.1, sun: '#fff4dc', sunI: 1.05, dir: [.3, .8, -.4]});
+    k.terrain(H, (x, y, z, s, c) => { c.set('#4a4028'); c.lerp(C_('#3a5a26'), smooth(.4, .7, fbm(x * .12, z * .12, 3)) * .8); if (y < .3) c.lerp(C_('#6a5a40'), .7); });
+    k.water(0, '#2f4a3e', .78, 900);
+    const dry = (n, r0, r1, f) => ringList(k, n, r0, r1, (x, z) => H(x, z) > .45 ? f(x, z) : null);
+    // piani della foresta: alberi emergenti, volta, palme, sottobosco
+    const NEAR = [[-13, 4], [13, 2], [-8, 22], [17, 18], [-22, 12], [4, 30]].filter(([x, z]) => H(x, z) > .5);
+    const TREES = NEAR.map(([x, z]) => ({x, z, y: H(x, z), r: rr(0, TAU), s: rr(.75, .9)})).concat(dry(NQ(k, 22), 14, 95, (x, z) => ({x, z, s: rr(.85, 1.2)})));
+    k.plant(PL.broadleaf(38, '#2c5a28', '#6a5a46', {w: .3, blobs: 9}), TREES, pm(k, .3, .5), {rad: 2});
+    k.plant(PL.broadleaf(22, '#3a6a2c', '#5a4a38', {w: .32, blobs: 7}), dry(NQ(k, 90), 8, 110, (x, z) => ({x, z, s: rr(.7, 1.2)})), pm(k, .25, .6), {rad: 1.2});
+    k.plant(PL.broadleaf(14, '#3d7032', '#5a4a38', {w: .3, blobs: 6, flowers: 18, fcol: '#f080b0', fs: .25}), dry(NQ(k, 25), 8, 90, (x, z) => ({x, z, s: rr(.7, 1.1)})), pm(k, .25, .6), {rad: 1});
+    k.plant(PL.palm(12, '#3f7a34'), dry(NQ(k, 50), 5, 100, (x, z) => ({x, z, s: rr(.7, 1.3)})), pm(k, .25, .8), {rad: .8});
+    k.plant(PL.treeFern(5, '#3f7a3a'), dry(NQ(k, 60), 4, 70, (x, z) => ({x, z, s: rr(.6, 1.2)})), pm(k, .15, .9), {rad: .5});
+    k.plant(PL.fern(1.1, '#3f7a34'), dry(NQ(k, 700), 2, 60, (x, z) => ({x, z, s: rr(.6, 1.4)})), pm(k, .12, 1.1), {shadow: false});
+    k.plant(PL.fanPalm(.3, '#4a7a3a'), dry(NQ(k, 200), 2, 60, (x, z) => ({x, z, s: rr(.6, 1.2)})), pm(k, .08, 1), {shadow: false});
+    k.plant(PL.lily(1), ringList(k, NQ(k, 30), 6, 60, (x, z) => H(x, z) < -.4 ? {x, z, y: .03, s: rr(.6, 1.1)} : null), smat(k), {shadow: false});
+    // animali: caimani sulla riva, delfini rosa nel fiume, giaguaro, scimmie sugli alberi, pappagalli in volo
+    const shore = []; for (let x = -40; x <= 40 && shore.length < 3; x += 23) { const z = zc(x) + 6.5; shore.push({path: k.stay(x, z, rr(-1, 1), Math.max(H(x, z), -.08)), s: rr(.9, 1.2)}); }
+    k.herd(AN.croc(3), amat(k, {wave: .02, k: 1, sp: .3}), shore.concat([{path: k.stay(-5, zc(-5) + 6.5, .4, Math.max(H(-5, zc(-5) + 6.5), -.08)), s: 1.2}]));
+    k.herd(AN.fish({L: 2.2, h: .4, w: .36, col: '#d99aa8', bel: '#f2ccd4', tail: 'fork', dorsal: false, pect: .8}), amat(k, {wave: .06, k: 1.5, sp: 2}, true), [0, 1].map(i => ({path: t => { const x = -30 + ((t * 2.2 + i * 25) % 60); return [x, -.25 + Math.sin(t * 1.3 + i) * .45, zc(x) + (i ? 2 : -2)]; }})), {pitch: .6});
+    k.herd(AN.felid({col: '#d0a050', spots: true, spot: '#2a1c10'}), amat(k, {leg: .4, sp: walkSp(.7, .74)}), [{path: k.circ(4, -6, 2.5, .1, 1), s: 1.15}]);
+    k.herd(AN.primate(), amat(k, {wave: .3, k: 0, sp: 1.2}), TREES.slice(0, Math.max(3, NEAR.length)).flatMap(p => [0, 1].map(j => ({path: k.stay(p.x + (j ? -1.4 : 1.6), p.z + (j ? 1 : 0), rr(0, TAU), H(p.x, p.z) + 38 * p.s * .62), s: 4}))), {shadow: false});
+    k.herd(AN.bird(1.1, '#2a3a9a'), amat(k, {flap: .9, sp: 7}, true), Array.from({length: NQ(k, 4)}, (_, i) => ({path: k.circ(rr(-15, 15), zc(0) + rr(-5, 5), rr(12, 22), (i % 2 ? 1 : -1) * rr(.25, .35), rr(0, TAU), rr(14, 22), 2), roll: (i % 2 ? -1 : 1) * .3})), {shadow: false});
+    k.herd(AN.bird(1, '#c8261c'), amat(k, {flap: .9, sp: 7}, true), Array.from({length: NQ(k, 4)}, (_, i) => ({path: k.circ(rr(-25, 25), rr(-30, 10), rr(15, 25), (i % 2 ? 1 : -1) * rr(.2, .3), rr(0, TAU), rr(18, 26), 2), roll: (i % 2 ? -1 : 1) * .3})), {shadow: false});
+    k.drift(NQ(k, 120), {col: '#5ab8ff', add: true, size: [.05, .1], alpha: .8, R: 18, h0: .5, h1: 6, vel: [.3, .1, .2], tw: 5, wob: 1});
+    return {H, spawn: [0, 1, 0], inside: (x, z) => dist(x, z) < 70 && H(x, z) > .35, signOk: (x, z) => H(x, z) > .5, exp: 1.05, envI: .8};
+  };
+
+  LAND['eco-barriera'] = (k) => {
+    const H = (x, z) => fbm(x * .03, z * .03, 3) * 1.6 + Math.max(0, fbm(x * .07 + 3, z * .07) - .5) * 5 + smooth(50, 100, dist(x, z)) * 7 * fbm(x * .02, z * .02 + 5);
+    k.H = H;
+    sea(k, {top: '#a8f0f0', hor: '#38a8c0', bot: '#0e4058', fog: .028, surf: 11, rayOp: .14, sunI: .7});
+    k.terrain(H, (x, y, z, s, c) => { c.set('#d8ccaa'); c.lerp(C_('#a8987a'), smooth(.45, .75, fbm(x * .25, z * .25, 2)) * .7); c.lerp(C_('#8a7a6a'), smooth(.6, .8, fbm(x * .5 + 7, z * .5, 2)) * .5); }, {caustics: {i: .3, scale: .4}});
+    const bed = (n, r0, r1, f) => ringList(k, n, r0, r1, f);
+    const COL = ['#e0708a', '#f0a050', '#a070d0', '#60c0b0', '#e8d060', '#d85a5a'];
+    COL.forEach((c, i) => k.plant(PL.staghorn(.9, c), bed(NQ(k, 110), 2.5, 38, (x, z) => ({x, z, s: rr(.9, 2.4)})), smat(k), {rad: .5}));
+    k.plant(PL.coralTab(1, '#c8a060'), bed(NQ(k, 120), 2.5, 40, (x, z) => ({x, z, s: rr(.8, 2.4), sy: rr(.6, 1.1)})), smat(k), {rad: .7});
+    k.plant(PL.coralTab(1, '#8a9a5a'), bed(NQ(k, 90), 2.5, 40, (x, z) => ({x, z, s: rr(.7, 2)})), smat(k), {rad: .6});
+    k.plant(PL.coralTab(1, '#b06a9a'), bed(NQ(k, 70), 2.5, 40, (x, z) => ({x, z, s: rr(.6, 1.8)})), smat(k), {rad: .6});
+    k.plant(PL.fanCoral(1.4, '#9a3aa8'), bed(NQ(k, 80), 3, 40, (x, z) => ({x, z, s: rr(.6, 1.4)})), pm(k, .08, .5), {rad: .3, shadow: false});
+    k.plant(PL.fanCoral(1.2, '#e05a3a'), bed(NQ(k, 60), 3, 40, (x, z) => ({x, z, s: rr(.6, 1.3)})), pm(k, .08, .5), {rad: .3, shadow: false});
+    const ANEM = [[3.5, -6], [-5, -8], [7, 3], [-7, 4]];
+    k.plant(PL.anemone(.6, '#e874a8'), ANEM.map(([x, z]) => ({x, z, y: H(x, z), s: 1.3})), pm(k, .12, .8), {shadow: false});
+    k.plant(PL.clam(1.1), [{x: -3, z: -15, y: H(-3, -15), r: .5, s: 1}, {x: 12, z: -12, y: H(12, -12), r: 2, s: .8}], smat(k), {rad: .8});
+    k.plant(PL.seaweed(.6, '#4a8a3a'), bed(NQ(k, 60), 3, 45, (x, z) => ({x, z, s: rr(.6, 1.2)})), pm(k, .07, .6), {shadow: false});
+    const sw = (n, f) => Array.from({length: n}, f);
+    // pesci pagliaccio attorno agli anemoni
+    k.herd(AN.fish({L: .12, h: .05, w: .025, tail: 'round', cf: (x, y, z, c) => { c.set(Math.abs(x) < .012 || Math.abs(x - .035) < .008 || Math.abs(x + .035) < .008 ? '#ffffff' : '#ff7a1a'); }}), amat(k, {wave: .02, k: 30, sp: 12}, true), sw(9, (_, i) => { const a = ANEM[i % 3]; return {path: k.circ(a[0], a[1], rr(.3, .7), rr(.6, 1) * (i % 2 ? 1 : -1), rr(0, TAU), H(a[0], a[1]) + rr(.5, .9), .1), s: 1.4}; }), {shadow: false, pitch: .3});
+    k.herd(AN.fish({L: .5, h: .16, w: .07, col: '#3ab0a0', bel: '#a8e0c8', fcol: '#e86aa0', tail: 'fork'}), amat(k, {wave: .04, k: 9, sp: 7}, true), sw(NQ(k, 10), () => ({path: k.circ(rr(-15, 15), rr(-25, 5), rr(3, 9), rr(.15, .3) * (k.r() < .5 ? 1 : -1), rr(0, TAU), rr(1.5, 4), .4)})), {pitch: .4});
+    k.herd(AN.fish({L: 1.8, h: .6, w: .3, col: '#3a7a8a', bel: '#7ab0a8', tail: 'round', cf: X.mottled('#2a7a8a', 6, .3, '#5ab0a0')}), amat(k, {wave: .04, k: 3, sp: 3}, true), [{path: k.circ(-5, -20, 10, .08, 1, 4, .5)}], {pitch: .4});
+    k.herd(AN.fish({L: .2, h: .06, w: .03, col: '#f0d040', bel: '#fff0a0', tail: 'fork'}), amat(k, {wave: .03, k: 16, sp: 11}, true), sw(NQ(k, 70), (_, i) => ({path: k.circ(-8 + rr(-1.2, 1.2), -12 + rr(-1.2, 1.2), rr(4, 6), .35, i * .08, rr(3, 5), .3)})), {pitch: .5, shadow: false});
+    k.herd(AN.fish({L: .25, h: .08, w: .03, col: '#4a6ad8', bel: '#a8c0f0', tail: 'fork'}), amat(k, {wave: .03, k: 16, sp: 11}, true), sw(NQ(k, 50), (_, i) => ({path: k.circ(10 + rr(-1, 1), -4 + rr(-1, 1), rr(3, 4.5), -.4, i * .1, rr(2, 4), .3)})), {pitch: .5, shadow: false});
+    k.herd(AN.turtle(1.1, '#6a5a32'), amat(k, {flap: .35, sp: 1.6}, true), [{path: k.circ(0, -14, 13, .07, 0, 5, 1)}], {pitch: .5});
+    k.herd(AN.manta(4.5), amat(k, {flap: .35, sp: 1.1}, true), [{path: k.circ(6, -30, 24, -.045, 2, 8, 1.2)}], {pitch: .4, shadow: false});
+    k.herd(AN.shark(1.9), amat(k, {wave: .08, k: 2.5, sp: 4}, true), [{path: k.circ(-14, -26, 20, .09, 3, 6, .8)}], {pitch: .5});
+    return {H, spawn: [0, 0, 0], eye: 2.6, under: true, signScale: .85, signLift: .8, inside: (x, z) => dist(x, z) < 55, exp: 1.15, envI: .45, speed: .7, pitch: -.1};
+  };
+
+  /* =================== passaggio 2: Artico, Appennino, Sahara =================== */
+  // orso (bruno o polare)
+  AN.bear = (o = {}) => {
+    const b = mk(), col = o.col || '#5a3e26', hc = shag(col, 5, o.polar ? .12 : .35);
+    const nk = o.polar ? .15 : 0;
+    b.add(G.loft([[-1.0, .95, 0, .05], [-.9, 1.0, 0, .4, .38], [-.3, 1.12, 0, .5, .45], [.3, o.polar ? 1.12 : 1.25, 0, .5, .44], [.65, 1.12, 0, .38, .34], [.9 + nk, 1.05, 0, .24, .22], [1.15 + nk, 1.0, 0, .2, .18], [1.38 + nk, .94, 0, .12, .11], [1.5 + nk, .9, 0, .06, .06]], 11), hc, {belly: o.bel});
+    for (const z of [-1, 1]) b.add(G.tr(G.ell(.06, .07, .05, 6, 4), 1.08 + nk, 1.2, z * .13), col);
+    b.add(G.tr(G.ell(.05, .04, .05, 6, 4), 1.52 + nk, .92, 0), '#1a1410');
+    eyes(b, 1.3 + nk, 1.05, .1, .02);
+    legs4(b, .55, -.62, .27, .27, .9, .95, .15, .17, hc, {f: {kn: -.02, an: .02, ft: .1}, h: {kn: .1, an: -.08, ft: .12}});
+    return b.geo({ao: .75, aoH: .35});
+  };
+  // canidi: lupo, volpe artica, fennec (o.ear grandi)
+  AN.canid = (o = {}) => {
+    const b = mk(), col = o.col || '#8a7a68', hc = shag(col, 7, .3), e = o.ear || .07;
+    b.add(G.loft([[-.7, .7, 0, .05], [-.6, .72, 0, .17, .15], [-.1, .74, 0, .2, .17], [.35, .78, 0, .19, .16], [.55, .86, 0, .12, .1], [.7, .93, 0, .11, .1], [.86, .89, 0, .07, .07], [1.0, .86, 0, .035, .035]], 10), hc, {belly: o.bel || '#d8d0c0'});
+    b.add(G.loft([[-.68, .72, 0, .06], [-.95, .55, 0, .08], [-1.15, .4, 0, .05]], 7, true), hc, {wave: .5});
+    for (const z of [-1, 1]) b.add(G.tr(G.cone(e * .55, e * 1.7, 5), .7, .98, z * .065), col);
+    eyes(b, .86, .95, .06, .014, '#2a2010');
+    legs4(b, .4, -.5, .1, .1, .6, .63, .05, .06, hc, {f: {kn: -.02, an: .02, ft: .05}, h: {kn: .1, an: -.1, ft: .05}});
+    return b.geo({ao: .8, aoH: .35});
+  };
+  // tricheco (o.tusks) e foca
+  AN.pinniped = (o = {}) => {
+    const b = mk(), col = o.col || '#8a6a58';
+    b.add(G.loft([[-1.4, .12, 0, .1, .14], [-1.0, .28, 0, .35, .4], [-.2, .48, 0, .6, .62], [.5, .55, 0, .58, .55], [.95, .66, 0, .36, .34], [1.2, .62, 0, .27, .27], [1.35, .55, 0, .18, .19]], 11), mottled(col, 3, .25), {belly: o.bel || col});
+    for (const z of [-1, 1]) { const f = G.leaf(.55, .25, 3, 0); f.rotateY(z * -(PI / 2 + .7)); f.translate(.55, .12, z * .45); b.add(f, '#5a4438', {upN: .5});
+      const r = G.leaf(.45, .3, 3, 0); r.rotateY(z * -2.9); r.translate(-1.3, .12, z * .08); b.add(r, '#5a4438', {upN: .5}); }
+    if (o.tusks) for (const z of [-1, 1]) b.add(G.tr(G.cone(.035, .55, 6).rotateX(PI).rotateZ(-.15), 1.32, .48, z * .07), '#efe6d0');
+    eyes(b, 1.27, .7, .14, .02);
+    return b.geo({wave: tailW(-.8, -1.4, .6)});
+  };
+  const mottled = X.mottled;
+  // dromedario
+  AN.camel = () => {
+    const b = mk(), col = '#c8a070', C = new (T().Color)(col);
+    b.add(G.loft([[-1.0, 1.65, 0, .3, .26], [-.45, 1.75, 0, .42, .34], [.25, 1.75, 0, .4, .32], [.6, 1.7, 0, .28, .22], [.95, 1.5, 0, .12, .11], [1.25, 1.6, 0, .1, .09], [1.4, 2.05, 0, .09, .08], [1.55, 2.2, 0, .11, .09], [1.85, 2.15, 0, .07, .07]], 10), col, {belly: '#d8b888'});
+    b.add(G.organic(G.tr(G.ell(.45, .42, .3, 12, 8), -.15, 2.05, 0), .04, 4), (x, y, z, c) => c.copy(C).multiplyScalar(.95));
+    b.add(G.loft([[-1.0, 1.65, 0, .04], [-1.15, 1.2, 0, .03]], 4, true), '#6a5030', {wave: .5});
+    for (const z of [-1, 1]) b.add(G.tr(G.ell(.03, .05, .03, 5, 4), 1.55, 2.32, z * .07), col);
+    eyes(b, 1.7, 2.24, .07, .018);
+    legs4(b, .55, -.75, .2, .2, 1.65, 1.6, .08, .09, col, {f: {kn: -.03, an: .02, ft: .1}, h: {kn: .15, an: -.15, ft: .1}});
+    return b.geo({ao: .8, aoH: .35});
+  };
+  // capre e antilopi: camoscio (horn 'hook'), stambecco ('ibex'), addax ('spiral')
+  AN.caprine = (o = {}) => {
+    const b = mk(), s = o.s || .62, col = o.col || '#6a4a30', C = new (T().Color)(col), F = o.face ? new (T().Color)(o.face) : null;
+    const cf = (x, y, z, c) => { c.copy(C); if (F && x > 1.25 * s && y > 2.4 * s) c.lerp(F, .8); };
+    b.add(G.loft([[-1.0, 1.8, 0, .38, .32], [-.3, 1.85, 0, .45, .38], [.5, 1.95, 0, .45, .38], [.75, 2.1, 0, .3, .27], [1.0, 2.45, 0, .2, .18], [1.15, 2.65, 0, .16, .13], [1.42, 2.55, 0, .12, .1], [1.58, 2.45, 0, .07, .07]].map(p => [p[0] * s, p[1] * s, 0, p[3] * s, p[4] * s]), 10), cf, {belly: o.bel || '#d8c8a8'});
+    for (const z of [-1, 1]) {
+      const hx = 1.15 * s, hy = 2.8 * s, hz = z * .07 * s, hc = o.hcol || '#2a2420';
+      if (o.horn === 'hook') b.add(G.loft([[hx, hy, hz, .025 * s], [hx - .02 * s, hy + .3 * s, hz, .02 * s], [hx - .12 * s, hy + .38 * s, hz, .012 * s]], 5, true), hc);
+      else if (o.horn === 'ibex') b.add(G.loft([[hx, hy, hz, .07 * s], [hx - .3 * s, hy + .55 * s, hz * 1.5, .05 * s], [hx - .8 * s, hy + .6 * s, hz * 2, .03 * s], [hx - 1.1 * s, hy + .3 * s, hz * 2.2, .015 * s]], 6, true), (x, y, zz, c) => c.set('#8a7a60').multiplyScalar(Math.sin(y * 40) > .6 ? .75 : 1));
+      else if (o.horn === 'spiral') { const P = []; for (let i = 0; i <= 10; i++) { const t = i / 10; P.push([hx - t * .5 * s, hy + t * .75 * s, hz + z * (.05 + .1 * Math.sin(t * 9)) * s, (.035 - t * .025) * s]); } b.add(G.loft(P, 5, true), '#d8ccb0'); }
+    }
+    for (const z of [-1, 1]) b.add(G.tr(G.cone(.04 * s, .14 * s, 4).rotateZ(-.9), 1.1 * s, 2.72 * s, z * .1 * s), col);
+    eyes(b, 1.36 * s, 2.62 * s, .1 * s, .018 * s);
+    legs4(b, .52 * s, -.85 * s, .18 * s, .18 * s, 1.35 * s, 1.42 * s, .09 * s, .12 * s, col, {f: {kn: -.03 * s, an: .02 * s, ft: .05 * s}, h: {kn: .16 * s, an: -.16 * s, ft: .05 * s}});
+    return b.geo({ao: .8, aoH: .35});
+  };
+  AN.orca = (L = 6) => AN.fish({L, h: L * .2, w: L * .17, tail: 'fork', dorsal: true, pect: 1.1, col: '#121416',
+    cf: (x, y, z, c) => { c.set('#121416'); if (y < -.25 * L * .2) c.set('#f0f0ee'); else if (x > .28 * L && x < .4 * L && y > 0 && Math.abs(z) > .1 * L * .17) c.set('#f0f0ee'); },
+    extra: (b, LL, h) => b.add(G.shape([[-.06 * LL, 0], [0, 1.4 * h], [.08 * LL, 0]]).translate(0, .4 * h, 0), '#121416')});
+  PL.datePalm = (h = 10) => PL.palm(h, '#5a8a3a', '#8a7050', 14);
+  PL.beech = (h = 18) => PL.broadleaf(h, '#4a7a32', '#8a8a80', {w: .3, blobs: 8});
+  PL.floe = (r = 3) => { const g = G.cyl(r, r * .95, .5, 9); return mk().add(G.organic(g, r * .12, 1 / r), (x, y, z, c) => c.set(y > .4 ? '#f4f8fb' : '#a8d0e0')).geo({}); };
+
+  E({id: 'eco-artico', name: 'Il mare Artico', place: 'Banchisa delle Svalbard (Norvegia)', lat: 78.2, lon: 15.6, color: '#8ac8e8',
+    intro: 'Estate artica: il sole non tramonta mai e la banchisa si rompe in lastre di ghiaccio che galleggiano sul mare. Un orso polare cammina sul ghiaccio, i trichechi riposano sui lastroni, nell’acqua passano le orche.',
+    facts: [
+      ['L’orso polare', 'È il più grande carnivoro terrestre. Caccia le foche aspettandole ai buchi nel ghiaccio: senza banchisa non può nutrirsi. È «Vulnerabile» perché il ghiaccio marino estivo si riduce con il riscaldamento globale.', 'orso-polare'],
+      ['Il ghiaccio che scompare', 'Dal 1979 i satelliti misurano la banchisa artica: alla fine dell’estate la sua estensione si riduce in media di circa il 12–13% ogni dieci anni. L’Artico si scalda circa quattro volte più in fretta del resto del pianeta.'],
+      ['Il tricheco', 'Usa le zanne, che sono canini lunghissimi, per tirarsi fuori dall’acqua e per farsi spazio nel gruppo. Si nutre di molluschi del fondale, che trova con i baffi sensibilissimi. È «Vulnerabile».', 'tricheco'],
+      ['La foca dal cappuccio', 'Il maschio gonfia una specie di palloncino rosso dal naso per farsi notare. I piccoli vengono allattati per soli quattro giorni, il periodo più breve tra i mammiferi. Nel 2025 è stata dichiarata «In pericolo».', 'foca-cappuccio'],
+      ['La civetta delle nevi', 'È bianca per mimetizzarsi sulla neve e caccia anche di giorno, perché d’estate al Polo il sole non tramonta. La sua popolazione è diminuita molto: è «Vulnerabile».', 'civetta-nevi'],
+      ['L’orca', 'Il più grande dei delfini vive in gruppi familiari guidati dalle femmine più anziane. Ogni gruppo ha un suo «dialetto» di richiami e tecniche di caccia insegnate ai giovani. Con meno ghiaccio, le orche arrivano sempre più a nord.', 'orca']]});
+  E({id: 'eco-appennino', name: 'La faggeta dell’Appennino', place: 'Parco Nazionale d’Abruzzo, Lazio e Molise (Italia)', lat: 41.8, lon: 13.8, color: '#6aa040',
+    intro: 'Un bosco di faggi secolari con una radura, un ruscello e le cime dell’Appennino sullo sfondo. Qui vivono l’orso bruno marsicano, il lupo appenninico e il camoscio appenninico, tre animali che esistono solo in Italia o quasi.',
+    facts: [
+      ['L’orso bruno marsicano', 'Vive solo nell’Appennino centrale ed è una popolazione unica al mondo, separata dagli altri orsi da migliaia di anni. Ne restano circa 50–60: ogni orso conta. Mangia soprattutto frutti, ghiande, faggiola e insetti.', 'orso-marsicano'],
+      ['Il lupo appenninico', 'Negli anni ’70 in Italia restavano circa cento lupi. Grazie alla protezione oggi sono oltre 3000 (stima ISPRA 2022) e sono tornati anche sulle Alpi. Il lupo regola il numero di cervi e cinghiali.', 'lupo'],
+      ['Il camoscio appenninico', 'Negli anni ’20 ne sopravvivevano una trentina, proprio in questo parco. Con la protezione e le reintroduzioni oggi sono alcune migliaia. Ha un disegno bianco e nero sul collo diverso da quello del camoscio delle Alpi.', 'camoscio-appenninico'],
+      ['Le faggete vetuste', 'Alcuni faggi di queste valli hanno più di 500 anni: sono tra i più antichi d’Europa. Nel 2017 l’UNESCO le ha dichiarate Patrimonio dell’Umanità insieme ad altre antiche faggete europee.'],
+      ['L’aquila reale', 'Con un’apertura alare che supera i 2 metri caccia lepri, marmotte e giovani camosci. Costruisce il nido sulle pareti di roccia e lo usa per molti anni.', 'aquila-reale'],
+      ['Un parco storico', 'Il Parco Nazionale d’Abruzzo è nato nel 1923, tra i primi d’Italia, proprio per salvare l’orso e il camoscio. Oggi è un esempio di convivenza tra natura e paesi di montagna.']]});
+  E({id: 'eco-sahara', name: 'Il deserto del Sahara', place: 'Dune e oasi del Sahara (Algeria)', lat: 24.5, lon: 9.5, color: '#e0a050',
+    intro: 'Dune di sabbia, rocce scolpite dal vento e un’oasi con palme da dattero. Di giorno fa caldissimo, di notte freddo. Qui vivono animali capaci di resistere a lungo senza bere.',
+    facts: [
+      ['Il deserto caldo più grande', 'Il Sahara copre circa 9 milioni di km², quasi quanto gli Stati Uniti. Solo una piccola parte è fatta di dune: il resto sono pianure di sassi, altipiani e montagne. In certi punti non piove per anni.'],
+      ['Il Sahara era verde', 'Tra circa 14 500 e 5000 anni fa il Sahara era coperto di savane, laghi e fiumi, con ippopotami, coccodrilli e giraffe. Lo raccontano i fossili e le pitture rupestri del Tassili. Guardalo sul globo: il deserto diventa verde!'],
+      ['L’addax', 'È l’antilope del deserto più adatta alla sabbia: zoccoli larghi, pelo chiaro, e può vivere quasi senza bere. A causa della caccia ne restano meno di cento in natura: è «In pericolo critico».'],
+      ['Il fennec', 'È la volpe più piccola del mondo. Le grandi orecchie disperdono il calore e gli permettono di sentire gli insetti sotto la sabbia. Esce di notte, quando fa fresco.'],
+      ['Il dromedario', 'Non esiste più allo stato selvatico: è stato addomesticato in Arabia circa 3000 anni fa. La gobba contiene grasso, non acqua; può perdere un quarto del suo peso in acqua e recuperarlo bevendo oltre 100 litri in pochi minuti.'],
+      ['Il ghepardo sahariano', 'È una sottospecie chiara e snella del ghepardo, che caccia di notte. Ne restano forse 250 adulti, sparsi su un territorio immenso: è tra i grandi felini più rari della Terra. Il ghepardo come specie è «Vulnerabile».', 'ghepardo']]});
+
+  LAND['eco-artico'] = (k) => {
+    const fl = (x, z) => fbm(x * .035 + 5, z * .035 - 3, 3);
+    const H = (x, z) => { const d = dist(x, z); let h = fl(x, z) > .58 || d < 20 ? .45 + fbm(x * .2, z * .2, 2) * .15 : -3; if (d < 20) h = Math.max(h, .45); return h + smooth(120, 170, d) * 25 * fbm(x * .02, z * .02, 3); };
+    k.H = H;
+    const ice = (x, z) => H(x, z) > .3;
+    k.sky({top: '#7aa8d0', hor: '#e8eef2', fog: [70, 420], sunDir: [.6, .25, -.5], sunSize: .7, glow: 1.1});
+    k.lights({sky: '#e0ecf4', ground: '#c8d8e0', hemi: 1.15, sun: '#fff4e4', sunI: 1.2, dir: [.6, .25, -.5]});
+    k.clouds(14, 60, 110, {op: .7});
+    k.terrain(H, (x, y, z, s, c) => { c.set('#f2f6f9'); c.lerp(C_('#d0e2ec'), smooth(.45, .7, fbm(x * .2, z * .2, 2)) * .6); if (y < .2) c.set('#5a7a8a'); if (y > 3) c.set(s > .35 ? '#6a6a6a' : '#eef2f4'); });
+    k.water(0, '#24485a', .85, 900);
+    k.plant(PL.floe(3), ringList(k, NQ(k, 40), 25, 90, (x, z) => H(x, z) < 0 ? {x, z, y: -.3, s: rr(.4, 1.4), r: rr(0, TAU)} : null), smat(k), {shadow: false});
+    k.herd(AN.bear({col: '#eee8d8', polar: true, bel: '#e8e0cc'}), amat(k, {leg: .35, sp: walkSp(.8, .95)}), [{path: k.circ(-6, -14, 7, .07, 0), s: 1.4}]);
+    k.herd(AN.pinniped({tusks: true, col: '#9a7462', bel: '#b08a78'}), amat(k, {wave: .03, k: 0, sp: .3}), [[10, -12, 2], [12.5, -14, 1.2], [9, -16, 2.6]].map(([x, z, r]) => ({path: k.stay(x, z, r), s: rr(1, 1.2)})));
+    k.herd(AN.pinniped({col: '#7a8088', bel: '#c0c4c4'}), amat(k, {wave: .03, k: 0, sp: .3}), [[-15, 2, .5], [17, 4, 2.4]].map(([x, z, r]) => ({path: k.stay(x, z, r), s: .7})));
+    k.herd(AN.canid({col: '#f0f0ee', ear: .05, bel: '#ffffff'}), amat(k, {leg: .4, sp: walkSp(1, .6)}), [{path: k.circ(4, 8, 5, -.12, 2), s: .6}]);
+    k.herd(AN.orca(6), amat(k, {wave: .06, k: 1, sp: 2}, true), [0, 1, 2].map(i => ({path: t => { const a = t * .05 + i * .25; return [Math.cos(a) * 36, -.6 + Math.sin(t * .9 + i * 2) * .7, Math.sin(a) * 36 - 10]; }})), {pitch: .6});
+    k.herd(AN.bird(1.3, '#f6f6f2'), amat(k, {flap: .5, sp: 3}, true), [{path: k.circ(0, -10, 16, .12, 0, 12, 2), roll: -.3}]);
+    k.herd(AN.bird(.6, '#e0e0e0'), amat(k, {flap: 1, sp: 8}, true), Array.from({length: NQ(k, 8)}, (_, i) => ({path: k.circ(rr(-20, 20), rr(-30, 0), rr(8, 20), (i % 2 ? 1 : -1) * rr(.3, .4), rr(0, TAU), rr(6, 14), 1), roll: (i % 2 ? -1 : 1) * .3})), {shadow: false});
+    return {H, spawn: [0, 6, 0], inside: (x, z) => dist(x, z) < 60 && ice(x, z), signOk: ice, exp: .85, envI: .9};
+  };
+
+  LAND['eco-appennino'] = (k) => {
+    const zc = x => 14;
+    const H = (x, z) => .5 + fbm(x * .03, z * .03, 3) * 2 + smooth(-40, -110, z) * (25 + fbm(x * .02, z * .02, 3) * 35) - smooth(2.2, .8, Math.abs(z - zc(x))) * .6 + farHills(x, z, 14, 90, 150);
+    k.H = H;
+    const clear = (x, z) => dist(x, z + 6) < 16;
+    k.sky({top: '#4a86d0', hor: '#e2eaee', fog: [60, 380], sunDir: [.4, .7, -.3]});
+    k.lights({sky: '#dce8f2', ground: '#5a6a3a', hemi: 1, sun: '#fff4e2', sunI: 1.3, dir: [.4, .7, -.3]});
+    k.clouds(16, 80, 140, {op: .8});
+    k.terrain(H, (x, y, z, s, c) => { c.set('#5a7a32'); c.lerp(C_('#7a9a42'), smooth(.4, .7, fbm(x * .1, z * .1, 3)) * .6); if (!clear(x, z) && z > -40) c.lerp(C_('#6a5434'), .45); if (y > 18) c.lerp(C_('#8a8478'), smooth(18, 26, y)); if (y > 34) c.lerp(C_('#f2f4f6'), smooth(34, 40, y)); });
+    k.water(.25, '#5a8aa0', .8, 400, 4, 0, 14);
+    const wood = (n, r0, r1, f) => ringList(k, n, r0, r1, (x, z) => !clear(x, z) && H(x, z) < 16 && Math.abs(z - zc(x)) > 2.5 ? f(x, z) : null);
+    k.plant(PL.beech(20), wood(NQ(k, 140), 10, 100, (x, z) => ({x, z, s: rr(.75, 1.25)})), pm(k, .25, .6), {rad: 1.2});
+    k.plant(PL.conifer(16, '#2a4a30'), wood(NQ(k, 30), 30, 110, (x, z) => z < -30 ? {x, z, s: rr(.7, 1.2)} : null), pm(k, .2, .7), {rad: 1});
+    k.plant(PL.tuft(.4, '#6a8a3a', '#a8b860'), ringList(k, NQ(k, 1800), 1, 28, (x, z) => clear(x, z) || k.r() < .3 ? {x, z, s: rr(.6, 1.2)} : null), pm(k, .1, 1.4), {shadow: false});
+    k.plant(PL.fern(.8, '#4a7a34'), wood(NQ(k, 400), 6, 60, (x, z) => ({x, z, s: rr(.6, 1.2)})), pm(k, .1, 1), {shadow: false});
+    k.plant(PL.rock(1, '#8a8680'), ringList(k, NQ(k, 40), 5, 80, (x, z) => ({x, z, s: rr(.3, 1.3), sy: rr(.5, .9)})), smat(k), {rad: .6});
+    k.plant(PL.log(7, .4, '#5a4a3a'), [{x: -9, z: -3, y: H(-9, -3) + .3, r: .7, s: 1}], smat(k));
+    k.herd(AN.bear({col: '#5a3e26'}), amat(k, {leg: .35, sp: walkSp(.6, .95)}), [{path: k.circ(-7, -12, 4, .06, 1), s: 1.15}]);
+    k.herd(AN.canid({col: '#8a7864', bel: '#d8ccb8'}), amat(k, {leg: .4, sp: walkSp(1.1, .63)}), group(k, 3, 10, -16, 6, -.09, {da: .25, dr: 1, s0: 1.2, s1: 1.35}));
+    k.herd(AN.caprine({horn: 'hook', col: '#5a3e2a', face: '#e8dcc8'}), amat(k, {leg: .4, sp: walkSp(.6, .9)}), group(k, 4, -6, -40, 6, .04, {da: .4, dr: 2}));
+    k.herd(AN.deer({col: '#8a5a38', horns: true, s: .9}), amat(k, {leg: .38, sp: walkSp(.6, 1.3)}), group(k, 3, 18, -4, 5, .04, {da: .5, dr: 1.5}));
+    k.herd(AN.bird(2.1, '#4a3424'), amat(k, {flap: .15, sp: 1.2}, true), [{path: k.circ(0, -30, 22, .1, 0, 34, 3), roll: -.35}]);
+    return {H, spawn: [0, 6, 0], inside: (x, z) => dist(x, z) < 70 && H(x, z) < 14 && Math.abs(z - zc(x)) > 1.2, signOk: clear, exp: .9, envI: .75};
+  };
+
+  LAND['eco-sahara'] = (k) => {
+    const OA = [-14, -24, 9];
+    const dune = (x, z) => { const u = x * .05 + Math.sin(z * .03) * 1.5; return Math.pow(Math.abs(Math.sin(u)), 1.8) * 4 * (.5 + fbm(x * .01, z * .01, 2)); };
+    const H = (x, z) => { const d = dist(x - OA[0], z - OA[1]); return .3 + dune(x, z) * smooth(OA[2] + 6, OA[2] + 22, d) * smooth(6, 25, dist(x, z + 4)) + farHills(x, z, 16, 90, 150) - smooth(4, 1, d) * 1.2; };
+    k.H = H;
+    const oasis = (x, z) => dist(x - OA[0], z - OA[1]) < OA[2];
+    k.sky({top: '#3c7ad8', hor: '#f2dcb4', fog: [90, 470], sunDir: [.4, .85, -.2], sunSize: .6, glow: 1.2});
+    k.lights({sky: '#f0e4d0', ground: '#d0a060', hemi: 1, sun: '#fff2dc', sunI: 1.6, dir: [.4, .85, -.2]});
+    k.terrain(H, (x, y, z, s, c) => { c.set('#e0b070'); c.lerp(C_('#d09858'), smooth(.4, .7, fbm(x * .05, z * .05, 3)) * .6); if (oasis(x, z)) c.lerp(C_('#7a7a40'), .7); if (y > 10) c.lerp(C_('#9a6a48'), .6); });
+    k.water(-.6, '#3a7a8a', .85, 7, 7, OA[0], OA[1], {round: true});
+    k.plant(PL.datePalm(10), ringList(k, NQ(k, 20), 3, OA[2], (x, z) => ({x, z, s: rr(.8, 1.2)}), OA[0], OA[1]), pm(k, .2, .8), {rad: .6});
+    k.plant(PL.tuft(.5, '#7a8a3a', '#b0a860'), ringList(k, NQ(k, 300), 2, OA[2] + 1, (x, z) => ({x, z, s: rr(.6, 1.2)}), OA[0], OA[1]), pm(k, .1, 1.4), {shadow: false});
+    k.plant(PL.acacia(5, '#7a8a48'), ringList(k, NQ(k, 8), 20, 80, (x, z) => ({x, z, s: rr(.6, 1)})), pm(k, .15, .7), {rad: .8});
+    k.plant(PL.rock(2.5, '#9a6a48'), ringList(k, NQ(k, 18), 25, 100, (x, z) => ({x, z, s: rr(.5, 2), sy: rr(.6, 1.4)})), smat(k), {rad: 2});
+    k.herd(AN.camel(), amat(k, {leg: .3, sp: walkSp(.7, 1.6)}), group(k, 4, -2, -14, 11, .03, {da: .2, dr: 1}));
+    k.herd(AN.caprine({horn: 'spiral', col: '#e8e0d0', face: '#6a4a30', s: .6}), amat(k, {leg: .4, sp: walkSp(.6, .9)}), group(k, 3, 18, -18, 6, -.04, {da: .5, dr: 1.5}));
+    k.herd(AN.canid({col: '#e8cc98', ear: .16, bel: '#f4e8d0'}), amat(k, {leg: .4, sp: walkSp(1, .4)}), [{path: k.circ(5, -6, 2.5, .15, 0), s: .45}]);
+    k.herd(AN.felid({col: '#e0c48c', spots: true, spot: '#8a6a40'}), amat(k, {leg: .4, sp: walkSp(.8, .74)}), [{path: k.circ(-22, -6, 5, -.07, 1), s: .95}]);
+    k.herd(AN.bird(1.6, '#5a4a3a'), amat(k, {flap: .15, sp: 1.2}, true), [{path: k.circ(-6, -20, 18, .1, 0, 26, 3), roll: -.35}]);
+    return {H, spawn: [0, 6, 0], inside: (x, z) => dist(x, z) < 75 && !oasis(x, z) || (oasis(x, z) && dist(x - OA[0], z - OA[1]) > 4.5), exp: .85, envI: .8};
+  };
+};
+
+/* Vita in Tempore — ambienti naturali del passato, esplorabili in 3D.
    Modulo autonomo: richiede three.js r128 già caricato come window.THREE.
    Espone soltanto window.PaleoEnv = {list, forTime, open}. Tutto è procedurale: niente immagini né file esterni. */
 (function () {
@@ -5580,7 +5966,7 @@ function open(id, cb) {
   injectCSS();
   const root = document.createElement('div'); root.className = 'pe-root'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-labelledby', 'pe-title');
   root.innerHTML = `<canvas class="pe-cv" tabindex="-1" aria-label="Ambiente in 3D: ${esc(E.name)}"></canvas><div class="pe-vig" aria-hidden="true"></div>
-    <div class="pe-top"><div class="pe-head"><div class="pe-eyebrow"><span class="pe-dot" style="background:${E.color}"></span>Ambiente del passato</div><h2 id="pe-title">${esc(E.name)}</h2><div class="pe-sub">${esc(E.era)} · ${esc(E.when || fmtMa(E.ma))}</div></div>
+    <div class="pe-top"><div class="pe-head"><div class="pe-eyebrow"><span class="pe-dot" style="background:${E.color}"></span>${E.now ? 'Ecosistema di oggi' : 'Ambiente del passato'}</div><h2 id="pe-title">${esc(E.name)}</h2><div class="pe-sub">${esc(E.era)} · ${esc(E.when || fmtMa(E.ma))}</div></div>
     <div class="pe-tour" role="group" aria-label="Cartelli Lo sapevi?"><button class="pe-prev" aria-label="Cartello precedente">‹ Precedente</button><span class="pe-step" aria-live="polite"></span><button class="pe-next pe-primary" aria-label="Cartello successivo">Successiva ›</button></div>
     <div class="pe-actions"><button class="pe-exit">Torna al globo</button></div></div>
     <div class="pe-card" hidden aria-live="polite"></div>
@@ -5659,13 +6045,14 @@ function build(E, root, S, close, cb) {
   }
   const nf = new Intl.NumberFormat('it-IT');
   function showIntro() {
-    card.innerHTML = `<div class="pe-eyebrow"><span class="pe-dot" style="background:${E.color}"></span>L'ambiente</div><h3>${esc(E.place)}</h3><p>${esc(E.intro)}</p><p class="pe-meta">${esc(E.era)} · da ${esc(fmtMa(E.from).replace('circa ', ''))} a ${esc(fmtMa(E.to).replace('circa ', ''))}${L.note ? ' · ' + esc(L.note) : ''}</p><div class="pe-cardbtns"><button class="pe-go">Vedi sul globo</button><button class="pe-x">Chiudi</button></div>`;
+    card.innerHTML = `<div class="pe-eyebrow"><span class="pe-dot" style="background:${E.color}"></span>L'ambiente</div><h3>${esc(E.place)}</h3><p>${esc(E.intro)}</p><p class="pe-meta">${E.now ? esc(E.era) : `${esc(E.era)} · da ${esc(fmtMa(E.from).replace('circa ', ''))} a ${esc(fmtMa(E.to).replace('circa ', ''))}`}${L.note ? ' · ' + esc(L.note) : ''}</p><div class="pe-cardbtns"><button class="pe-go">Vedi sul globo</button><button class="pe-x">Chiudi</button></div>`;
     card.hidden = false; bindCard();
   }
   function showCard(s) {
     if (!s) { card.hidden = true; return; }
-    card.innerHTML = `<div class="pe-eyebrow"><span class="pe-dot" style="background:${E.color}"></span>Lo sapevi? · ${s.i + 1} di ${n}</div><h3>${esc(s.fact[0])}</h3><p>${esc(s.fact[1])}</p><div class="pe-cardbtns"><button class="pe-go">Vedi sul globo</button><button class="pe-x">Chiudi</button></div>`;
+    card.innerHTML = `<div class="pe-eyebrow"><span class="pe-dot" style="background:${E.color}"></span>Lo sapevi? · ${s.i + 1} di ${n}</div><h3>${esc(s.fact[0])}</h3><p>${esc(s.fact[1])}</p><div class="pe-cardbtns">${s.fact[2] && cb.onSpecies ? '<button class="pe-sp">Scheda della specie</button>' : ''}<button class="pe-go">Vedi sul globo</button><button class="pe-x">Chiudi</button></div>`;
     card.hidden = false; bindCard();
+    const spb = card.querySelector('.pe-sp'); if (spb) spb.onclick = () => { const id = s.fact[2]; close(); cb.onSpecies(id); };
   }
   function bindCard() {
     card.querySelector('.pe-go').onclick = () => { const lat = E.lat, lon = E.lon, ma = E.ma; close(); if (cb.onShowOnMap) cb.onShowOnMap(lat, lon, ma); };
@@ -5743,7 +6130,12 @@ function forTime(ma) {
   let best = null, bd = 1e9; for (const e of ENVS) { const d = ma > e.from ? lg(ma) - lg(e.from) : lg(e.to) - lg(ma); if (d < bd) { bd = d; best = e; } }
   return best ? [pub(best)] : [];
 }
-const pub = e => ({id: e.id, name: e.name, place: e.place, from: e.from, to: e.to, intro: e.intro, color: e.color, lat: e.lat, lon: e.lon, ma: e.ma, era: e.era});
+const pub = e => ({id: e.id, name: e.name, place: e.place, from: e.from, to: e.to, intro: e.intro, color: e.color, lat: e.lat, lon: e.lon, ma: e.ma, era: e.era, when: e.when, now: !!e.now});
+// ecosistemi di oggi (src/ecosistemi.js): aggiungono ambienti e modelli con gli stessi attrezzi
+if (window.PaleoEcosistemi) try {
+  window.PaleoEcosistemi({ENVS, LAND, PL, AN, G, mk, cat, aim, along, S, banded, mottled, shag, tailW, eyes, leg, legs4, frond, serr, T3: () => T3,
+    rng, rr, fbm, ridge, vnoise, smooth, lerp, clamp01, dist, PI, TAU, C_, NQ, pm, amat, smat, sea, ringList, group, walkSp, farHills, mkc});
+} catch (e) { console.error('Ecosistemi non caricati', e); }
 window.PaleoEnv = {list: ENVS.map(pub), forTime, open};
 })();
 </script>
@@ -5765,6 +6157,16 @@ window.Cerca = (() => {
   const CONT = {AFRICA: "Africa", ANTARCTICA: "Antartide", ASIA: "Asia", EUROPE: "Europa", NORTH_AMERICA: "Nord America", OCEANIA: "Oceania", SOUTH_AMERICA: "Sud America"};
   const CONT_LL = {AFRICA: [20, 5], ANTARCTICA: [0, -80], ASIA: [95, 35], EUROPE: [15, 50], NORTH_AMERICA: [-100, 45], OCEANIA: [140, -20], SOUTH_AMERICA: [-60, -15]};
   const IUCN = {EX: ["Estinta", "#000000"], EW: ["Estinta in natura", "#542344"], CR: ["In pericolo critico", "#d81e05"], EN: ["In pericolo", "#fc7f3f"], VU: ["Vulnerabile", "#f9e814"], NT: ["Quasi minacciata", "#cce226"], LC: ["Minor preoccupazione", "#60c659"], DD: ["Dati insufficienti", "#d1d1c6"]};
+  /* ---------- immagini adatte alla scuola ----------
+     Alcune voci di Wikipedia mostrano persone nude (per esempio la voce italiana «Homo sapiens»).
+     SAFE sostituisce l'immagine per nome scientifico; badImg scarta i file con nomi o didascalie che indicano nudità. */
+  const C = "https://upload.wikimedia.org/wikipedia/commons/thumb/";
+  const SAFE = {
+    "Homo sapiens": {img: C + "6/68/Akha_cropped_hires.JPG/500px-Akha_cropped_hires.JPG", thumb: C + "6/68/Akha_cropped_hires.JPG/330px-Akha_cropped_hires.JPG", url: "https://commons.wikimedia.org/wiki/File:Akha_cropped_hires.JPG", lang: "commons", cap: "Una coppia akha nel nord della Thailandia"}
+  };
+  const BAD = /FKK|nudis|naturis|nudit|nudes?\b|\bnud[aeio]\b|_nud[aeio][_.]|naked|nackt|desnud|topless|genital|penis|vulva|pubic|erotic/i;
+  const badImg = s => !!s && BAD.test(decodeURIComponent(String(s)));
+  const safeImg = name => SAFE[name] || null;
   const nf = (v, d) => new Intl.NumberFormat("it-IT", {maximumFractionDigits: d, minimumFractionDigits: 0}).format(v);
   const fmtMa = ma => ma >= 1000 ? nf(ma / 1000, 2) + " miliardi di anni fa" : ma >= 1 ? nf(ma, ma >= 100 ? 0 : ma >= 10 ? 1 : 2) + " milioni di anni fa" : ma > 0.0117 ? nf(Math.round(ma * 1e6 / 1000) * 1000, 0) + " anni fa" : ma > 0 ? nf(Math.round(ma * 1e6 / 100) * 100, 0) + " anni fa" : "oggi";
 
@@ -5871,7 +6273,8 @@ window.Cerca = (() => {
       (async () => (r.wikiIt && await wikiSum(r.wikiIt, "it")) || await wikiSum(canon, "it") || (r.wikiEn && await wikiSum(r.wikiEn, "en")) || await wikiSum(canon, "en"))()
     ]);
     let img = wp;
-    if (wp && !wp.img) { const en = await wikiSum(r.wikiEn || canon, "en"); if (en && en.img) img = en; }
+    if (wp && (!wp.img || badImg(wp.img))) { const en = await wikiSum(r.wikiEn || canon, "en"); img = en && en.img && !badImg(en.img) ? en : null; }
+    if (SAFE[canon]) img = SAFE[canon];
     const cont = occ && occ.facets && occ.facets[0] ? occ.facets[0].counts.map(c => ({k: c.name, n: c.count})) : [];
     return {
       sci: canon, author: sp && sp.authorship, label: r.label && r.label !== canon ? r.label : (wp && wp.lang === "it" && wp.title.toLowerCase() !== canon.toLowerCase() ? wp.title : null),
@@ -5957,7 +6360,7 @@ window.Cerca = (() => {
     container.innerHTML = `<div class="cerca"><label class="sr" for="cercaIn">Cerca una specie o un genere</label><input id="cercaIn" type="search" autocomplete="off" spellcheck="false" placeholder="Cerca una specie o un genere (es. lupo, Quercus)…" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cercaList"><ul id="cercaList" role="listbox" hidden></ul><p class="hint">Qualsiasi essere vivente o estinto: nome italiano o scientifico.</p></div>`;
     attach({input: container.querySelector("input"), list: container.querySelector("ul"), local: o.local, onPick: o.onPick});
   }
-  return {attach, mountUI, info, cardHtml, firstAppearance, contCenter, IUCN, CONT};
+  return {attach, mountUI, info, cardHtml, firstAppearance, contCenter, IUCN, CONT, safeImg, badImg};
 })();
 
 (() => {
@@ -6215,12 +6618,14 @@ async function wikiSum(title, lang) {
       const thumb = j.thumbnail && j.thumbnail.source;
       let img = thumb;
       if (img && /\/\d+px-/.test(img) && j.originalimage && j.originalimage.width > 500) img = img.replace(/\/\d+px-/, "/500px-");
+      if (window.Cerca && window.Cerca.badImg(thumb)) return {title: j.title, img: null, thumb: null, extract: j.extract, url: j.content_urls && j.content_urls.desktop && j.content_urls.desktop.page, lang};
       return {title: j.title, img, thumb, full: j.originalimage && j.originalimage.source, extract: j.extract, url: j.content_urls && j.content_urls.desktop && j.content_urls.desktop.page, lang};
     } catch (e) { return null; }
   })();
   WCACHE[key] = p; return p;
 }
-async function wikiBest(it, en) {
+async function wikiBest(it, en, sci) {
+  const sf = sci && window.Cerca && window.Cerca.safeImg(sci); if (sf) return Object.assign({title: sci}, sf);
   const a = it ? await wikiSum(it, "it") : null;
   if (a && a.img) return a;
   const b = en ? await wikiSum(en, "en") : null;
@@ -6932,7 +7337,7 @@ function showTaxon(x, site) {
   $("selBox").querySelectorAll("[data-site]").forEach(b => b.onclick = () => { const p = x.sitesP[+b.dataset.site]; state.sel.mark = {ll: () => paleo(p.lon, p.lat, state.t)}; flyToPresent(p.lon, p.lat, Math.max(Z, 2.2)); });
   const gw = $("goWhen"); if (gw) gw.onclick = () => { if (state.sc && ((x.from + x.to) / 2 > state.sc.from || (x.from + x.to) / 2 < state.sc.to)) exitScenario(); setTime((x.from + x.to) / 2); showTaxon(x, s); };
   if (s) flyToPresent(s.lon, s.lat, Math.max(Z, 1.8));
-  wikiBest(x.wiki, x.wikiEn).then(w => fillImg(id, w, x.common || x.name));
+  wikiBest(x.wiki, x.wikiEn, x.name).then(w => fillImg(id, w, x.common || x.name));
 }
 function showFossil(gk, e, s) {
   const g = G(gk), st = STG[s], ce = FCELL[e[0]];
@@ -7257,7 +7662,9 @@ function openEnv(id) {
   try {
     window.PaleoEnv.open(id, {
       onExit: () => { resize(); },
-      onShowOnMap: (lat, lon, ma) => { if (ma != null) { if (state.sc && (ma > state.sc.from || ma < state.sc.to)) exitScenario(); setTime(ma); } flyToPresent(lon, lat, 2.4); }
+      onShowOnMap: (lat, lon, ma) => { if (ma != null) { if (state.sc && (ma > state.sc.from || ma < state.sc.to)) exitScenario(); setTime(ma); } flyToPresent(lon, lat, 2.4); },
+      // le schede delle specie di oggi sono nel globo «Sapiens in Tempore»
+      onSpecies: sid => { location.href = "sapiens.html?specie=" + encodeURIComponent(sid); }
     });
   } catch (e) { console.error(e); alert("Questo dispositivo non riesce a mostrare il paesaggio in 3D (serve WebGL)."); }
 }

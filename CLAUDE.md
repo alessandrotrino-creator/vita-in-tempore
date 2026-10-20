@@ -84,6 +84,10 @@ Il gioco deve funzionare bene su PC, smartphone (verticale e orizzontale) e LIM 
 - **Parametri**: `?t=<Ma>`, `?cerca=<nome scientifico>`, `?persona=<id>` (anche `index.html?cerca=`).
 - **Arricchimento**: con `tools/serve.ps1` attivo aprire `http://localhost:8766/tools/arricchisci.html` (`?tutto=1` rifà tutto). Il server accetta `POST /salva/<nome>.json` solo per scrivere in `data/`. Al termine la pagina elenca specie senza immagine/OTT e le differenze tra lo stato IUCN nei file e quello riportato da GBIF: controllarle.
 
+## Ecosistemi di oggi in 3D (`src/ecosistemi.js`)
+Si aggancia a `src/ambienti.js` tramite `window.PaleoEcosistemi`, che riceve gli attrezzi del motore. Gli ambienti hanno `now: true`. Il terzo elemento di un cartello è l'id della specie: apre la scheda nel globo Sapiens (`sapiens.html?specie=` e `?ambiente=`).
+Fatti: savana, Amazzonia, barriera corallina, Artico, Appennino, Sahara. Da fare: taiga, mangrovie, Mediterraneo, Antartide, prateria, oceano aperto. Gli animali vanno messi nel campo visivo iniziale, cioè davanti ai cartelli guardando verso −z.
+
 ## Rigenerare
 
 ```
