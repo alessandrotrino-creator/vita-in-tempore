@@ -6248,7 +6248,9 @@ window.Cerca = (() => {
     try {
       const j = await getJ(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g, "_"))}?redirect=true`);
       if (j.type === "disambiguation") return null;
+      if (/^(Homo sapiens|Human|Humans|Essere umano|Umano)$/i.test(j.title)) return Object.assign({title: j.title, extract: j.extract, url: j.content_urls && j.content_urls.desktop.page, lang}, SAFE["Homo sapiens"]);
       let img = j.thumbnail && j.thumbnail.source;
+      if (badImg(img)) img = null;
       if (img && /\/\d+px-/.test(img) && j.originalimage && j.originalimage.width > 500) img = img.replace(/\/\d+px-/, "/500px-");
       return {title: j.title, img, thumb: j.thumbnail && j.thumbnail.source, extract: j.extract, url: j.content_urls && j.content_urls.desktop.page, lang};
     } catch (e) { return null; }
@@ -6618,6 +6620,7 @@ async function wikiSum(title, lang) {
       const thumb = j.thumbnail && j.thumbnail.source;
       let img = thumb;
       if (img && /\/\d+px-/.test(img) && j.originalimage && j.originalimage.width > 500) img = img.replace(/\/\d+px-/, "/500px-");
+      if (window.Cerca && /^(Homo sapiens|Human|Humans|Essere umano|Umano)$/i.test(j.title)) return Object.assign({title: j.title, extract: j.extract, url: j.content_urls && j.content_urls.desktop && j.content_urls.desktop.page, lang}, window.Cerca.safeImg("Homo sapiens"));
       if (window.Cerca && window.Cerca.badImg(thumb)) return {title: j.title, img: null, thumb: null, extract: j.extract, url: j.content_urls && j.content_urls.desktop && j.content_urls.desktop.page, lang};
       return {title: j.title, img, thumb, full: j.originalimage && j.originalimage.source, extract: j.extract, url: j.content_urls && j.content_urls.desktop && j.content_urls.desktop.page, lang};
     } catch (e) { return null; }
