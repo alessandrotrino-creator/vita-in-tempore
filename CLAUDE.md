@@ -86,7 +86,7 @@ Il gioco deve funzionare bene su PC, smartphone (verticale e orizzontale) e LIM 
 
 ## Ecosistemi di oggi in 3D (`src/ecosistemi.js`)
 Si aggancia a `src/ambienti.js` tramite `window.PaleoEcosistemi`, che riceve gli attrezzi del motore. Gli ambienti hanno `now: true`. Il terzo elemento di un cartello è l'id della specie: apre la scheda nel globo Sapiens (`sapiens.html?specie=` e `?ambiente=`).
-Fatti: savana, Amazzonia, barriera corallina, Artico, Appennino, Sahara. Da fare: taiga, mangrovie, Mediterraneo, Antartide, prateria, oceano aperto. Gli animali vanno messi nel campo visivo iniziale, cioè davanti ai cartelli guardando verso −z.
+Fatti: savana, Amazzonia, barriera corallina, Artico, Appennino, Sahara, taiga dell'Ussuri (Sikhote-Alin), mangrovie delle Sundarbans, Mediterraneo (Egadi, sott'acqua), Antartide (Cape Washington, Mare di Ross), prateria (Tallgrass Prairie Preserve, Oklahoma), oceano aperto (Banco Princesa Alice, Azzorre, sott'acqua). Gli animali vanno messi nel campo visivo iniziale, cioè davanti ai cartelli guardando verso −z, e alberi e rilievi non devono coprirli (lasciare una radura o una fascia libera, come `clear` nella taiga e `view` nelle mangrovie). I colori fatti per vertice non si vedono su modelli con pochi vertici: per le strisce della tigre (`AN.felid({stripes})`) si usano anelli di geometria.
 
 ## Rigenerare
 
