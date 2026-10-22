@@ -6453,7 +6453,56 @@ window.Cerca = (() => {
   const BAD = /FKK|nudis|naturis|nudit|nudes?\b|\bnud[aeio]\b|_nud[aeio][_.]|naked|nackt|desnud|topless|genital|penis|vulva|pubic|erotic/i;
   const badImg = s => !!s && BAD.test(decodeURIComponent(String(s)));
   const safeImg = name => SAFE[name] || null;
-  const nf = (v, d) => new Intl.NumberFormat("it-IT", {maximumFractionDigits: d, minimumFractionDigits: 0}).format(v);
+
+  /* ---------- ricostruzioni di come apparivano le altre specie umane ----------
+     Scelte a mano su Wikimedia Commons (licenze libere), solo teste o figure vestite.
+     Autori: fratelli Kennis (Neanderthal Museum), John Gurche (Smithsonian), Cicero Moraes (approssimazioni facciali forensi pubblicate). */
+  const REC = {
+    "Homo neanderthalensis": [
+      {f: "Neanderthal man reconstruction, Natural History Museum, London.jpg", cap: "Testa di un uomo di Neanderthal, ricostruzione esposta al Natural History Museum di Londra", cr: "Foto Werner Ustorf · CC BY-SA 2.0"},
+      {f: "Homo sapiens neanderthalensis-Mr. N.jpg", cap: "«Mr. N», ricostruzione a grandezza naturale del Neanderthal Museum di Mettmann (Germania), vicino al luogo del primo ritrovamento", cr: "Neanderthal Museum · CC BY-SA 4.0"},
+      {f: "Homo sapiens neanderthalensis-Jäger.jpg", cap: "Cacciatore neanderthaliano vestito di pelli, Neanderthal Museum di Mettmann", cr: "Neanderthal Museum · CC BY-SA 4.0"}],
+    "Homo longi": [
+      {f: "Homo longi - forensic facial approximation.jpg", cap: "Approssimazione facciale del cranio di Harbin («uomo drago»), attribuito ai Denisoviani nel 2025", cr: "Cicero Moraes · CC BY 4.0"},
+      {f: "Homo longi - forensic facial approximation 2.jpg", cap: "Lo stesso volto di profilo: si notano le arcate sopra gli occhi e il viso largo", cr: "Cicero Moraes · CC BY 4.0"}],
+    "Homo floresiensis": [
+      {f: "Homo floresiensis v 2-0.jpg", cap: "Approssimazione facciale dello scheletro LB1 di Liang Bua (versione 2.0), realizzata per la mostra «Facce. I molti volti della storia umana»", cr: "Cicero Moraes e collaboratori · CC BY 4.0"},
+      {f: "Homo floresiensis - facial approximation - color 1.jpg", cap: "Un'altra versione dello stesso volto, ricostruita in 3D a partire dal cranio", cr: "Cicero Moraes · CC BY-SA 4.0"}],
+    "Homo luzonensis": {none: "Non mostriamo ricostruzioni: di questa specie si conoscono solo denti e poche ossa di mani e piedi, nessun cranio. Qualsiasi volto sarebbe inventato."},
+    "Homo erectus": [
+      {f: "Homo.erectus.adult.female.smithsonian.timevanson.flickr.jpg", cap: "Volto di una donna Homo erectus, ricostruzione di John Gurche per lo Smithsonian (Washington)", cr: "Foto Tim Evanson · CC BY-SA 2.0"},
+      {f: "Homo-erectus Turkana-Boy (Ausschnitt) Fundort Nariokotome, Kenia, Rekonstruktion im Neanderthal Museum.jpg", cap: "Il «ragazzo del Turkana» (Kenya, circa 1,5 milioni di anni fa), ricostruzione di Kennis & Kennis per il Neanderthal Museum", cr: "Neanderthal Museum · CC BY-SA 4.0"},
+      {f: "Homo erectus reconstruction, Natural History Museum, London.jpg", cap: "Testa di Homo erectus esposta al Natural History Museum di Londra", cr: "Foto Werner Ustorf · CC BY-SA 2.0"}],
+    "Paranthropus": [
+      {f: "Paranthropus boisei facial reconstruction at the Smithsonian National Museum of Natural History.jpg", cap: "Paranthropus boisei, ricostruzione di John Gurche per lo Smithsonian: notate le guance larghe e la mascella enorme", cr: "Foto Ryan Schwark · CC0"},
+      {f: "Paranthropus boisei - forensic facial reconstruction.png", cap: "Paranthropus boisei, approssimazione facciale basata sulla scansione 3D di un cranio", cr: "Cicero Moraes · CC BY-SA 4.0"}],
+    "Homo habilis": [{f: "Homo habilis - forensic facial reconstruction.png", cap: "Approssimazione facciale di Homo habilis", cr: "Cicero Moraes · CC BY-SA 4.0"}],
+    "Homo heidelbergensis": [{f: "Homo heidelbergensis - forensic facial reconstruction.png", cap: "Dal cranio al volto, passo dopo passo: così si costruisce un'approssimazione facciale (Homo heidelbergensis)", cr: "Cicero Moraes · CC BY-SA 4.0"}],
+    "Homo naledi": [{f: "Homo naledi facial reconstruction.jpg", cap: "Approssimazione facciale di Homo naledi, dai crani della grotta Rising Star (Sudafrica)", cr: "Cicero Moraes e collaboratori · CC BY 4.0"}],
+    "Australopithecus afarensis": [{f: "Lucy - Australopithecus afarensis - forensic facial approximation.jpg", cap: "Approssimazione facciale di Lucy", cr: "Cicero Moraes · CC BY 4.0"}]
+  };
+  REC["Homo sp. (Denisova)"] = REC["Homo longi"];
+  const FP = (f, w) => "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(f) + "?width=" + w;
+  const REC_NOTE = "Sono ricostruzioni, non ritratti. Si parte dal cranio fossile e si aggiungono muscoli e spessori della pelle misurati negli esseri umani e nelle grandi scimmie di oggi: per questo la forma del viso è credibile. Colore di pelle, occhi e capelli, peli, espressione e vestiti sono invece in gran parte ipotesi (per i Neanderthal qualche indizio viene dal DNA). Artisti diversi ottengono volti un po' diversi dallo stesso cranio.";
+  function reconHtml(name) {
+    const r = REC[name]; if (!r) return "";
+    if (r.none) return `<div class="rc"><div class="rc-h">Come poteva apparire?</div><p class="rc-w">${esc(r.none)}</p></div>`;
+    return `<div class="rc"><div class="rc-h">Come poteva apparire: ricostruzioni</div><div class="rc-g">${r.map((m, i) => `<button data-rc="${i}" data-rn="${esc(name)}" title="${esc(m.cap)}" style="background-image:url('${esc(FP(m.f, 330))}')"><span class="sr">${esc(m.cap)}</span></button>`).join("")}</div><p class="rc-w">⚠️ ${esc(REC_NOTE)} Clicca un'immagine per ingrandirla e leggere chi l'ha realizzata.</p></div>`;
+  }
+  let rcCss = false;
+  function bindRecon(box) {
+    if (!rcCss) { rcCss = true; const st = document.createElement("style"); st.textContent = `.rc{margin:10px 0 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px}.rc-h{font-weight:700;font-size:14px}.rc-g{display:flex;gap:6px;overflow-x:auto;margin:6px 0 2px;padding-bottom:4px;scrollbar-width:thin}.rc-g button{flex:none;width:96px;height:112px;border:1px solid var(--line);border-radius:7px;padding:0;background:#0003 center/cover no-repeat;cursor:zoom-in}.rc-w{font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.45}.rc .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.rc-lb{position:fixed;inset:0;z-index:200;background:#000d;display:grid;place-items:center;padding:16px;cursor:zoom-out}.rc-lb figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;max-width:100%;max-height:100%}.rc-lb img{max-width:min(1000px,100%);max-height:calc(100vh - 130px);object-fit:contain;border-radius:6px;background:#222}.rc-lb figcaption{color:#e6e6e6;font-size:13px;text-align:center;max-width:720px;line-height:1.45}.rc-lb a{color:#ffc9a6}
+@media (min-width:1600px) and (min-height:900px){.rc-g button{width:130px;height:150px}.rc-h{font-size:17px}.rc-w{font-size:15px}.rc-lb figcaption{font-size:16px}}`; document.head.appendChild(st); }
+    box.querySelectorAll("[data-rc]").forEach(b => b.onclick = () => {
+      const m = REC[b.dataset.rn][+b.dataset.rc], lb = document.createElement("div"); lb.className = "rc-lb";
+      lb.innerHTML = `<figure><img src="${esc(FP(m.f, 960))}" alt="${esc(m.cap)}"><figcaption>${esc(m.cap)}<br><b>Ricostruzione, non ritratto:</b> forma del viso credibile, colori e capelli ipotetici.<br>${esc(m.cr)} · <a href="https://commons.wikimedia.org/wiki/File:${esc(encodeURIComponent(m.f.replace(/ /g, "_")))}" target="_blank" rel="noopener">fonte e licenza</a></figcaption></figure>`;
+      const close = () => { lb.remove(); document.removeEventListener("keydown", kd); }, kd = e => { if (e.key === "Escape") close(); };
+      lb.addEventListener("click", e => { if (e.target.tagName !== "A") close(); }); document.addEventListener("keydown", kd);
+      document.body.appendChild(lb);
+    });
+  }
+  const nf =(v, d) => new Intl.NumberFormat("it-IT", {maximumFractionDigits: d, minimumFractionDigits: 0}).format(v);
   const fmtMa = ma => ma >= 1000 ? nf(ma / 1000, 2) + " miliardi di anni fa" : ma >= 1 ? nf(ma, ma >= 100 ? 0 : ma >= 10 ? 1 : 2) + " milioni di anni fa" : ma > 0.0117 ? nf(Math.round(ma * 1e6 / 1000) * 1000, 0) + " anni fa" : ma > 0 ? nf(Math.round(ma * 1e6 / 100) * 100, 0) + " anni fa" : "oggi";
 
   /* ---------- suggerimenti mentre si scrive ---------- */
@@ -6648,7 +6697,7 @@ window.Cerca = (() => {
     container.innerHTML = `<div class="cerca"><label class="sr" for="cercaIn">Cerca una specie o un genere</label><input id="cercaIn" type="search" autocomplete="off" spellcheck="false" placeholder="Cerca una specie o un genere (es. lupo, Quercus)…" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cercaList"><ul id="cercaList" role="listbox" hidden></ul><p class="hint">Qualsiasi essere vivente o estinto: nome italiano o scientifico.</p></div>`;
     attach({input: container.querySelector("input"), list: container.querySelector("ul"), local: o.local, onPick: o.onPick});
   }
-  return {attach, mountUI, info, cardHtml, firstAppearance, contCenter, IUCN, CONT, safeImg, badImg};
+  return {attach, mountUI, info, cardHtml, firstAppearance, contCenter, IUCN, CONT, safeImg, badImg, reconHtml, bindRecon};
 })();
 
 (() => {
@@ -7619,11 +7668,13 @@ function showTaxon(x, site) {
     ${imgBlock(id)}
     <dl class="facts">${facts.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("")}</dl>
     <p>${esc(x.text || "")}</p>
+    ${window.Cerca ? window.Cerca.reconHtml(x.name) : ""}
     ${sites ? `<div class="note" style="margin-top:10px">Dove sono stati trovati i fossili (clicca per andarci):</div><ul class="sites">${sites}</ul>` : ""}
     ${linksHtml({wiki: x.wiki, wikiEn: x.wikiEn, ozName: x.name, ott: x.ott, pbdb: x.name})}
     ${x.from >= state.t && x.to <= state.t ? "" : `<div class="links"><button id="goWhen">⏱ Vai a quando viveva</button></div>`}`,
     s ? {ll: () => paleo(s.lon, s.lat, state.t)} : null);
   $("selBox").querySelectorAll("[data-site]").forEach(b => b.onclick = () => { const p = x.sitesP[+b.dataset.site]; state.sel.mark = {ll: () => paleo(p.lon, p.lat, state.t)}; flyToPresent(p.lon, p.lat, Math.max(Z, 2.2)); });
+  if (window.Cerca) window.Cerca.bindRecon($("selBox"));
   const gw = $("goWhen"); if (gw) gw.onclick = () => { if (state.sc && ((x.from + x.to) / 2 > state.sc.from || (x.from + x.to) / 2 < state.sc.to)) exitScenario(); setTime((x.from + x.to) / 2); showTaxon(x, s); };
   if (s) flyToPresent(s.lon, s.lat, Math.max(Z, 1.8));
   wikiBest(x.wiki, x.wikiEn, x.name).then(w => fillImg(id, w, x.common || x.name));

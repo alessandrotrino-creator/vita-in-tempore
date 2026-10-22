@@ -95,6 +95,12 @@ Fatti: savana, Amazzonia, barriera corallina, Artico, Appennino, Sahara, taiga d
 - `k.flush`: erba e piantine basse (`shadow: false` e senza `rad`) arrivano fino a 0,35 × il raggio libero attorno a partenza e cartelli.
 - Risoluzione: `setPixelRatio(min(2, dpr))` anche sui telefoni. Se il computer fatica si scende a 1,25 e poi si tolgono le ombre, ma **mai sotto 1**: sotto 1 l'immagine diventa sgranata (probabile causa dell'effetto «pixellato» sui computer lenti e sulle LIM).
 
+## Ricostruzioni delle altre specie umane (`src/cerca.js`, `REC`)
+Le schede delle specie umane e degli ominini dei due globi mostrano il riquadro «Come poteva apparire: ricostruzioni» (`Cerca.reconHtml(nome scientifico)` + `Cerca.bindRecon(box)`, con un visore proprio). Le immagini sono file di Wikimedia Commons scelti a mano (`Special:FilePath?width=`), con didascalia, autore e licenza, e l'avviso che sono ricostruzioni credibili ma non ritratti veri.
+- Specie con ricostruzioni: Neanderthal, Denisoviani (cranio di Harbin, sia `Homo longi` sia `Homo sp. (Denisova)`), H. floresiensis, H. erectus, Paranthropus, H. habilis, H. heidelbergensis, H. naledi, Lucy. Per H. luzonensis c'è solo una nota (nessun cranio noto).
+- Autori preferiti: fratelli Kennis (Neanderthal Museum), John Gurche (Smithsonian), Cicero Moraes (approssimazioni facciali forensi).
+- **Solo teste o figure vestite**: sono state escluse le ricostruzioni a corpo intero nude (Lucy intera, A. sediba, la donna di Gibilterra). Prima di aggiungere un'immagine guardarla e controllarne la licenza su Commons.
+
 ## Rigenerare
 
 ```
