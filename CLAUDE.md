@@ -88,6 +88,13 @@ Il gioco deve funzionare bene su PC, smartphone (verticale e orizzontale) e LIM 
 Si aggancia a `src/ambienti.js` tramite `window.PaleoEcosistemi`, che riceve gli attrezzi del motore. Gli ambienti hanno `now: true`. Il terzo elemento di un cartello è l'id della specie: apre la scheda nel globo Sapiens (`sapiens.html?specie=` e `?ambiente=`).
 Fatti: savana, Amazzonia, barriera corallina, Artico, Appennino, Sahara, taiga dell'Ussuri (Sikhote-Alin), mangrovie delle Sundarbans, Mediterraneo (Egadi, sott'acqua), Antartide (Cape Washington, Mare di Ross), prateria (Tallgrass Prairie Preserve, Oklahoma), oceano aperto (Banco Princesa Alice, Azzorre, sott'acqua). Gli animali vanno messi nel campo visivo iniziale, cioè davanti ai cartelli guardando verso −z, e alberi e rilievi non devono coprirli (lasciare una radura o una fascia libera, come `clear` nella taiga e `view` nelle mangrovie). I colori fatti per vertice non si vedono su modelli con pochi vertici: per le strisce della tigre (`AN.felid({stripes})`) si usano anelli di geometria.
 
+### Qualità grafica degli ambienti 3D (`src/ambienti.js`)
+- `G.organic` salda i vertici (`G.weld`) prima di deformarli: le normali si mediano e chiome, rocce e cespugli hanno luce morbida, non a faccette. Non tornare a `toNonIndexed` prima di `computeVertexNormals`.
+- `foliage(col)` colora il fogliame più scuro sotto e a chiazze (usato da `conifer`, `broadleaf`, `acacia`, `shrub`); i coni delle conifere hanno 16 lati, le chiome `ico(…, 2)`.
+- Il terreno ha `map: k.groundTex` (chiazze chiare/scure in scala lineare, ripetute 40 volte) oltre al `bumpMap`.
+- `k.flush`: erba e piantine basse (`shadow: false` e senza `rad`) arrivano fino a 0,35 × il raggio libero attorno a partenza e cartelli.
+- Risoluzione: `setPixelRatio(min(2, dpr))` anche sui telefoni. Se il computer fatica si scende a 1,25 e poi si tolgono le ombre, ma **mai sotto 1**: sotto 1 l'immagine diventa sgranata (probabile causa dell'effetto «pixellato» sui computer lenti e sulle LIM).
+
 ## Rigenerare
 
 ```
