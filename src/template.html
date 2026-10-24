@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vita in Tempore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans+SC:wght@500;700&display=swap">
+<style>
+/* Layout: globo a tutto schermo, pannello a destra, linea del tempo in basso */
+:root{
+  --bg:#e8ece9; --panel:#f6f8f6; --ink:#1b2a2a; --muted:#5a6a68; --line:#cfd8d4;
+  --sea:#bcd3dc; --chip:#ffffff; --halo:#f6f8f6e6; --atmo:rgba(110,160,195,.35);
+  --accent:#1f7a5c; --accent-soft:#1f7a5c22; --warn:#a2452f;
+  --f-display:"Alegreya", Georgia, "Times New Roman", serif;
+  --f-body:"Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --f-sc:"Alegreya Sans SC", "Alegreya Sans", system-ui, sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1517; --panel:#131d20; --ink:#e2ebe8; --muted:#94a6a2; --line:#28393b;
+  --sea:#0f2533; --chip:#1a272a; --halo:#131d20d9; --atmo:rgba(90,150,200,.28);
+  --accent:#6fd0a6; --accent-soft:#6fd0a62e; --warn:#f0997e;
+  color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#0e1517; --panel:#131d20; --ink:#e2ebe8; --muted:#94a6a2; --line:#28393b;
+  --sea:#0f2533; --chip:#1a272a; --halo:#131d20d9; --atmo:rgba(90,150,200,.28);
+  --accent:#6fd0a6; --accent-soft:#6fd0a62e; --warn:#f0997e;
+  color-scheme:dark; }
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;overflow:hidden}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+
+#app{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 380px;grid-template-rows:minmax(0,1fr) auto}
+#mapwrap{position:relative;grid-column:1;grid-row:1;overflow:hidden;background:var(--bg);touch-action:none}
+#map{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+#map.dragging{cursor:grabbing}
+#map.hand{cursor:pointer}
+#panel{grid-column:2;grid-row:1/3;background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;padding:16px 18px 28px;display:flex;flex-direction:column;gap:22px;min-width:0}
+#timeline{grid-column:1;grid-row:2;background:var(--panel);border-top:1px solid var(--line);padding:8px 18px 10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+
+/* sovrapposizioni sul globo */
+.brand{position:absolute;left:20px;top:14px;max-width:min(440px,58%);pointer-events:none}
+.wt-mark{display:inline-flex;align-items:center;gap:8px;margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;line-height:1.2;opacity:.8}
+.brand h1{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1.05;margin:0}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.yearbox{position:absolute;left:20px;bottom:14px;display:flex;flex-direction:column;gap:2px;pointer-events:none;max-width:calc(100% - 120px)}
+.yearbox .era{font-family:var(--f-sc);font-weight:700;font-size:13px;letter-spacing:.1em;display:flex;align-items:center;gap:6px;text-shadow:0 0 6px var(--halo)}
+.yearbox .era i{width:10px;height:10px;border-radius:2px;display:inline-block;flex:none}
+.yearbox .yr{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,4.6vw,60px);line-height:1;font-variant-numeric:lining-nums tabular-nums;text-shadow:0 0 12px var(--halo),0 0 3px var(--halo)}
+.yearbox .sub{font-size:14px;color:var(--muted);text-shadow:0 0 6px var(--halo),0 0 2px var(--halo);max-width:520px}
+.yearbox .sub.warn{color:var(--warn);font-weight:500}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;pointer-events:auto}
+.bigbtn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--ink);color:var(--panel);padding:8px 15px 8px 12px;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 2px 10px #0003}
+.bigbtn svg{width:17px;height:17px;fill:currentColor;flex:none}
+.bigbtn:hover{background:var(--accent);color:#fff}
+.bigbtn.alt{background:var(--chip);color:var(--ink);border:1px solid var(--line)}
+.bigbtn.alt:hover{background:var(--accent-soft);color:var(--ink)}
+.layers{position:absolute;right:14px;top:14px;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;max-width:min(520px,62%)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:13px;cursor:pointer;user-select:none;position:relative}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--muted)}
+.chip:has(input:checked){border-color:var(--ink)}
+.chip:has(input:checked) .dot{background:var(--ink);border-color:var(--ink)}
+.chip:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.zoomctl{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--chip)}
+.zoomctl button{width:36px;height:36px;border:0;background:transparent;cursor:pointer;font-size:18px;line-height:1}
+.zoomctl button+button{border-top:1px solid var(--line)}
+.zoomctl button:hover{background:var(--accent-soft)}
+.viewtoggle{position:absolute;right:62px;bottom:14px;display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--chip)}
+.viewtoggle button{border:0;background:transparent;padding:0 12px;height:36px;cursor:pointer;font-size:13px;color:var(--muted)}
+.viewtoggle button+button{border-left:1px solid var(--line)}
+.viewtoggle button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+#tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;max-width:280px;box-shadow:0 4px 18px #0002;z-index:5}
+#tip b{font-family:var(--f-display);font-size:15px;display:block;line-height:1.2}
+#tip span{color:var(--muted);display:block}
+#tip i{font-style:italic}
+#note{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--halo);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--muted);max-width:min(560px,80%);text-align:center;pointer-events:none}
+#loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:18px;color:var(--muted)}
+#scBar{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 14px;box-shadow:0 4px 18px #0002;max-width:calc(100% - 24px);z-index:4}
+#scBar b{font-family:var(--f-display);font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.other-globe{pointer-events:auto;display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;text-decoration:none;color:var(--ink);background:var(--halo);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.other-globe:hover{border-color:var(--accent)}
+.ch-card .ph{width:100%;height:120px;border-radius:7px;background:var(--line) center 25%/cover no-repeat;margin-bottom:6px}
+.only-mob{display:none!important}
+#scBar button{border:0;border-radius:999px;background:var(--ink);color:var(--panel);padding:6px 12px;cursor:pointer;font-size:13px;white-space:nowrap}
+
+/* linea del tempo */
+.tl-row{display:flex;align-items:center;gap:12px}
+.tl-btns{display:flex;gap:6px;flex:none}
+.tl-btns button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--chip);cursor:pointer;display:grid;place-items:center}
+.tl-btns button:hover{border-color:var(--ink)}
+.tl-btns button.play{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.tl-btns svg{width:16px;height:16px;fill:currentColor}
+#track{position:relative;flex:1;min-width:0;height:74px;cursor:pointer;touch-action:none;user-select:none}
+.band{position:absolute;left:0;right:0;height:16px;display:block}
+.band div{position:absolute;top:0;height:100%;font-family:var(--f-sc);font-weight:500;font-size:11.5px;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;color:#1d2622;border-right:1px solid #ffffff55}
+#band1{top:0;border-radius:4px 4px 0 0;overflow:hidden}
+#band2{top:16px;border-radius:0 0 4px 4px;overflow:hidden}
+.rail{position:absolute;left:0;right:0;top:40px;height:4px;background:var(--line);border-radius:2px}
+.fill{position:absolute;left:0;top:40px;height:4px;background:var(--accent);border-radius:2px}
+.evdot{position:absolute;top:48px;width:6px;height:6px;margin-left:-3px;border-radius:50%;opacity:.85}
+.stepdot{position:absolute;top:36px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--panel);border:2px solid var(--accent);cursor:pointer}
+.stepdot.cur{background:var(--accent)}
+.tick{position:absolute;top:56px;transform:translateX(-50%);font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tick.edge-l{transform:none}.tick.edge-r{transform:translateX(-100%)}
+#thumb{position:absolute;top:30px;width:22px;height:26px;margin-left:-11px;cursor:grab;outline:none}
+#thumb::before{content:"";position:absolute;left:10px;top:-30px;width:2px;height:56px;background:var(--accent);opacity:.9}
+#thumb::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--panel);border:3px solid var(--accent);box-sizing:border-box}
+#thumb:focus-visible::after{box-shadow:0 0 0 3px var(--accent-soft)}
+.tl-hint{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:14px;flex-wrap:wrap}
+.speed{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted)}
+.spd{display:flex;align-items:center;border:1px solid var(--line);border-radius:999px;background:var(--chip);overflow:hidden}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* pannello */
+.sec h2{font-family:var(--f-sc);font-weight:700;font-size:13px;letter-spacing:.12em;margin:0 0 10px;color:var(--muted)}
+.sec h3{font-family:var(--f-display);font-size:20px;margin:0;line-height:1.2}
+.chain{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.chain span{font-family:var(--f-sc);font-weight:700;font-size:12px;letter-spacing:.05em;padding:2px 8px;border-radius:4px;color:#1d2622;cursor:pointer}
+.when p{margin:6px 0 0;font-size:14px}
+.note{font-size:13px;color:var(--muted);margin:6px 0 0}
+.evlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.evlist button{display:grid;grid-template-columns:84px 1fr;gap:10px;width:100%;text-align:left;border:0;background:transparent;padding:7px 8px;border-radius:8px;cursor:pointer}
+.evlist button:hover,.evlist button.cur{background:var(--accent-soft)}
+.evlist .y{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:700;font-size:13px;padding-top:2px}
+.evlist .t{font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.2;display:block}
+.evlist .d{font-size:13px;color:var(--muted);display:block;margin-top:2px}
+.cdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
+.taxa{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.taxa button{display:flex;gap:8px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:6px 8px;cursor:pointer;min-width:0}
+.taxa button:hover{border-color:var(--accent)}
+.taxa .em{font-size:20px;line-height:1;flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center}
+.taxa .nm{min-width:0}
+.taxa .nm b{display:block;font-size:13.5px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.taxa .nm i{display:block;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.more{margin-top:6px;border:0;background:transparent;color:var(--accent);cursor:pointer;font-size:13px;padding:2px 0}
+.groups{display:flex;flex-direction:column;gap:3px}
+.groups label{display:grid;grid-template-columns:22px 26px 1fr auto;align-items:center;gap:6px;font-size:14px;padding:3px 6px;border-radius:7px;cursor:pointer}
+.groups label:hover{background:var(--accent-soft)}
+.groups label.empty{opacity:.45}
+.groups input{margin:0;accent-color:var(--accent);width:16px;height:16px}
+.groups .sw{width:14px;height:14px;border-radius:50%}
+.groups .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.grpbtns{display:flex;gap:10px;margin-top:6px;font-size:13px}
+.grpbtns button{border:0;background:transparent;color:var(--accent);cursor:pointer;padding:0}
+.sel{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:var(--bg);position:relative}
+.sel .x{position:absolute;right:6px;top:6px;border:0;background:transparent;cursor:pointer;font-size:20px;color:var(--muted);width:32px;height:32px;border-radius:50%}
+.sel .x:hover{background:var(--accent-soft)}
+.sel .eyebrow{font-family:var(--f-sc);font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--accent);padding-right:30px}
+.sel h3{font-family:var(--f-display);font-size:22px;margin:2px 0 0;line-height:1.15;padding-right:24px}
+.sel .sci{font-style:italic;color:var(--muted);font-size:15px}
+.sel p{margin:8px 0 0;font-size:14.5px}
+.sel .facts{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13.5px;margin-top:8px}
+.sel .facts dt{color:var(--muted)} .sel .facts dd{margin:0}
+.sel .img{margin:10px -4px 0;border-radius:8px;overflow:hidden;background:var(--line);min-height:40px;position:relative}
+.sel .img img{display:block;width:100%;max-height:240px;object-fit:contain;background:#00000014}
+.sel .img .credit{font-size:11px;color:var(--muted);padding:3px 6px;background:var(--panel)}
+.sel .img .wait{padding:12px;font-size:13px;color:var(--muted)}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.links a,.links button{display:inline-flex;align-items:center;gap:5px;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--chip);text-decoration:none;color:var(--ink);cursor:pointer}
+.links a:hover,.links button:hover{border-color:var(--accent)}
+.gen{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.gen li{display:flex;justify-content:space-between;gap:8px;font-size:14px;align-items:baseline}
+.gen li i{font-weight:500}
+.gen li span{display:flex;gap:8px;font-size:12.5px;flex:none}
+.sites{list-style:none;margin:6px 0 0;padding:0;font-size:13.5px}
+.sites button{border:0;background:transparent;color:var(--accent);cursor:pointer;padding:2px 0;text-align:left}
+.steps{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+.steps button{display:grid;grid-template-columns:24px 1fr;gap:8px;width:100%;text-align:left;border:0;background:transparent;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:14px}
+.steps button:hover,.steps button.cur{background:var(--accent-soft)}
+.steps .k{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.stepnav{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
+.stepnav button{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:7px 14px;cursor:pointer;font-size:14px}
+.stepnav button.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.facts.box{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px;margin:10px 0 0;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r)}
+.facts.box dt{color:var(--muted)} .facts.box dd{margin:0}
+#track.narrow .tick:not(.key){display:none}
+.leg{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.leg div{display:flex;align-items:center;gap:8px}
+.tol{display:flex;flex-direction:column;gap:8px}
+.tol a{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:var(--bg)}
+.tol a:hover{border-color:var(--accent)}
+.tol a b{font-family:var(--f-display);font-size:16px;display:block}
+.tol a span{font-size:13px;color:var(--muted)}
+details summary{cursor:pointer;font-family:var(--f-sc);font-weight:700;font-size:13px;letter-spacing:.12em;color:var(--muted)}
+details p, details li{font-size:13px;color:var(--muted)}
+details ul{padding-left:18px;margin:8px 0}
+
+/* finestre di scelta (scenari, ambienti) */
+.chooser{position:fixed;inset:0;z-index:90;background:#0b111588;display:grid;place-items:center;padding:16px}
+.ch-panel{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:14px;width:min(1040px,100%);max-height:calc(100% - 20px);overflow:auto;padding:20px 22px 24px;box-shadow:0 20px 60px #0005}
+.ch-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.ch-head h2{font-family:var(--f-display);font-size:28px;margin:2px 0 4px}
+.ch-head p{margin:0;color:var(--muted);font-size:14px;max-width:66ch}
+.ch-eyebrow{font-family:var(--f-sc);font-weight:700;font-size:12px;letter-spacing:.14em;color:var(--accent)}
+.ch-close{border:0;background:transparent;font-size:28px;line-height:1;cursor:pointer;color:var(--muted);width:40px;height:40px;border-radius:50%;flex:none}
+.ch-close:hover{background:var(--accent-soft)}
+.ch-list section{margin-top:18px}
+.ch-list h3{font-family:var(--f-sc);font-weight:700;font-size:13px;letter-spacing:.12em;color:var(--muted);margin:0 0 8px}
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.ch-card{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:12px 14px 14px;cursor:pointer;font:inherit;min-width:0}
+.ch-card:hover{border-color:var(--cc)}
+.ch-sw{width:100%;height:6px;border-radius:3px;background:var(--cc);margin-bottom:6px}
+.ch-name{font-family:var(--f-display);font-weight:700;font-size:18px;line-height:1.2}
+.ch-when{font-size:12px;color:var(--muted)}
+.ch-intro{font-size:13px;opacity:.88;margin-top:4px}
+
+@media (max-width: 860px){
+  body{overflow:auto}
+  #app{display:flex;flex-direction:column;height:auto;min-height:100%}
+  #mapwrap{height:clamp(380px, calc(100vw + 140px), 70vh);flex:none}
+  #timeline{position:sticky;bottom:0;z-index:10;padding:6px 10px calc(8px + env(safe-area-inset-bottom,0px))}
+  #panel{border-left:0;border-top:1px solid var(--line);overflow:visible;padding:16px 14px 30px}
+  .brand{left:14px;top:10px;max-width:62%}
+  .brand h1{font-size:21px}.brand p{display:none}.wt-mark{font-size:10px;margin-bottom:3px}
+  .layers{left:12px;right:0;top:auto;bottom:auto;top:62px;max-width:none;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding-right:12px;scrollbar-width:none}
+  .layers::-webkit-scrollbar{display:none}
+  .chip{flex:none;padding:3px 8px;font-size:12px}
+  .yearbox{left:14px;bottom:10px;max-width:calc(100% - 70px)}
+  .yearbox .yr{font-size:27px}
+  .actions{flex-wrap:nowrap}
+  .actions .long{display:none}
+  .brand .other-globe{display:none}.only-mob{display:inline-flex!important;align-self:flex-start}.hide-mob{display:none}
+  .yearbox .sub{display:none;font-size:12px}
+  .yearbox .sub.warn{display:block}
+  .bigbtn{padding:6px 11px 6px 9px;font-size:13px}
+  .zoomctl{bottom:10px;right:10px}
+  .zoomctl button{width:34px;height:34px}
+  .viewtoggle{right:10px;bottom:auto;top:100px}
+  .viewtoggle button{height:30px;padding:0 9px;font-size:12px}
+  #note{top:auto;bottom:118px;font-size:11.5px}
+  .tl-row{gap:8px}
+  .tl-btns button{width:34px;height:34px}
+  .speed>span{display:none}
+  .band div{font-size:0}
+  .tick:not(.key){display:none}
+  .tl-hint{display:none}
+  #scBar{display:none!important}
+}
+/* telefono in orizzontale: globo e pannello affiancati, linea del tempo compatta */
+@media (orientation: landscape) and (max-height: 520px){
+  body{overflow:hidden}
+  #app{display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr) auto;height:100%}
+  #mapwrap{height:auto}
+  #panel{grid-column:2;grid-row:1/3;border-top:0;border-left:1px solid var(--line);overflow-y:auto;padding:10px 12px 20px;gap:16px}
+  #timeline{position:static;padding:4px 10px calc(4px + env(safe-area-inset-bottom,0px))}
+  #track{height:58px}
+  .band{height:12px}#band2{top:12px}
+  .rail,.fill{top:30px}.stepdot{top:26px}.evdot{top:37px}.tick{top:42px;font-size:11px}#thumb{top:20px}
+  .brand p,.wt-mark{display:none}.brand h1{font-size:18px}
+  .layers{top:40px}
+  .yearbox .yr{font-size:28px}
+  .actions .bigbtn span{display:none}
+  .viewtoggle{top:auto;bottom:10px;right:56px}
+  #note{display:none}
+}
+/* LIM: tutto più grande */
+@media (min-width: 1600px) and (min-height: 900px){
+  body{font-size:17px}
+  #app{grid-template-columns:minmax(0,1fr) 460px}
+  .brand h1{font-size:36px}.brand p{font-size:16px}
+  .chip{font-size:15px;padding:7px 13px}
+  .bigbtn{font-size:16px;padding:10px 18px 10px 14px}
+  .zoomctl button{width:46px;height:46px;font-size:22px}
+  .viewtoggle{right:76px}.viewtoggle button{height:46px;font-size:15px;padding:0 16px}
+  .tl-btns button{width:48px;height:48px}
+  #track{height:84px}
+  .band{height:20px}#band2{top:20px}.band div{font-size:13px}
+  .rail,.fill{top:48px}.stepdot{top:43px;width:16px;height:16px;margin-left:-8px}.evdot{top:57px;width:8px;height:8px}.tick{top:64px;font-size:14px}#thumb{top:37px}
+  .sec h2{font-size:15px}.sec h3{font-size:23px}
+  .evlist .t{font-size:17px}.evlist .d,.evlist .y{font-size:15px}
+  .sel h3{font-size:27px}.sel p{font-size:16.5px}
+  .taxa .nm b{font-size:15px}.groups label{font-size:16px}
+  .ch-name{font-size:21px}.ch-intro{font-size:15px}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="mapwrap" aria-label="Globo della storia della Terra">
+    <canvas id="map" aria-label="Globo interattivo: trascina per farlo girare, usa la rotella o i pulsanti per lo zoom, clicca i simboli per le schede"></canvas>
+    <header class="brand">
+      <div class="wt-mark" title="Wolf Team · Istituto Comprensivo di Almese">Wolf Team · I.C. Almese</div>
+      <h1>Vita in Tempore</h1>
+      <p>Il globo della storia della Terra: continenti, climi e forme di vita dalla nascita del pianeta a oggi</p>
+      <a class="other-globe" href="sapiens.html" title="Il globo dell'umanità e della biodiversità, da 60 000 anni fa a oggi">🧍 Vai a «Sapiens in Tempore»</a>
+    </header>
+    <div class="layers" role="group" aria-label="Livelli del globo">
+      <label class="chip"><input type="checkbox" id="l-fossils" checked><span class="dot"></span>Fossili</label>
+      <label class="chip"><input type="checkbox" id="l-taxa" checked><span class="dot"></span>Protagonisti</label>
+      <label class="chip"><input type="checkbox" id="l-events" checked><span class="dot"></span>Eventi</label>
+      <label class="chip"><input type="checkbox" id="l-names" checked><span class="dot"></span>Nomi</label>
+      <label class="chip"><input type="checkbox" id="l-climate" checked><span class="dot"></span>Clima e ghiacci</label>
+      <label class="chip"><input type="checkbox" id="l-today"><span class="dot"></span>Coste di oggi</label>
+    </div>
+    <div class="yearbox" aria-live="polite">
+      <div class="era" id="eraLabel"></div>
+      <div class="yr" id="yearLabel"></div>
+      <div class="sub" id="subLabel"></div>
+      <div class="actions">
+        <button id="scenBtn" class="bigbtn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 4h16v2H2zm0 5h10v2H2zm0 5h13v2H2z"/><circle cx="16" cy="10" r="2.2"/></svg><span>Scenari<span class="long"> speciali</span></span></button>
+        <button id="peopleBtn" class="bigbtn alt"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6" r="3.5"/><path d="M3 18c0-4 3-6.5 7-6.5s7 2.5 7 6.5z"/></svg><span class="hide-mob">Scienziati</span></button>
+        <button id="envBtn" class="bigbtn alt"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1 17 7 6l3.5 6 2-3L19 17z"/><circle cx="15" cy="4" r="2"/></svg><span><span class="long">Esplora l'</span>ambiente 3D</span></button>
+      </div>
+    </div>
+    <div id="scBar" hidden><b id="scBarT"></b><button id="scExit">Esci dallo scenario</button></div>
+    <div class="viewtoggle" role="group" aria-label="Tipo di mappa">
+      <button data-mode="globe" aria-pressed="true">Globo</button>
+      <button data-mode="flat" aria-pressed="false">Planisfero</button>
+    </div>
+    <div class="zoomctl">
+      <button id="zin" aria-label="Ingrandisci">+</button>
+      <button id="zout" aria-label="Riduci">−</button>
+      <button id="zreset" aria-label="Mostra tutto il globo" style="font-size:15px">⤢</button>
+    </div>
+    <div id="tip" hidden></div>
+    <div id="loading">Preparo il pianeta…</div>
+  </section>
+
+  <footer id="timeline">
+    <div class="tl-row">
+      <div class="tl-btns">
+        <button id="prevEv" aria-label="Evento precedente" title="Evento precedente"><svg viewBox="0 0 16 16"><path d="M3 2h2v12H3zM14 2v12L6 8z"/></svg></button>
+        <button id="play" class="play" aria-label="Avvia" title="Avvia / pausa"><svg viewBox="0 0 16 16" id="playIcon"><path d="M4 2l10 6-10 6z"/></svg></button>
+        <button id="nextEv" aria-label="Evento successivo" title="Evento successivo"><svg viewBox="0 0 16 16"><path d="M11 2h2v12h-2zM2 2v12l8-6z"/></svg></button>
+      </div>
+      <div id="track">
+        <div class="band" id="band1"></div>
+        <div class="band" id="band2"></div>
+        <div class="rail"></div>
+        <div class="fill" id="fill"></div>
+        <div id="evdots"></div>
+        <div id="ticks"></div>
+        <div id="thumb" role="slider" tabindex="0" title="Frecce ← → per spostarti nel tempo, Pag↑ Pag↓ per saltare tra gli eventi" aria-label="Età"></div>
+      </div>
+      <div class="speed"><span>Velocità</span><div class="spd"><button id="spdDown" aria-label="Più lento" title="Più lento (tasto −)">−</button><b id="spdVal" aria-live="polite">1×</b><button id="spdUp" aria-label="Più veloce" title="Più veloce (tasto +)">+</button></div></div>
+    </div>
+    <div class="tl-hint" id="tlHint"><span>Trascina il globo per farlo girare e il cursore per viaggiare nel tempo</span><span>La scala non è uniforme: le ere più recenti sono allargate</span></div>
+  </footer>
+
+  <aside id="panel" aria-label="Informazioni sull'epoca scelta">
+    <div id="searchBox" role="search"></div>
+    <a class="other-globe only-mob" href="sapiens.html">🧍 Vai a «Sapiens in Tempore»: da 60 000 anni fa a oggi</a>
+    <div id="selBox" hidden></div>
+    <div id="scenBox" hidden></div>
+    <section class="sec when" id="whenBox"></section>
+    <section class="sec" id="evSec">
+      <h2>Che cosa succede</h2>
+      <ul class="evlist" id="evList"></ul>
+    </section>
+    <section class="sec" id="taxaSec">
+      <h2>Chi vive in quest'epoca</h2>
+      <div class="taxa" id="taxaList"></div>
+      <button class="more" id="taxaMore" hidden></button>
+      <p class="note" id="taxaNote"></p>
+    </section>
+    <section class="sec" id="grpSec">
+      <h2>Fossili sul globo</h2>
+      <p class="note" id="stageNote" style="margin:-4px 0 8px"></p>
+      <div class="groups" id="grpList"></div>
+      <div class="grpbtns"><button id="grpAll">Mostra tutti</button><button id="grpNone">Nascondi tutti</button></div>
+    </section>
+    <section class="sec">
+      <h2>L'albero della vita</h2>
+      <div class="tol">
+        <a href="https://www.onezoom.org/life/" target="_blank" rel="noopener"><b>OneZoom</b><span>Esplora l'albero della vita come una mappa zoomabile: oltre 2 milioni di specie, con foto.</span></a>
+        <a href="https://tree.opentreeoflife.org/" target="_blank" rel="noopener"><b>Open Tree of Life</b><span>L'albero di tutte le specie classificate, costruito unendo migliaia di studi scientifici.</span></a>
+        <a href="http://tolweb.org/tree/" target="_blank" rel="noopener"><b>Tree of Life Web Project</b><span>Il progetto storico «Tree of Life», con schede scritte da biologi.</span></a>
+        <a href="https://paleobiodb.org/navigator/" target="_blank" rel="noopener"><b>Paleobiology Database</b><span>Tutti i ritrovamenti fossili del mondo, su mappe del passato.</span></a>
+      </div>
+    </section>
+    <section class="sec">
+      <h2>Legenda</h2>
+      <div class="leg" id="legend"></div>
+    </section>
+    <details class="sec">
+      <summary>Fonti e avvertenze</summary>
+      <p>Il globo è un mappamondo fisico. Negli ultimi 540 milioni di anni rilievi, pianure, mari bassi e fondali vengono dalle ricostruzioni PaleoDEM di Scotese e Wright (progetto PALEOMAP), disponibili ogni 5 milioni di anni. Vegetazione, deserti e ghiacci sono invece stimati dal clima dell'epoca: latitudine, distanza dal mare, venti dominanti, temperatura globale e piante esistenti in quel periodo. Tra 540 e 750 milioni di anni fa le terre seguono il modello PALEOMAP e il rilievo è stimato. Tra 750 e 1000 milioni di anni fa si usa il modello di Merdith et al. (2021). Prima di 1 miliardo di anni fa la posizione dei continenti è molto incerta, e il globo mostra solo in modo schematico i nuclei di crosta già esistenti.</p>
+      <ul>
+        <li>Rilievo e batimetria: C. R. Scotese e N. Wright (2018), <i>PALEOMAP Paleodigital Elevation Models (PaleoDEMS) for the Phanerozoic</i>, Zenodo, doi:10.5281/zenodo.5460860 (licenza CC BY 4.0).</li>
+        <li>Tettonica: modello PALEOMAP (C. R. Scotese, 0–750 Ma) e A. S. Merdith et al. (2021), <i>Extending full-plate tectonic models into deep time</i>, Earth-Science Reviews (750–1000 Ma); GPlates Web Service (EarthByte, Università di Sydney).</li>
+        <li>Fossili: Paleobiology Database (paleobiodb.org, licenza CC BY 4.0), raggruppati in celle di 2° per piano geologico; sono mostrati i generi più citati.</li>
+        <li>Scala dei tempi: Commissione Internazionale di Stratigrafia, <i>International Chronostratigraphic Chart</i>.</li>
+        <li>Immagini e testi delle schede: Wikipedia e Wikimedia Commons (licenze libere indicate nelle pagine).</li>
+        <li>Albero della vita: Open Tree of Life (identificativi OTT), OneZoom.</li>
+        <li>Coste dell'ultima glaciazione: Natural Earth; calotte disegnate a mano.</li>
+      </ul>
+      <p>Le età sono arrotondate; molte date sono ancora discusse dai ricercatori e lo indichiamo nelle schede.</p>
+    </details>
+  </aside>
+</div>
+
+<div id="scenChooser" class="chooser" hidden role="dialog" aria-modal="true" aria-labelledby="scenTitle">
+  <div class="ch-panel">
+    <div class="ch-head"><div><div class="ch-eyebrow">Linee del tempo ingrandite</div><h2 id="scenTitle">Scenari speciali</h2><p>Ogni scenario ingrandisce un tratto della storia: la linea del tempo si allarga, sul globo compaiono siti, percorsi e areali, e una visita guidata racconta che cosa è successo.</p></div><button class="ch-close" data-close aria-label="Chiudi">×</button></div>
+    <div class="ch-list" id="scenList"></div>
+  </div>
+</div>
+<div id="peopleChooser" class="chooser" hidden role="dialog" aria-modal="true" aria-labelledby="peopleTitle">
+  <div class="ch-panel">
+    <div class="ch-head"><div><div class="ch-eyebrow">Le persone dietro le scoperte</div><h2 id="peopleTitle">Scienziati e scienziate della vita</h2><p>Naturalisti, paleontologi, biologi e genetisti che ci hanno fatto capire com'è fatta la vita e come è cambiata nel tempo.</p></div><button class="ch-close" data-close aria-label="Chiudi">×</button></div>
+    <div class="ch-list" id="peopleAll"></div>
+  </div>
+</div>
+<div id="envChooser" class="chooser" hidden role="dialog" aria-modal="true" aria-labelledby="envTitle">
+  <div class="ch-panel">
+    <div class="ch-head"><div><div class="ch-eyebrow">Ambienti del passato in 3D</div><h2 id="envTitle">Dove vuoi andare?</h2><p>Ogni paesaggio è ricostruito con piante e animali della sua epoca: trascina per guardarti intorno, cammina e leggi i cartelli.</p></div><button class="ch-close" data-close aria-label="Chiudi">×</button></div>
+    <div class="ch-list" id="envList"></div>
+  </div>
+</div>
+
+<script>/*@D3*/</script>
+<script>/*@TOPO*/</script>
+<script type="text/plain" id="threeSrc">/*@THREE*/</script>
+<script>/*@DATA*/</script>
+<script>/*@CONTENT*/</script>
+<script>/*@SCENARI*/</script>
+<script>/*@AMBIENTI*/</script>
+<script>/*@APP*/</script>
+</body>
+</html>

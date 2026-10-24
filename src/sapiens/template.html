@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sapiens in Tempore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans+SC:wght@500;700&display=swap">
+<style>
+/*@BASECSS*/
+/* ---------- aggiunte del globo Sapiens ---------- */
+:root{--accent:#b5562b;--accent-soft:#b5562b22}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--accent:#f0a374;--accent-soft:#f0a3742e} }
+:root[data-theme="dark"]{--accent:#f0a374;--accent-soft:#f0a3742e}
+.other-globe{pointer-events:auto;display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;text-decoration:none;color:var(--ink);background:var(--halo);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.other-globe:hover{border-color:var(--accent)}
+.iucn{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:20px;padding:0 6px;border-radius:4px;font-family:var(--f-sc);font-weight:700;font-size:12px;letter-spacing:.04em;color:#fff;flex:none}
+.iucn.VU,.iucn.NT,.iucn.LC,.iucn.DD{color:#1d2622}
+.iucnrow{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:14px;flex-wrap:wrap}
+.iucnrow .tr{color:var(--muted);font-size:13px}
+.taxa .ph{flex:none;width:38px;height:38px;border-radius:50%;background:var(--line) center/cover no-repeat;display:grid;place-items:center;font-size:19px;border:2.5px solid transparent}
+.taxa button{position:relative}
+.taxa .iucn{position:absolute;right:5px;top:5px;height:15px;min-width:22px;font-size:10px;padding:0 3px}
+.filt{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}
+.filt button{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:3px 9px;font-size:12.5px;cursor:pointer}
+.filt button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.redlist{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+.redlist button{display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 2px;cursor:pointer;font-size:11.5px;line-height:1.15;text-align:center}
+.redlist button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.redlist b{font-size:16px;font-variant-numeric:tabular-nums}
+.stat{font-size:13.5px;margin:8px 0 0;padding:10px 12px;border-radius:var(--r);background:var(--accent-soft)}
+.stat b{font-family:var(--f-display);font-size:17px}
+.gal{display:flex;gap:6px;overflow-x:auto;margin:8px -2px 0;padding-bottom:4px;scrollbar-width:thin}
+.gal button{flex:none;width:86px;height:86px;border:1px solid var(--line);border-radius:7px;padding:0;background:var(--line) center/cover no-repeat;cursor:zoom-in}
+.ozbig{display:flex;gap:10px;align-items:center;margin-top:10px;padding:10px 12px;border-radius:var(--r);border:1px solid var(--accent);background:var(--accent-soft);text-decoration:none;color:var(--ink)}
+.ozbig b{font-family:var(--f-display);font-size:16px;display:block}
+.ozbig span{font-size:12.5px;color:var(--muted)}
+.ozbig .ic{font-size:26px;flex:none}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.people button{display:flex;gap:8px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:6px 8px;cursor:pointer;min-width:0}
+.people button:hover{border-color:var(--accent)}
+.people .ph{flex:none;width:36px;height:36px;border-radius:50%;background:var(--line) center/cover no-repeat;display:grid;place-items:center;font-size:17px}
+.people b{display:block;font-size:13.5px;line-height:1.15}
+.people i{display:block;font-size:12px;color:var(--muted);font-style:normal}
+.ch-card .ph{width:100%;height:120px;border-radius:7px;background:var(--line) center 25%/cover no-repeat;margin-bottom:6px}
+#lightbox{position:fixed;inset:0;z-index:95;background:#000c;display:grid;place-items:center;padding:20px;cursor:zoom-out}
+#lightbox figure{margin:0;max-width:100%;max-height:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+#lightbox img{max-width:min(1100px,100%);max-height:calc(100vh - 90px);object-fit:contain;border-radius:6px;background:#222}
+#lightbox figcaption{color:#ddd;font-size:13px;text-align:center}
+#lightbox a{color:#ffc9a6}
+.gbifnote{font-size:12px;color:var(--muted);margin-top:6px}
+.only-mob{display:none!important}
+@media (max-width: 860px){.brand .other-globe{display:none}.only-mob{display:inline-flex!important;align-self:flex-start}.hide-mob{display:none}.actions{gap:5px}}
+@media (min-width: 1600px) and (min-height: 900px){
+  .taxa .ph{width:46px;height:46px}.gal button{width:110px;height:110px}.people b{font-size:15px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="mapwrap" aria-label="Globo dell'umanità e della biodiversità">
+    <canvas id="map" aria-label="Globo interattivo: trascina per farlo girare, usa la rotella o i pulsanti per lo zoom, clicca i simboli per le schede"></canvas>
+    <header class="brand">
+      <div class="wt-mark" title="Wolf Team · Istituto Comprensivo di Almese">Wolf Team · I.C. Almese</div>
+      <h1>Sapiens in Tempore</h1>
+      <p>Il globo dell'umanità e della biodiversità: da 60 000 anni fa a oggi</p>
+      <a class="other-globe" href="index.html" title="Il globo della storia della Terra, da 4,5 miliardi di anni fa">🌍 Vai a «Vita in Tempore»</a>
+    </header>
+    <div class="layers" role="group" aria-label="Livelli del globo">
+      <label class="chip"><input type="checkbox" id="l-humans" checked><span class="dot"></span>Specie umane</label>
+      <label class="chip"><input type="checkbox" id="l-species" checked><span class="dot"></span>Specie</label>
+      <label class="chip" title="Nel presente, ingrandendo il globo: le specie più osservate nella zona (foto verificate di iNaturalist, dati GBIF)"><input type="checkbox" id="l-gbif" checked><span class="dot"></span>Altre specie osservate</label>
+      <label class="chip"><input type="checkbox" id="l-threat"><span class="dot"></span>Solo minacciate</label>
+      <label class="chip"><input type="checkbox" id="l-events" checked><span class="dot"></span>Eventi</label>
+      <label class="chip"><input type="checkbox" id="l-people" checked><span class="dot"></span>Scienziati</label>
+      <label class="chip"><input type="checkbox" id="l-hotspots"><span class="dot"></span>Punti caldi</label>
+      <label class="chip"><input type="checkbox" id="l-names" checked><span class="dot"></span>Nomi</label>
+      <label class="chip"><input type="checkbox" id="l-climate" checked><span class="dot"></span>Clima e ghiacci</label>
+      <label class="chip"><input type="checkbox" id="l-today"><span class="dot"></span>Coste di oggi</label>
+    </div>
+    <div class="yearbox" aria-live="polite">
+      <div class="era" id="eraLabel"></div>
+      <div class="yr" id="yearLabel"></div>
+      <div class="sub" id="subLabel"></div>
+      <div class="actions">
+        <button id="scenBtn" class="bigbtn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 4h16v2H2zm0 5h10v2H2zm0 5h13v2H2z"/><circle cx="16" cy="10" r="2.2"/></svg><span>Scenari<span class="long"> speciali</span></span></button>
+        <button id="todayBtn" class="bigbtn alt"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5c-3 3.4-5 6.4-5 9.4a5 5 0 0 0 10 0c0-3-2-6-5-9.4zM9 18h2v1.5H9z"/></svg><span>Oggi<span class="long">: la biodiversità</span></span></button>
+        <button id="peopleBtn" class="bigbtn alt"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6" r="3.5"/><path d="M3 18c0-4 3-6.5 7-6.5s7 2.5 7 6.5z"/></svg><span class="hide-mob">Scienziati</span></button>
+        <button id="envBtn" class="bigbtn alt"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1 17 7 6l3.5 6 2-3L19 17z"/><circle cx="15" cy="4" r="2"/></svg><span><span class="long">Ambiente </span>3D</span></button>
+      </div>
+    </div>
+    <div id="scBar" hidden><b id="scBarT"></b><button id="scExit">Esci dallo scenario</button></div>
+    <div class="viewtoggle" role="group" aria-label="Tipo di mappa">
+      <button data-mode="globe" aria-pressed="true">Globo</button>
+      <button data-mode="flat" aria-pressed="false">Planisfero</button>
+    </div>
+    <div class="zoomctl">
+      <button id="zin" aria-label="Ingrandisci">+</button>
+      <button id="zout" aria-label="Riduci">−</button>
+      <button id="zreset" aria-label="Mostra tutto il globo" style="font-size:15px">⤢</button>
+    </div>
+    <div id="tip" hidden></div>
+    <div id="loading">Preparo il pianeta…</div>
+  </section>
+
+  <footer id="timeline">
+    <div class="tl-row">
+      <div class="tl-btns">
+        <button id="prevEv" aria-label="Evento precedente" title="Evento precedente"><svg viewBox="0 0 16 16"><path d="M3 2h2v12H3zM14 2v12L6 8z"/></svg></button>
+        <button id="play" class="play" aria-label="Avvia" title="Avvia / pausa"><svg viewBox="0 0 16 16" id="playIcon"><path d="M4 2l10 6-10 6z"/></svg></button>
+        <button id="nextEv" aria-label="Evento successivo" title="Evento successivo"><svg viewBox="0 0 16 16"><path d="M11 2h2v12h-2zM2 2v12l8-6z"/></svg></button>
+      </div>
+      <div id="track">
+        <div class="band" id="band1"></div>
+        <div class="band" id="band2"></div>
+        <div class="rail"></div>
+        <div class="fill" id="fill"></div>
+        <div id="evdots"></div>
+        <div id="ticks"></div>
+        <div id="thumb" role="slider" tabindex="0" title="Frecce ← → per spostarti nel tempo, Pag↑ Pag↓ per saltare tra gli eventi" aria-label="Data"></div>
+      </div>
+      <div class="speed"><span>Velocità</span><div class="spd"><button id="spdDown" aria-label="Più lento" title="Più lento (tasto −)">−</button><b id="spdVal" aria-live="polite">1×</b><button id="spdUp" aria-label="Più veloce" title="Più veloce (tasto +)">+</button></div></div>
+    </div>
+    <div class="tl-hint" id="tlHint"><span>Trascina il globo per farlo girare e il cursore per viaggiare nel tempo</span><span>La scala non è uniforme: gli ultimi secoli sono allargati</span></div>
+  </footer>
+
+  <aside id="panel" aria-label="Informazioni sul momento scelto">
+    <div id="searchBox" role="search"></div>
+    <a class="other-globe only-mob" href="index.html">🌍 Vai a «Vita in Tempore»: la storia della Terra</a>
+    <div id="selBox" hidden></div>
+    <div id="scenBox" hidden></div>
+    <section class="sec when" id="whenBox"></section>
+    <section class="sec" id="humSec">
+      <h2>Le specie umane</h2>
+      <div class="taxa" id="humList"></div>
+      <p class="note" id="humNote"></p>
+    </section>
+    <section class="sec" id="redSec" hidden>
+      <h2>La Lista Rossa di oggi</h2>
+      <p class="note" style="margin-top:-4px">Lo stato di conservazione delle specie secondo l'IUCN (Unione Internazionale per la Conservazione della Natura). Clicca una categoria per vedere solo quelle specie.</p>
+      <div class="redlist" id="redList"></div>
+      <div id="redStats"></div>
+    </section>
+    <section class="sec" id="evSec">
+      <h2>Che cosa succede</h2>
+      <ul class="evlist" id="evList"></ul>
+    </section>
+    <section class="sec" id="taxaSec">
+      <h2 id="taxaTitle">Chi vive in quest'epoca</h2>
+      <div class="filt" id="grpFilt" role="group" aria-label="Gruppi"></div>
+      <div class="taxa" id="taxaList"></div>
+      <button class="more" id="taxaMore" hidden></button>
+      <p class="note" id="taxaNote"></p>
+    </section>
+    <section class="sec" id="peopleSec">
+      <h2>Chi l'ha scoperto</h2>
+      <div class="people" id="peopleList"></div>
+      <button class="more" id="peopleMore">Tutti gli scienziati</button>
+    </section>
+    <section class="sec">
+      <h2>L'albero della vita</h2>
+      <div class="tol">
+        <a href="https://www.onezoom.org/life/@Homo_sapiens=770315" target="_blank" rel="noopener"><b>OneZoom: dove siamo noi</b><span>Parti da Homo sapiens e allontanati: scimmie, mammiferi, vertebrati… fino a tutte le specie viventi.</span></a>
+        <a href="https://www.onezoom.org/life/" target="_blank" rel="noopener"><b>OneZoom</b><span>L'albero della vita come una mappa zoomabile, con foto e con il colore dello stato di conservazione IUCN di ogni specie.</span></a>
+        <a href="https://tree.opentreeoflife.org/" target="_blank" rel="noopener"><b>Open Tree of Life</b><span>L'albero di tutte le specie classificate, costruito unendo migliaia di studi scientifici.</span></a>
+        <a href="https://www.iucnredlist.org/" target="_blank" rel="noopener"><b>Lista Rossa IUCN</b><span>Lo stato di conservazione di oltre 170 000 specie, con mappe e minacce.</span></a>
+        <a href="https://www.gbif.org/" target="_blank" rel="noopener"><b>GBIF</b><span>Tutte le osservazioni di piante e animali raccolte nel mondo, anche dai cittadini.</span></a>
+      </div>
+    </section>
+    <section class="sec">
+      <h2>Legenda</h2>
+      <div class="leg" id="legend"></div>
+    </section>
+    <details class="sec">
+      <summary>Fonti e avvertenze</summary>
+      <p>Il globo mostra la Terra com'è oggi, ricostruita nel passato. Il livello del mare segue le curve delle ultime glaciazioni e scopre le piattaforme continentali (Beringia, Sunda, Sahul, Doggerland). Le calotte di ghiaccio sono disegnate dalle ricostruzioni dell'ultimo massimo glaciale. Vegetazione e deserti partono dall'immagine satellitare attuale e cambiano con un modello semplificato del clima: più freddo e arido nelle fasi glaciali, Sahara verde tra 14 500 e 5000 anni fa circa.</p>
+      <ul>
+        <li>Immagine della Terra: NASA Earth Observatory, <i>Blue Marble Next Generation</i> con rilievo e batimetria (R. Stöckli et al., luglio 2004), pubblico dominio.</li>
+        <li>Rilievo e fondali: ETOPO1 (NOAA National Centers for Environmental Information), ogni 0,25°.</li>
+        <li>Livello del mare e calotte: ricostruzioni dell'ultimo ciclo glaciale (Lambeck et al. 2014; Spratt e Lisiecki 2016; Dalton et al. 2020), semplificate.</li>
+        <li>Stato di conservazione: Lista Rossa IUCN delle specie minacciate (versione 2025). Osservazioni sul globo: GBIF.org (dati aperti di migliaia di istituzioni).</li>
+        <li>Albero della vita: Open Tree of Life (identificativi OTT), OneZoom.</li>
+        <li>Immagini e testi delle schede: Wikipedia e Wikimedia Commons (licenze libere indicate nelle pagine).</li>
+      </ul>
+      <p id="srcMore"></p>
+      <p>Le date sono arrotondate; molte sono ancora discusse dai ricercatori e lo indichiamo nelle schede.</p>
+    </details>
+  </aside>
+</div>
+
+<div id="scenChooser" class="chooser" hidden role="dialog" aria-modal="true" aria-labelledby="scenTitle">
+  <div class="ch-panel">
+    <div class="ch-head"><div><div class="ch-eyebrow">Linee del tempo ingrandite</div><h2 id="scenTitle">Scenari speciali</h2><p>Ogni scenario ingrandisce un tratto della storia: la linea del tempo si allarga, sul globo compaiono siti, percorsi e areali, e una visita guidata racconta che cosa è successo.</p></div><button class="ch-close" data-close aria-label="Chiudi">×</button></div>
+    <div class="ch-list" id="scenList"></div>
+  </div>
+</div>
+<div id="peopleChooser" class="chooser" hidden role="dialog" aria-modal="true" aria-labelledby="peopleTitle">
+  <div class="ch-panel">
+    <div class="ch-head"><div><div class="ch-eyebrow">Le persone dietro le scoperte</div><h2 id="peopleTitle">Scienziati e scienziate della vita</h2><p>Naturalisti, biologi, genetisti e paleoantropologi che ci hanno fatto capire com'è fatta la vita e da dove veniamo. Clicca per la scheda e per andare sul globo nei luoghi delle loro scoperte.</p></div><button class="ch-close" data-close aria-label="Chiudi">×</button></div>
+    <div class="ch-list" id="peopleAll"></div>
+  </div>
+</div>
+<div id="envChooser" class="chooser" hidden role="dialog" aria-modal="true" aria-labelledby="envTitle">
+  <div class="ch-panel">
+    <div class="ch-head"><div><div class="ch-eyebrow">Ambienti del passato in 3D</div><h2 id="envTitle">Dove vuoi andare?</h2><p>Ogni paesaggio è ricostruito con piante e animali della sua epoca: trascina per guardarti intorno, cammina e leggi i cartelli.</p></div><button class="ch-close" data-close aria-label="Chiudi">×</button></div>
+    <div class="ch-list" id="envList"></div>
+  </div>
+</div>
+<div id="lightbox" hidden><figure><img alt=""><figcaption></figcaption></figure></div>
+
+<script>/*@D3*/</script>
+<script type="text/plain" id="threeSrc">/*@THREE*/</script>
+<script>/*@DATA*/</script>
+<script>/*@CONTENT*/</script>
+<script>/*@AMBIENTI*/</script>
+<script>/*@APP*/</script>
+</body>
+</html>

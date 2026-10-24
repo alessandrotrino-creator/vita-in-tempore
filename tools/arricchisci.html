@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Arricchisci specie</title>
+<style>body{font:14px system-ui,sans-serif;margin:20px;background:#fff;color:#222}pre{white-space:pre-wrap;font-size:12px}</style></head>
+<body>
+<h1>Arricchimento delle specie del globo Sapiens</h1>
+<p>Aprire con <code>tools/serve.ps1</code> attivo: http://localhost:8766/tools/arricchisci.html — al termine salva <code>data/sapiens-enrich.json</code>.
+Per ogni specie: identificativo Open Tree (OTT, per OneZoom), chiave GBIF, categoria IUCN secondo GBIF (per controllo), immagine di Wikipedia. Per ogni scienziato: ritratto.
+Aggiungere <code>?tutto=1</code> per rifare anche le voci già presenti.</p>
+<pre id="log"></pre>
+<script src="../src/sapiens/umani.js"></script>
+<script src="../src/sapiens/estinte.js"></script>
+<script src="../src/sapiens/viventi.js"></script>
+<script src="../src/sapiens/viventi-mondo.js"></script>
+<script src="../src/sapiens/scienziati.js"></script>
+<script>
+(async () => {
+  const log = s => { document.getElementById("log").textContent += s + "\n"; };
+  const SAP = window.SAP, all = new URLSearchParams(location.search).has("tutto");
+  let old = {species: {}, people: {}};
+  try { const r = await fetch("../data/sapiens-enrich.json", {cache: "no-store"}); if (r.ok) old = await r.json(); } catch (e) {}
+  const out = {species: {}, people: {}, made: new Date().toISOString().slice(0, 10)};
+  const getJ = async u => { const r = await fetch(u); if (!r.ok) throw new Error(r.status); return r.json(); };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  async function wiki(title, lang, tries = 0) {
+    if (!title) return null;
+    try {
+      await sleep(250);
+      const r0 = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g, "_"))}?redirect=true`);
+      // Wikipedia limita le richieste troppo fitte: si aspetta e si riprova
+      if (r0.status === 429 && tries < 4) { await sleep(3000 * (tries + 1)); return wiki(title, lang, tries + 1); }
+      if (!r0.ok) throw new Error(r0.status);
+      const j = await r0.json();
+      if (j.type === "disambiguation" || !j.thumbnail) return j.type === "disambiguation" ? null : {url: j.content_urls.desktop.page, lang, noimg: true};
+      let img = j.thumbnail.source;
+      if (/\/\d+px-/.test(img) && j.originalimage && j.originalimage.width > 500) img = img.replace(/\/\d+px-/, "/500px-");
+      return {img, thumb: j.thumbnail.source, full: j.originalimage && j.originalimage.source, url: j.content_urls.desktop.page, lang};
+    } catch (e) { return null; }
+  }
+  async function bestImg(it, en, sci) {
+    let a = await wiki(it, "it"); if (a && a.img) return a;
+    let b = await wiki(en, "en"); if (b && b.img) return b;
+    let c = sci ? await wiki(sci, "en") : null; if (c && c.img) return c;
+    return a || b || c || {};
+  }
+  async function pool(list, n, fn) { let i = 0; await Promise.all(Array.from({length: n}, async () => { while (i < list.length) { const k = i++; await fn(list[k], k); } })); }
+  const sp = SAP.species.filter(x => x && x.id);
+  log(`Specie: ${sp.length}, scienziati: ${(SAP.people || []).length}`);
+  // 1) Open Tree of Life: OTT in blocchi
+  const need = sp.filter(x => all || !(old.species[x.id] && old.species[x.id].ott));
+  const ott = {};
+  for (let i = 0; i < need.length; i += 150) {
+    const names = need.slice(i, i + 150).map(x => x.name);
+    try {
+      const r = await fetch("https://api.opentreeoflife.org/v3/tnrs/match_names", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({names, do_approximate_matching: false})});
+      const j = await r.json();
+      for (const res of j.results || []) { const m = res.matches && res.matches[0]; if (m) ott[res.name] = m.taxon.ott_id; }
+    } catch (e) { log("TNRS errore " + e.message); }
+  }
+  log(`OTT trovati: ${Object.keys(ott).length} su ${need.length}`);
+  // 2) GBIF, IUCN secondo GBIF, immagini
+  const mism = [];
+  await pool(sp, 2, async x => {
+    const o = Object.assign({}, old.species[x.id] || {});
+    if (all || !o.ott) o.ott = ott[x.name] || o.ott || null;
+    if (all || !o.gbif) {
+      try { const m = await getJ(`https://api.gbif.org/v1/species/match?name=${encodeURIComponent(x.name)}`); o.gbif = m.matchType !== "NONE" ? (m.acceptedUsageKey || m.usageKey) : null; o.gbifRank = m.rank; } catch (e) {}
+    }
+    if (o.gbif && /SPECIES/.test(o.gbifRank || "SPECIES") && (all || o.iucnGbif === undefined)) {
+      try { const c = await getJ(`https://api.gbif.org/v1/species/${o.gbif}/iucnRedListCategory`); o.iucnGbif = c.code || null; } catch (e) { o.iucnGbif = null; }
+    }
+    // Homo sapiens: nessuna immagine da Wikipedia (la voce italiana mostra una spiaggia nudista); la pagina usa la foto scelta in cerca.js (SAFE)
+    if (x.name !== "Homo sapiens" && (all || !o.img)) { const w = await bestImg(x.wiki, x.wikiEn, x.name); Object.assign(o, {img: w.img || null, thumb: w.thumb || null, full: w.full || null, url: w.url || null, lang: w.lang || null}); }
+    out.species[x.id] = o;
+    if (x.iucn && o.iucnGbif && x.iucn !== o.iucnGbif) mism.push(`${x.id} (${x.name}): nel file ${x.iucn}, GBIF/IUCN ${o.iucnGbif}`);
+    if (!o.img) log("senza immagine: " + x.id);
+    if (!o.ott) log("senza OTT: " + x.id + " " + x.name);
+  });
+  await pool(SAP.people || [], 2, async p => {
+    const o = Object.assign({}, old.people[p.id] || {});
+    if (all || !o.img) { const w = await bestImg(p.wiki, p.wikiEn); Object.assign(o, {img: w.img || null, thumb: w.thumb || null, full: w.full || null, url: w.url || null, lang: w.lang || null}); }
+    out.people[p.id] = o;
+    if (!o.img) log("scienziato senza ritratto: " + p.id);
+  });
+  out.iucnMismatch = mism;
+  log("\nIUCN diverse da GBIF (" + mism.length + "):\n" + mism.join("\n"));
+  const r = await fetch("/salva/sapiens-enrich.json", {method: "POST", body: JSON.stringify(out)});
+  log(r.ok ? "\nSALVATO data/sapiens-enrich.json" : "\nERRORE nel salvataggio " + r.status);
+  document.title = "FATTO";
+})();
+</script>
+</body></html>
