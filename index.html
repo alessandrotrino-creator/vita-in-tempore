@@ -9906,10 +9906,10 @@ const ENVS = [
       ['Rettili volanti', 'Gli pterosauri non erano dinosauri, ma loro cugini. Volavano con una membrana di pelle tesa tra il corpo e un quarto dito lunghissimo.'],
       ['Niente fiori, niente erba', 'Nel Giurassico non esistevano ancora piante con fiori. Il paesaggio era fatto di conifere, cicadee, ginkgo, felci ed equiseti.']]},
   {id: 'maremeso', name: 'Il mare dei rettili marini', era: 'Giurassico inferiore', when: 'circa 182 milioni di anni fa', place: 'Mare caldo poco profondo, Holzmaden (Germania)', from: 201, to: 66, ma: 182, lat: 48.63, lon: 9.53, color: '#3a7ab0',
-    intro: 'Un mare caldo e poco profondo copre gran parte dell’Europa. Vi nuotano ittiosauri a forma di delfino, plesiosauri dal collo lungo, banchi di belemniti e ammoniti dal guscio a spirale.',
+    intro: 'Un mare caldo e poco profondo copre gran parte dell’Europa. Vi nuotano ittiosauri a forma di delfino, plesiosauri, banchi di belemniti e ammoniti dal guscio a spirale.',
     facts: [
       ['Ittiosauri', 'Erano rettili, non pesci, ma avevano un corpo da delfino e nuotavano con la coda. Respiravano aria e partorivano piccoli vivi: a Holzmaden ci sono fossili di madri con i piccoli.'],
-      ['Plesiosauri', 'Avevano un corpo largo, quattro pinne a forma di ala e un collo lungo. «Volavano» nell’acqua come le tartarughe marine e catturavano pesci e molluschi.'],
+      ['Plesiosauri', 'Avevano un corpo largo e quattro pinne a forma di ala. Alcuni avevano il collo lungo; altri, i pliosauri come Hauffiosaurus di Holzmaden, una testa grande e un collo corto. «Volavano» nell’acqua come le tartarughe marine e catturavano pesci e molluschi.'],
       ['Ammoniti', 'Erano molluschi con il guscio a spirale diviso in camere piene di gas, che servivano a galleggiare. Cambiavano forma così in fretta che i geologi le usano per datare le rocce.'],
       ['Belemniti', 'Somigliavano a calamari con dieci braccia munite di uncini. Dentro il corpo avevano un rostro duro a forma di proiettile: è la parte che si trova fossile più spesso.'],
       ['Gigli di mare viaggiatori', 'Alcuni crinoidi, come Seirocrinus, vivevano appesi a tronchi galleggianti, con steli lunghi fino a 20 metri: così viaggiavano per il mare aperto.'],
@@ -10090,8 +10090,11 @@ LAND.cambriano = (k) => {
   const swim = (n, f) => Array.from({length: n}, f);
   k.herd(AN.anomalocaris(.5), amat(k, {flap: .7, sp: 3, wave: .02, k: 6}, true), swim(3, (_, i) => ({path: k.circ(rr(-6, 6), -14 + rr(-4, 4), rr(7, 13), rr(.1, .16) * (i % 2 ? 1 : -1), rr(0, TAU), rr(2, 3.5), .5)})), {pitch: .5});
   k.herd(AN.trilobite(.25), amat(k, {}), swim(NQ(k, 30), () => { const [cx, cz] = k.ringPt(2, 25, 0, -6); return {path: k.circ(cx, cz, rr(1, 4), rr(.03, .07) * (k.r() < .5 ? 1 : -1), rr(0, TAU)), dy: .03}; }), {shadow: false});
-  k.herd(AN.opabinia(.21), amat(k, {flap: .5, sp: 4, wave: .01, k: 20}, true), swim(5, () => { const [cx, cz] = k.ringPt(4, 18, 0, -6); return {path: k.circ(cx, cz, rr(2, 5), rr(.1, .2), rr(0, TAU), H(cx, cz) + rr(.5, 1.2), .2)}; }), {pitch: .5, shadow: false});
-  k.herd(AN.hallucigenia(.12), amat(k, {leg: .5, sp: 2}), swim(NQ(k, 20), () => { const [cx, cz] = k.ringPt(2, 15, 0, -6); return {path: k.circ(cx, cz, rr(.5, 2), rr(.02, .05), rr(0, TAU))}; }), {shadow: false});
+  // modelli 3D veri (cartella modelli/), ingranditi come gli altri animali piccoli
+  const opas = swim(5, () => { const [cx, cz] = k.ringPt(4, 18, 0, -6); return {path: k.circ(cx, cz, rr(2, 5), rr(.1, .2), rr(0, TAU), H(cx, cz) + rr(.5, 1.2), .2)}; });
+  k.model('modelli/opabinia.glb', {len: .3, rot: 2.1, credit: 'hymenoptera0908 (Opabinia, CC BY 4.0)'}, opas, () => k.herd(AN.opabinia(.21), amat(k, {flap: .5, sp: 4, wave: .01, k: 20}, true), opas, {pitch: .5, shadow: false}));
+  const halls = swim(NQ(k, 20), () => { const [cx, cz] = k.ringPt(2, 15, 0, -6); return {path: k.circ(cx, cz, rr(.5, 2), rr(.02, .05), rr(0, TAU))}; });
+  k.model('modelli/hallucigenia.glb', {len: .15, rot: PI, credit: 'huykhoi2407 (Hallucigenia, CC BY 4.0)'}, halls, () => k.herd(AN.hallucigenia(.12), amat(k, {leg: .5, sp: 2}), halls, {shadow: false}));
   k.herd(AN.marrella(.08), amat(k, {wave: .01, k: 30, sp: 6}), swim(NQ(k, 50), () => { const [cx, cz] = k.ringPt(2, 20, 0, -6); return {path: k.circ(cx, cz, rr(1, 4), rr(.15, .3) * (k.r() < .5 ? 1 : -1), rr(0, TAU), H(cx, cz) + rr(.2, 1.2), .3)}; }), {pitch: .5, shadow: false});
   k.herd(AN.pikaia(.15), amat(k, {wave: .03, k: 30, sp: 7}, true), swim(NQ(k, 12), () => { const [cx, cz] = k.ringPt(3, 20, 0, -6); return {path: k.circ(cx, cz, rr(2, 5), rr(.2, .35) * (k.r() < .5 ? 1 : -1), rr(0, TAU), H(cx, cz) + rr(.6, 2), .4)}; }), {pitch: .5, shadow: false});
   k.herd(AN.wiwaxia(.15), amat(k, {}), swim(NQ(k, 18), () => { const [cx, cz] = k.ringPt(2, 20, 0, -6); return {path: k.circ(cx, cz, rr(.3, 1.5), rr(.02, .05), rr(0, TAU)), dy: .02}; }), {shadow: false});
@@ -10183,7 +10186,8 @@ LAND.devpalude = (k) => {
   k.plant(PL.archaeopteris(16), dry(NQ(k, 45), 14, 100, (x, z) => ({x, z, s: rr(.7, 1.3)})), pm(k, .35, .8), {rad: 1});
   k.plant(PL.fern(1.1, '#5a7a36'), dry(NQ(k, 380), 2, 40, (x, z) => ({x, z, s: rr(.6, 1.2)})), pm(k, .12, 1.2), {shadow: false});
   k.plant(PL.horsetail(.6, '#4a7a3a'), ringList(k, NQ(k, 220), 2, 60, (x, z) => { const h = H(x, z); return h > -.2 && h < .5 ? {x, z, s: rr(.6, 1.2)} : null; }), pm(k, .05, 1.1), {shadow: false});
-  k.herd(AN.tiktaalik(2.6), amat(k, {wave: .1, k: 1.8, sp: 2.5}, true), Array.from({length: 3}, (_, i) => { const cx = [-6, 10, -20][i]; return {path: k.circ(cx, zc(cx), rr(2.5, 4), (i % 2 ? 1 : -1) * .07, rr(0, TAU), -.12)}; }));
+  const tiks = Array.from({length: 3}, (_, i) => { const cx = [-6, 10, -20][i]; return {path: k.circ(cx, zc(cx), rr(2.5, 4), (i % 2 ? 1 : -1) * .07, rr(0, TAU), -.12)}; });
+  k.model('modelli/tiktaalik.glb', {len: 2.6, v0: .5, rot: PI / 2, credit: 'kelskora (Tiktaalik, CC BY 4.0)'}, tiks, () => k.herd(AN.tiktaalik(2.6), amat(k, {wave: .1, k: 1.8, sp: 2.5}, true), tiks));
   k.herd(AN.fish({L: 1.4, h: .22, w: .14, col: '#5a6040', bel: '#b0a880', tail: 'round', dorsal2: true}), amat(k, {wave: .06, k: 3, sp: 4}, true), Array.from({length: 5}, () => { const cx = rr(-30, 30); return {path: k.circ(cx, zc(cx), rr(2, 4), rr(.1, .2), rr(0, TAU), -.55)}; }), {shadow: false});
   return {H, spawn: [0, 3, 0], inside: (x, z) => dist(x, z) < 70 && H(x, z) > -.3, signOk: (x, z) => H(x, z) > .05, exp: .95, envI: .7};
 };
@@ -10281,9 +10285,13 @@ LAND.giurassico = (k) => {
   k.plant(PL.horsetail(1.3, '#5d7d3a'), ringList(k, NQ(k, 200), 5, 90, (x, z) => Math.abs(z - zc(x)) < 8 && H(x, z) > -.2 ? {x, z, s: rr(.6, 1.3)} : null), pm(k, .05, 1), {shadow: false});
   k.herd(AN.sauropod({kind: 'brachio', col: '#7a7462', dark: '#5a5446', bel: '#a8a08a'}), amat(k, {leg: .28, sp: walkSp(.56, 5.5), wave: .25, k: .25}), [{path: k.circ(-30, -72, 28, .02, 1)}, {path: k.circ(-30, -72, 33, .02, 1.5)}], {s0: 1});
   k.herd(AN.sauropod({kind: 'diplo', col: '#8a7e64', dark: '#5e5440', bel: '#b8ae94', str: true}), amat(k, {leg: .3, sp: walkSp(.63, 3.8), wave: .35, k: .2}), group(k, 4, 45, -85, 35, -.018, {da: .5, dr: 4}));
-  k.herd(AN.stego({col: '#7d7a52', plate: '#b0603a'}), amat(k, {leg: .35, sp: walkSp(.7, 2.2), wave: .1, k: .6}), group(k, 3, -26, -18, 13, .05, {da: .4, dr: 2}));
-  k.herd(AN.theropod({s: 1.9, hd: 1.25, col: '#8a6a4a', dark: '#5a4030', bel: '#d0c0a0', str: true, crest: '#a05030'}), amat(k, {leg: .42, sp: walkSp(1.4, 2.2), wave: .1, k: .4}), [{path: k.circ(46, -24, 20, .07, 3)}]);
-  k.herd(AN.pterosaur({span: 2.5, neck: .12, beak: .18, tail: .6, crest: '#a04030'}), amat(k, {flap: .7, sp: 4}, true), Array.from({length: NQ(k, 5)}, (_, i) => ({path: k.circ(rr(-15, 15), rr(-40, -15), rr(22, 40), (i % 2 ? 1 : -1) * rr(.15, .22), rr(0, TAU), rr(16, 30), 2), roll: (i % 2 ? -1 : 1) * .3})), {shadow: false});
+  // modelli 3D veri (cartella modelli/); i sauropodi restano quelli fatti dal codice (nessun modello gratuito fedele)
+  const stegos = group(k, 3, -26, -18, 13, .05, {da: .4, dr: 2});
+  k.model('modelli/stegosauro.glb', {len: 7, v0: 1.1, clip: /walk/i, credit: 'Ferocious Industries (stegosauro, CC BY 4.0)'}, stegos, () => k.herd(AN.stego({col: '#7d7a52', plate: '#b0603a'}), amat(k, {leg: .35, sp: walkSp(.7, 2.2), wave: .1, k: .6}), stegos));
+  const allos = [{path: k.circ(46, -24, 20, .07, 3)}];
+  k.model('modelli/allosauro.glb', {len: 8.5, v0: 1.6, rot: PI / 2, credit: 'Anees Animates (allosauro, CC BY-NC 4.0)'}, allos, () => k.herd(AN.theropod({s: 1.9, hd: 1.25, col: '#8a6a4a', dark: '#5a4030', bel: '#d0c0a0', str: true, crest: '#a05030'}), amat(k, {leg: .42, sp: walkSp(1.4, 2.2), wave: .1, k: .4}), allos));
+  const pteros = Array.from({length: NQ(k, 5)}, (_, i) => ({path: k.circ(rr(-15, 15), rr(-40, -15), rr(22, 40), (i % 2 ? 1 : -1) * rr(.15, .22), rr(0, TAU), rr(16, 30), 2), roll: (i % 2 ? -1 : 1) * .3}));
+  k.model('modelli/ranforinco.glb', {len: 2, rot: PI / 2, credit: 'Robear (pterosauro Rhamphorhynchus, CC BY 4.0)'}, pteros, () => k.herd(AN.pterosaur({span: 2.5, neck: .12, beak: .18, tail: .6, crest: '#a04030'}), amat(k, {flap: .7, sp: 4}, true), pteros, {shadow: false}));
   return {H, spawn: [0, 0, 0], inside: (x, z) => dist(x, z) < 75 && H(x, z) > -.25, signOk: (x, z) => H(x, z) > .15, exp: .9, envI: .7};
 };
 
@@ -10302,9 +10310,13 @@ LAND.maremeso = (k) => {
   k.inst(PL.crinoid(7, '#d08ab8', '#e8dcc0'), Array.from({length: 7}, (_, i) => ({x: LX + Math.cos(.4) * (i - 3) * 1.3, y: LY - .2, z: LZ - Math.sin(.4) * (i - 3) * 1.3, rx: PI, r: rr(0, TAU), s: rr(.7, 1.1)})), pm(k, .25, .4), {shadow: false});
   const sw = (n, f) => Array.from({length: n}, f);
   k.herd(AN.ichthyo(), amat(k, {wave: .14, k: 2, sp: 6, flap: .15}, true), sw(4, (_, i) => ({path: k.circ(rr(-6, 6), rr(-22, -10), rr(10, 22), (i % 2 ? 1 : -1) * rr(.12, .17), rr(0, TAU), rr(4, 10), 1), s: rr(.9, 1.2)})), {pitch: .5});
-  k.herd(AN.plesio(), amat(k, {wave: .06, k: 1.5, sp: 1.8, flap: .5}, true), sw(2, (_, i) => ({path: k.circ(i ? 10 : -8, i ? -30 : -20, i ? 22 : 16, (i ? -1 : 1) * .07, rr(0, TAU), rr(6, 10), .8)})), {pitch: .5});
+  // modelli 3D veri (cartella modelli/): pliosauro (come Hauffiosaurus) e ammoniti; ittiosauri e belemniti restano quelli fatti dal codice
+  const plesios = sw(2, (_, i) => ({path: k.circ(i ? 10 : -8, i ? -30 : -20, i ? 22 : 16, (i ? -1 : 1) * .07, rr(0, TAU), rr(6, 10), .8)}));
+  k.model('modelli/pliosauro.glb', {len: 4.5, credit: 'animalanimator (pliosauro, CC BY 4.0)'}, plesios, () => k.herd(AN.plesio(), amat(k, {wave: .06, k: 1.5, sp: 1.8, flap: .5}, true), plesios, {pitch: .5}));
   const ag = [[-8, -8], [9, -12], [-2, -26], [14, -24]];
-  k.herd(AN.ammonite(.3), amat(k, {wave: .03, k: 0, sp: 3}), sw(NQ(k, 36), (_, i) => { const c = ag[i % 4]; return {path: k.circ(c[0] + rr(-2, 2), c[1] + rr(-2, 2), rr(1, 3.5), rr(.04, .08) * (i % 2 ? 1 : -1), rr(0, TAU), rr(2, 7), .4), s: rr(.5, 1.4)}; }), {shadow: false});
+  // le ammoniti nuotano all'indietro, con la conchiglia davanti (spinta a getto come il nautilo)
+  const amms = sw(NQ(k, 36), (_, i) => { const c = ag[i % 4]; return {path: k.circ(c[0] + rr(-2, 2), c[1] + rr(-2, 2), rr(1, 3.5), rr(.04, .08) * (i % 2 ? 1 : -1), rr(0, TAU), rr(2, 7), .4), s: rr(.5, 1.4)}; });
+  k.model('modelli/ammonite.glb', {len: .5, rot: PI, sRef: 1, credit: 'Emil van Dam (ammonite, CC BY 4.0)'}, amms, () => k.herd(AN.ammonite(.3), amat(k, {wave: .03, k: 0, sp: 3}), amms, {shadow: false}));
   k.herd(AN.belemnite(), amat(k, {wave: .02, k: 6, sp: 8}, true), sw(NQ(k, 40), (_, i) => { const c = i % 2 ? [-14, -14] : [12, -4]; return {path: k.circ(c[0] + rr(-1, 1), c[1] + rr(-1, 1), rr(3.5, 4.5), .3, i * .1, rr(4, 6), .3), s: rr(1, 1.4)}; }), {shadow: false, pitch: .5});
   k.herd(AN.fish({L: .25, h: .06, w: .03, col: '#9aa8b0', bel: '#e0e8e8', tail: 'fork'}), amat(k, {wave: .03, k: 14, sp: 10}, true), sw(NQ(k, 60), (_, i) => ({path: k.circ(-4 + rr(-1.2, 1.2), -6 + rr(-1.2, 1.2), rr(5, 7), .35, i * .06, rr(5, 7.5), .3)})), {pitch: .5, shadow: false});
   return {H, spawn: [0, 0, 0], eye: 5, under: true, signScale: .9, signLift: 3, inside: (x, z) => dist(x, z) < 60, exp: 1.05, envI: .4, speed: .7, pitch: -.05};
@@ -10327,10 +10339,14 @@ LAND.cretaceo = (k) => {
   k.plant(PL.conifer(22, '#2a4a2c'), dry(NQ(k, 34), 20, 110, (x, z) => ({x, z, s: rr(.7, 1.3)})), pm(k, .2, .7), {rad: 1});
   k.plant(PL.fern(1, '#4e7a34'), dry(NQ(k, 700), 2, 50, (x, z) => ({x, z, s: rr(.6, 1.3)})), pm(k, .12, 1.1), {shadow: false});
   k.plant(PL.horsetail(1.2, '#5d7d3a'), ringList(k, NQ(k, 150), 5, 90, (x, z) => Math.abs(z - zc(x)) < 7 && H(x, z) > -.2 ? {x, z, s: rr(.6, 1.2)} : null), pm(k, .05, 1), {shadow: false});
-  k.herd(AN.ceratops(), amat(k, {leg: .32, sp: walkSp(.66, 2.2), wave: .05, k: .8}), group(k, 4, -24, -55, 22, .03, {da: .35, dr: 3}));
+  // modelli 3D veri (cartella modelli/); gli edmontosauri restano quelli fatti dal codice (nessun modello gratuito fedele)
+  const ceras = group(k, 4, -24, -55, 22, .03, {da: .35, dr: 3});
+  k.model('modelli/triceratopo.glb', {len: 8, v0: 1.2, credit: 'D.art (triceratopo, CC BY-NC 4.0)'}, ceras, () => k.herd(AN.ceratops(), amat(k, {leg: .32, sp: walkSp(.66, 2.2), wave: .05, k: .8}), ceras));
   k.herd(AN.hadro(), amat(k, {leg: .32, sp: walkSp(.9, 3.2), wave: .1, k: .5}), group(k, 6, 48, -72, 30, -.03, {da: .25, dr: 4}));
-  k.herd(AN.theropod({s: 2.65, hd: 1.6, g: 1.25, arm: .35, col: '#6a5a40', dark: '#4a3a28', bel: '#b8a888'}), amat(k, {leg: .4, sp: walkSp(1.25, 3.1), wave: .12, k: .3}), [{path: k.circ(52, 8, 25, .05, 2)}]);
-  k.herd(AN.pterosaur({span: 10, neck: .5, beak: .5, crest: '#c04a30', col: '#d8d0c0', wcol: '#8a6a5a'}), amat(k, {flap: .45, sp: 1.3}, true), [{path: k.circ(-10, -40, 70, .05, 0, 55, 3), roll: .2}, {path: k.circ(20, -60, 90, -.04, 2, 48, 3), roll: -.2}]);
+  const rexes = [{path: k.circ(52, 8, 25, .05, 2)}];
+  k.model('modelli/tirannosauro.glb', {len: 12, v0: 1.3, clip: /walk/i, credit: 'animalanimator (tirannosauro, CC BY 4.0)'}, rexes, () => k.herd(AN.theropod({s: 2.65, hd: 1.6, g: 1.25, arm: .35, col: '#6a5a40', dark: '#4a3a28', bel: '#b8a888'}), amat(k, {leg: .4, sp: walkSp(1.25, 3.1), wave: .12, k: .3}), rexes));
+  const quetz = [{path: k.circ(-10, -40, 70, .05, 0, 55, 3), roll: .2}, {path: k.circ(20, -60, 90, -.04, 2, 48, 3), roll: -.2}];
+  k.model('modelli/quetzalcoatlo.glb', {len: 10, rot: PI / 2, credit: 'agusardwinata (pterosauro Quetzalcoatlus, CC BY 4.0)'}, quetz, () => k.herd(AN.pterosaur({span: 10, neck: .5, beak: .5, crest: '#c04a30', col: '#d8d0c0', wcol: '#8a6a5a'}), amat(k, {flap: .45, sp: 1.3}, true), quetz));
   k.herd(AN.bird(.5, '#3a3a3a'), amat(k, {flap: 1, sp: 10}, true), Array.from({length: NQ(k, 6)}, (_, i) => ({path: k.circ(rr(-20, 20), rr(-40, -10), rr(10, 25), (i % 2 ? 1 : -1) * rr(.3, .4), rr(0, TAU), rr(10, 20), 1.5), roll: (i % 2 ? -1 : 1) * .3})), {shadow: false});
   return {H, spawn: [0, 0, 0], inside: (x, z) => dist(x, z) < 75 && H(x, z) > -.25, signOk: (x, z) => H(x, z) > .15, exp: .9, envI: .7};
 };
@@ -10358,7 +10374,9 @@ LAND.eocene = (k) => {
   k.inst(AN.primate(), [{x: TX + .2, y: H(TX, TZ) + 2.5, z: TZ + 2.2, r: -PI / 2 + .3, s: 1, mv: 0}], amat(k, {wave: .05, k: 0, sp: 1}));
   k.herd(AN.horse({s: .3, col: '#6a5038', dark: '#3a2a1a', bel: '#a88a68', arch: 1, noMane: true}), amat(k, {leg: .4, sp: walkSp(.6, .33)}), group(k, 6, -17, -13, 7, .085, {da: .3, dr: 1.2}), {shadow: false});
   k.herd(AN.gastornis(), amat(k, {leg: .4, sp: walkSp(.6, 1)}), group(k, 2, 24, -16, 8, -.075, {da: .5, dr: 1}));
-  k.herd(AN.croc(2), amat(k, {wave: .08, k: 2, sp: 2}), [{path: k.circ(LC[0] - 4, LC[1], 10, .05, 0, -.06)}, {path: k.circ(LC[0] + 6, LC[1] - 4, 7, -.06, 2, -.06)}], {shadow: false});
+  // coccodrilli di Messel (Diplocynodon, parente degli alligatori): modello 3D di un alligatore, cartella modelli/
+  const crocs = [{path: k.circ(LC[0] - 4, LC[1], 10, .05, 0, -.06)}, {path: k.circ(LC[0] + 6, LC[1] - 4, 7, -.06, 2, -.06)}];
+  k.model('modelli/diplocinodonte.glb', {len: 2, v0: .5, clip: /trot/i, credit: 'WildMesh 3D (alligatore come Diplocynodon, CC BY-NC 4.0)'}, crocs, () => k.herd(AN.croc(2), amat(k, {wave: .08, k: 2, sp: 2}), crocs, {shadow: false}));
   k.herd(AN.bird(.4, '#2a2a2a'), amat(k, {flap: 1, sp: 11}, true), Array.from({length: NQ(k, 8)}, (_, i) => ({path: k.circ(LC[0] + rr(-6, 6), LC[1] + rr(-6, 6), rr(12, 22), (i % 2 ? 1 : -1) * rr(.3, .45), rr(0, TAU), rr(9, 18), 1.5), roll: (i % 2 ? -1 : 1) * .3})), {shadow: false});
   k.drift(NQ(k, 120), {col: '#f0f0d0', size: [.02, .04], alpha: .6, R: 16, h0: 0, h1: 5, vel: [.1, .05, .05], tw: 2});
   return {H, spawn: [0, 2, 0], inside: (x, z) => dist(x, z) < 70 && H(x, z) > .3, signOk: (x, z) => H(x, z) > .5, exp: .95, envI: .7};
