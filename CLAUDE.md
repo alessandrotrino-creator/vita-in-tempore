@@ -118,6 +118,23 @@ Richiesta dell'utente: futuri **plausibili**, basati sulle conoscenze scientific
   - `state.fut` è lo scenario scelto: pulsanti `#futSel` sotto l'anno (nascosti sul telefono orizzontale) e nel pannello. Si sceglie anche con `?scenario=ott|prob|pess`, e una visita con `scen` lo sceglie da sola.
   - `alive()` tiene vive nel futuro le specie di oggi, tranne quelle che `fate` fa scomparire nello scenario scelto. Le specie scomparse sono elencate nel pannello; con «Solo minacciate» compaiono sbiadite sul globo.
   - Texture: il mare che sale sommerge le terre di oggi (acqua bassa e torbida); con `melt` = 1 − ghiacci, Groenlandia e Antartide si ritirano dai bordi, cioè dalle zone basse per prime.
+- **Racconti guidati** (richiesta dell'utente: narrazione avvincente con zoom geografici, immagini ed eventi propri per ogni scenario)
+  - Campi in più nelle tappe e nei marcatori:
+    - `img: {file: "File:…", cap, author, lic, tipo: foto|mappa|ricostruzione|grafico}`: immagine di Commons scelta a mano, mostrata da `cimg()` con `Special:FilePath?width=500`. Se non si carica, il riquadro sparisce.
+    - Più `certezza`, `oggi`, `curiosita`, `fonti`, come negli eventi.
+  - **Sapiens**:
+    - le tappe hanno anche `species` (protagoniste) ed `extinct` (✝, sbiadite sul globo, coerenti con `fate`);
+    - le visite `racconto-ott|prob|pess` hanno `scen` e `futuro: true`, e il pulsante «▶ Racconto guidato» del pannello le apre (`tourFor`).
+  - **Vita**:
+    - la tappa può avere `modello` per mostrare un supercontinente;
+    - i pulsanti «▶» delle visite stanno nel pannello del futuro.
+  - Prima di usare un'immagine: verificarla con l'API di Commons (esistenza, autore, licenza) e **guardarla**, perché le immagini devono essere adatte alla scuola.
+- **Modelli del prossimo supercontinente** (`FUTURO.modelli`)
+  - Contenuto: `{id: ultima|novopangea|aurica|amasia, name, author, year, t, meccanismo, text, differenze, img, fonti, blocks: {NAM: [lat, lon, rot], …}}`.
+  - Come si muovono i continenti: oltre +50 Ma `futQB` porta ogni blocco (`blockOf` lo sceglie dalle coordinate di oggi; i centri di oggi sono in `BLK0`) dalla posizione proiettata a quella del modello, raggiunta all'età `t`.
+  - Interfaccia: si sceglie con `#modSel` o nel pannello; il nome del supercontinente compare sul globo.
+  - Le posizioni sono schematiche, ricavate da Davies, Green & Duarte 2018 e 2020.
+- **Fonti preferite dall'utente**: gli studi citati da Amedeo Balbi, Telmo Pievani, Gabriele Ghisellini ed Eugenio Coccia, oltre ai loro libri. I divulgatori sono la guida; le fonti da citare sono gli studi.
 - **Incertezze** (dette nei testi):
   - nel globo principale, `dT`/`co2`/`sea` sono indicativi dopo circa 1 Ma; i cicli glaciali futuri e le date dei `fate` sono stime;
   - l'AMOC e il deperimento dell'Amazzonia sono dibattuti;

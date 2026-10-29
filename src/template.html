@@ -116,6 +116,11 @@ a{color:var(--accent)}
 .futsel button{font:inherit;font-size:13px;line-height:1.2;padding:4px 10px;border-radius:999px;border:1.5px solid var(--cc);background:var(--panel);color:var(--ink);cursor:pointer}
 .futsel button[aria-pressed=true]{background:var(--cc);color:#fff;font-weight:600}
 .futsel.inpanel{margin:8px 0 4px}
+.cimg{margin:8px 0;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--chip)}
+.cimg img{display:block;width:100%;max-height:280px;object-fit:cover}
+.cimg figcaption{padding:6px 9px;font-size:12.5px;line-height:1.4;color:var(--ink)}.cimg figcaption span{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.modcard{margin-top:8px;padding:9px 11px;border-radius:var(--r);border-left:4px solid var(--cc);background:var(--chip);font-size:13.5px}.modcard p{margin:6px 0}
+.spstep{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}.spstep button{font:inherit;font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}.spstep button.ex{border-color:#c0392b;color:#c0392b}
 @media (orientation:landscape) and (max-height:520px){.yearbox .futsel{display:none}}
 .agl{padding-left:18px;margin:8px 0}.agl li{margin:0 0 9px;font-size:13.5px;line-height:1.4}.agl .note{font-size:12.5px}
 .fate{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px;margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r)}
@@ -322,6 +327,7 @@ details ul{padding-left:18px;margin:8px 0}
       <div class="era" id="eraLabel"></div>
       <div class="yr" id="yearLabel"></div>
       <div class="sub" id="subLabel"></div>
+      <div class="futsel" id="modSel" role="group" aria-label="Modello del prossimo supercontinente" hidden></div>
       <div class="actions">
         <button id="scenBtn" class="bigbtn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 4h16v2H2zm0 5h10v2H2zm0 5h13v2H2z"/><circle cx="16" cy="10" r="2.2"/></svg><span>Scenari<span class="long"> speciali</span></span></button>
         <button id="peopleBtn" class="bigbtn alt"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6" r="3.5"/><path d="M3 18c0-4 3-6.5 7-6.5s7 2.5 7 6.5z"/></svg><span class="hide-mob">Scienziati</span></button>

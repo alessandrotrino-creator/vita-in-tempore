@@ -800,7 +800,7 @@ function collectSpecies(t, marks) {
     // (le piante e gli animali domestici, comparsi da poco, restano visibili)
     if (!present && !x.to && x.from >= T0 && x.group !== "umani" && (Z < 2.2 || state.sc) && !state.fGroup && !state.fCat) continue;
     // durante uno scenario: solo le specie di cui parla, le più note e gli umani
-    if (state.sc) { const st = state.sc._taxa || (state.sc._taxa = new Set((state.sc.markers || []).map(m => m.taxon).filter(Boolean))); if (st.has(x.id) || (!(x.star && present) && x.group !== "umani")) continue; }
+    if (state.sc) { const st = state.sc._taxa || (state.sc._taxa = new Set((state.sc.markers || []).map(m => m.taxon).concat(...(state.sc.steps || []).map(s => (s.species || []).concat(s.extinct || []))).filter(Boolean))); if (st.has(x.id) || (!(x.star && present) && x.group !== "umani")) continue; }
     let pri = x.star ? 60 : 10;
     if (x.group === "umani") pri += 70;
     if (present && x.iucn) pri += {CR: 40, EN: 30, VU: 20, EW: 35, EX: 12, NT: 6}[x.iucn] || 0;
@@ -819,6 +819,15 @@ function collectPeople(t, marks) {
   }
 }
 function collectScenario(t, marks) {
+  // le specie della tappa in corso, con la loro foto (quelle che scompaiono sbiadite)
+  const s = (state.sc.steps || [])[state.step];
+  if (s) {
+    for (const id of (s.species || []).concat(s.extinct || [])) {
+      const x = BYID.get(id); if (!x || !x.places || !x.places.length) continue;
+      const ex = (s.extinct || []).includes(id);
+      x.places.slice(0, Z >= 2 ? 3 : 1).forEach((pl, i) => marks.push({kind: "sp", x, pl, i, pri: 97 - i * 5, ghost: ex, ll: [pl[1], pl[0]]}));
+    }
+  }
   for (const m of state.sc.markers || []) {
     if (!scVis(m, t)) continue;
     const x = m.taxon && BYID.get(m.taxon);
@@ -1310,7 +1319,7 @@ function showEvent(ev) {
   const sk = ev.fut && ev.scen && ev.scen !== "tutti" ? (Array.isArray(ev.scen) ? ev.scen : [ev.scen]).filter(k => SCN[k]).map(k => SCN[k].name).join(", ") : "";
   const tx = ev.taxon && BYID.get(ev.taxon);
   openSel(`<div class="eyebrow"><i class="cdot" style="background:${col}"></i>${esc(CN[ev.cat] || "Evento")} · ${esc(fmtRange(ev.t, ev.t2))}${sk ? " · scenario " + esc(sk.toLowerCase()) : ev.fut ? " · tutti gli scenari" : ""}</div>
-    <h3>${esc(ev.title)}</h3>${certHtml(ev)}${imgBlock(id)}<p>${esc(ev.text || "")}</p>
+    <h3>${esc(ev.title)}</h3>${certHtml(ev)}${ev.img ? cimg(ev.img) : imgBlock(id)}<p>${esc(ev.text || "")}</p>
     ${futExtras(ev)}
     ${tx ? `<div class="links"><button id="evTx">${G(tx.group).emoji} ${esc(tx.common || tx.name)}: la scheda</button></div>` : ""}
     ${linkRow([ev.wiki ? A(wpLink(ev.wiki, "it"), "📖 Wikipedia") : ev.wikiEn ? A(wpLink(ev.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}
@@ -1322,7 +1331,7 @@ function showEvent(ev) {
   const gw = $("goWhen"); if (gw) gw.onclick = () => setTime(ev.t);
   if (OV.key) clearOverlay();
   if (ev.lat != null) flyTo(ev.lon, ev.lat, Math.max(Z, 1.6));
-  wikiBest(ev.wiki, ev.wikiEn).then(w => fillImg(id, w, ev.title));
+  if (!ev.img) wikiBest(ev.wiki, ev.wikiEn).then(w => fillImg(id, w, ev.title));
 }
 function showHotspot(h) {
   const id = uid();
@@ -1342,8 +1351,8 @@ function showScMarker(m) {
   const p = m.person ? PBYID.get(m.person) : null;
   if (p) { showPerson(p); return; }
   const id = uid();
-  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${certHtml(m)}${m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${futExtras(m)}${linkRow([m.wiki ? A(wpLink(m.wiki, "it"), "📖 Wikipedia") : m.wikiEn ? A(wpLink(m.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}`, {mark: {ll: () => [m.lon, m.lat]}});
-  if (m.wiki || m.wikiEn) wikiBest(m.wiki, m.wikiEn).then(w => fillImg(id, w, m.label));
+  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${certHtml(m)}${m.img ? cimg(m.img) : m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${futExtras(m)}${linkRow([m.wiki ? A(wpLink(m.wiki, "it"), "📖 Wikipedia") : m.wikiEn ? A(wpLink(m.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}`, {mark: {ll: () => [m.lon, m.lat]}});
+  if (!m.img && (m.wiki || m.wikiEn)) wikiBest(m.wiki, m.wikiEn).then(w => fillImg(id, w, m.label));
 }
 
 /* ---------- ricerca di una specie o di un genere qualsiasi ---------- */
@@ -1410,6 +1419,22 @@ function futExtras(o) {
   if (f.length) h += `<details class="fonti"><summary>Fonti scientifiche</summary><ul>${f.map(s => `<li>${esc(s)}</li>`).join("")}</ul></details>`;
   return h;
 }
+// immagine di Wikimedia Commons scelta a mano (foto, mappa o ricostruzione), con autore e licenza
+function cimg(o) {
+  if (!o || !o.file) return "";
+  const name = String(o.file).replace(/^File:/i, "");
+  if (window.Cerca && window.Cerca.badImg(name)) return "";
+  const src = "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(name) + "?width=500", page = "https://commons.wikimedia.org/wiki/File:" + encodeURIComponent(name.replace(/ /g, "_"));
+  return `<figure class="cimg"><a href="${page}" target="_blank" rel="noopener"><img src="${src}" alt="${esc(o.cap || "")}" loading="lazy" onerror="this.closest('figure').remove()"></a><figcaption>${o.tipo === "ricostruzione" ? "<b>Ricostruzione</b> · " : o.tipo === "mappa" ? "<b>Mappa</b> · " : ""}${esc(o.cap || "")}<span>${esc([o.author, o.lic].filter(Boolean).join(" · "))} · Wikimedia Commons</span></figcaption></figure>`;
+}
+// specie di una tappa del racconto: chi scompare (✝) e chi è protagonista
+function stepSpecies(s) {
+  const ex = (s.extinct || []).map(id => BYID.get(id)).filter(Boolean), sp = (s.species || []).map(id => BYID.get(id)).filter(x => x && !(s.extinct || []).includes(x.id));
+  if (!ex.length && !sp.length) return "";
+  return `<div class="spstep">${ex.map(x => `<button class="ex" data-sp="${esc(x.id)}">✝ ${esc(x.common || x.name)}</button>`).join("")}${sp.map(x => `<button data-sp="${esc(x.id)}">${G(x.group).emoji} ${esc(x.common || x.name)}</button>`).join("")}</div>`;
+}
+// racconti guidati del futuro (uno per scenario)
+const tourFor = k => SCENARI.find(s => s.id === "racconto-" + k) || SCENARI.find(s => s.futuro && s.scen === k && (s.steps || []).length > 4);
 // destino di una specie di oggi nei tre scenari
 function fateHtml(x) {
   const f = FATE[x.id]; if (!f) return "";
@@ -1449,7 +1474,7 @@ function updatePanel() {
     <h3>${esc(fmtAge(t))}</h3>
     ${au ? `<p>${esc(au.text)}</p>` : gu ? `<p>${esc(gu.text)}</p>` : ""}
     ${t < 0 && HAS_FUT ? `<div class="futsel inpanel" role="group" aria-label="Scenario">${futButtons()}</div>
-      <p class="note futnote">🔭 <b>Scenario ${esc((sc.name || "").toLowerCase())}</b>${sc.ssp ? " (" + esc(sc.ssp) + ")" : ""}. ${esc(sc.intro || "")} Non è una profezia: è ciò che gli studi di oggi ritengono plausibile.</p>` : ""}
+      <p class="note futnote">🔭 <b>Scenario ${esc((sc.name || "").toLowerCase())}</b>${sc.ssp ? " (" + esc(sc.ssp) + ")" : ""}. ${esc(sc.intro || "")} Non è una profezia: è ciò che gli studi di oggi ritengono plausibile.</p>${tourFor(state.fut) ? `<div class="links"><button id="tourGo" class="pri">▶ Racconto guidato: scenario ${esc((sc.name || "").toLowerCase())}</button></div>` : ""}` : ""}
     <dl class="facts box">
       <dt>Temperatura</dt><dd>${Math.abs(temp) < .05 ? "come nel 1850–1900" : (temp > 0 ? "+" : "−") + nf(Math.abs(temp), 1) + " °C rispetto al 1850–1900"}${t > 0.012 || t < 0 ? " (stima)" : ""}</dd>
       <dt>Livello del mare</dt><dd>${esc(seaTxt)}</dd>
@@ -1463,6 +1488,7 @@ function updatePanel() {
     ${gone.length ? `<div class="note" style="margin-top:10px">Specie di oggi scomparse in questo scenario (clicca per la scheda):</div><div class="links">${gone.slice(0, 24).map(x => `<button data-gone="${esc(x.id)}">✝ ${esc(x.common || x.name)} <span style="opacity:.65">${esc(fmtAge(futEnd(x), "short"))}</span></button>`).join("")}</div>` : ""}
     ${t < 0 && FUTS && FUTS.agende && FUTS.agende.length ? `<details class="agende" style="margin-top:10px"><summary>📜 Gli impegni di oggi: accordi, leggi e rapporti (${FUTS.agende.length})</summary>${agendeHtml(t)}</details>` : ""}`;
   bindFutButtons($("whenBox"));
+  const tg = $("tourGo"); if (tg) tg.onclick = () => enterScenario(tourFor(state.fut));
   $("whenBox").querySelectorAll("[data-gone]").forEach(b => b.onclick = () => showSpecies(BYID.get(b.dataset.gone)));
   // specie umane
   $("humSec").hidden = !HUMANS.length;
@@ -1687,13 +1713,15 @@ function renderScenBox() {
   $("scenBox").innerHTML = `<div class="sel" style="border-color:${sc.color || "var(--accent)"}">
     <div class="eyebrow">Scenario speciale${s ? ` · tappa ${i + 1} di ${st.length}` : ""}</div>
     <h3>${esc(s ? s.title : sc.title)}</h3>
-    ${s ? `<div class="sci" style="font-style:normal">${esc(fmtAge(s.t))}</div><p>${esc(s.text)}</p>` : `<p>${esc(sc.intro || "")}</p>`}
+    ${s ? `<div class="sci" style="font-style:normal">${esc(fmtAge(s.t))}${sc.scen && SCN[sc.scen] ? " · scenario " + esc(SCN[sc.scen].name.toLowerCase()) : ""}</div>${certHtml(s)}${cimg(s.img)}<p>${esc(s.text)}</p>${stepSpecies(s)}` : `<p>${esc(sc.intro || "")}</p>`}
     <div class="stepnav"><button id="stPrev" ${i <= 0 ? "disabled" : ""}>‹ Precedente</button><button id="stNext" class="pri" ${i >= st.length - 1 ? "disabled" : ""}>Successiva ›</button></div>
+    ${s ? futExtras(s) : ""}
     <details style="margin-top:10px"${i <= 0 ? " open" : ""}><summary>Introduzione e tappe</summary><p style="color:var(--ink)">${esc(sc.intro || "")}</p>
     <ul class="steps">${st.map((x, k) => `<li><button data-k="${k}" class="${k === i ? "cur" : ""}"><span class="k">${k + 1}</span><span>${esc(x.title)} <span style="color:var(--muted);font-size:12.5px">· ${esc(fmtUnit(x.t, sc.unit))}</span></span></button></li>`).join("")}</ul></details>
     <div class="links"><button id="stExit">Esci dallo scenario</button></div></div>`;
   $("stPrev").onclick = () => goStep(i - 1); $("stNext").onclick = () => goStep(i + 1); $("stExit").onclick = exitScenario;
   $("scenBox").querySelectorAll("[data-k]").forEach(b => b.onclick = () => goStep(+b.dataset.k));
+  $("scenBox").querySelectorAll("[data-sp]").forEach(b => b.onclick = () => showSpecies(BYID.get(b.dataset.sp)));
 }
 function goStep(i) {
   const sc = state.sc; if (!sc || !sc.steps || !sc.steps.length) return;

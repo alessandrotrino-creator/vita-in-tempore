@@ -170,6 +170,60 @@ function futQ(pid, f) {
   if (FQC.size > 6000) FQC.clear();
   FQC.set(key, q); return q;
 }
+/* oltre FUT_TECT i continenti si radunano nel prossimo supercontinente del modello scelto (FUTURO.modelli):
+   ogni blocco (Nord America, Africa…) va dalla posizione di FUT_TECT a quella del modello, raggiunta all'età M.t.
+   Le posizioni dei modelli sono schematiche (ricavate dalle mappe pubblicate). */
+const MODELLI = FUT && FUT.modelli ? FUT.modelli.filter(m => m && m.blocks) : [];
+const MOD_COL = {ultima: "#c99a14", novopangea: "#2a9d8f", aurica: "#e76f51", amasia: "#3a86ff"};
+state.model = MODELLI.length ? MODELLI[0].id : null;
+const BLK0 = {NAM: [48, -100], SAM: [-15, -60], EUR: [52, 25], ASI: [45, 100], AFR: [5, 20], ARA: [23, 46], IND: [22, 79], AUS: [-25, 134], ANT: [-82, 0], GRL: [72, -40]};
+function blockOf(lon, lat) {
+  if (lat < -60) return "ANT";
+  if (lat > 59 && lon > -75 && lon < -10) return "GRL";
+  if (lon <= -30) { if (lon < -170) return lat > 50 ? "NAM" : null; return lat > 8.5 ? (lon > -130 || lat > 48 ? "NAM" : null) : lon > -95 ? "SAM" : null; }
+  if ((lon > 110 && lat < -8) || (lon > 130 && lat < 0)) return lon > 160 && lat > -30 ? null : "AUS";
+  if (lon >= 66 && lon <= 93 && lat >= 5 && lat <= 31) return "IND";
+  if (lon >= 34 && lon <= 60 && lat >= 12 && lat <= 31) return "ARA";
+  if (lon < 52 && lat < 37) return "AFR";
+  return lon < 60 ? "EUR" : "ASI";
+}
+function qMul(a, b) {
+  return [a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3], a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
+    a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1], a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0]];
+}
+const qAxis = (v, ang) => { const s = Math.sin(ang / 2); return [Math.cos(ang / 2), v[0] * s, v[1] * s, v[2] * s]; };
+function qSlerp(q0, q1, u) {
+  let d = q0[0] * q1[0] + q0[1] * q1[1] + q0[2] * q1[2] + q0[3] * q1[3]; const s = d < 0 ? -1 : 1; d = Math.abs(d);
+  let k0 = 1 - u, k1 = u * s;
+  if (d < .9995) { const th = Math.acos(d), st = Math.sin(th); k0 = Math.sin((1 - u) * th) / st; k1 = s * Math.sin(u * th) / st; }
+  const q = [k0 * q0[0] + k1 * q1[0], k0 * q0[1] + k1 * q1[1], k0 * q0[2] + k1 * q1[2], k0 * q0[3] + k1 * q1[3]], n = Math.hypot(...q);
+  return q.map(v => v / n);
+}
+// rotazione che porta il blocco dalla posizione di oggi a quella del modello: spostamento del centro, poi rotazione oraria di rot gradi
+function modelQ(M, blk) {
+  const key = "_q" + blk; if (key in M) return M[key];
+  const b = M.blocks[blk], c0 = BLK0[blk]; let q = null;
+  if (b && c0) {
+    const a = vecOf(c0[1], c0[0]), t = vecOf(b[1], b[0]);
+    const cx = [a[1] * t[2] - a[2] * t[1], a[2] * t[0] - a[0] * t[2], a[0] * t[1] - a[1] * t[0]], cn = Math.hypot(...cx);
+    const mv = cn < 1e-9 ? [1, 0, 0, 0] : qAxis(cx.map(v => v / cn), Math.atan2(cn, a[0] * t[0] + a[1] * t[1] + a[2] * t[2]));
+    q = qMul(qAxis(t, -(b[2] || 0) * RAD), mv);
+  }
+  return (M[key] = q);
+}
+const modelNow = () => MODELLI.find(m => m.id === state.model) || MODELLI[0] || null;
+const QB = new Map();
+function futQB(pid, blk, f) {
+  const q50 = futQ(pid, f), M = modelNow();
+  if (!M || !q50 || f <= FUT_TECT || !blk) return q50;
+  const qt = modelQ(M, blk); if (!qt) return q50;
+  const key = M.id + pid + blk + Math.round(f);
+  if (QB.has(key)) return QB.get(key);
+  const q = qSlerp(q50, qt, smooth(FUT_TECT, -(M.t || -250), f));
+  if (QB.size > 8000) QB.clear();
+  QB.set(key, q); return q;
+}
+const blockOfR = r => r.blk !== undefined ? r.blk : (r.blk = (c => blockOf(c[0], c[1]))(d3.geoCentroid(r.feat)));
 // placca di un punto (coordinate attuali) in un modello: poligono che lo contiene, altrimenti il vertice più vicino
 function pidOf(M, lon, lat, fallback) {
   const key = lon.toFixed(2) + "," + lat.toFixed(2);
@@ -196,7 +250,7 @@ function paleo(lon, lat, t, fb) {
   if (t < 0.02 && t > -0.02) return [lon, lat];
   const M = modelAt(t), pid = pidOf(M, lon, lat, fb ? fb[M.key] : null);
   if (pid == null) return null;
-  const q = t < 0 ? futQ(pid, -t) : quatAt(M, pid, Math.min(t, M.max)); if (!q) return null;
+  const q = t < 0 ? futQB(pid, blockOf(lon, lat), -t) : quatAt(M, pid, Math.min(t, M.max)); if (!q) return null;
   const v = vecOf(lon, lat); return toLL(rotV(q, v[0], v[1], v[2]));
 }
 const COAST = MM.coast;   // coste di oggi (le più dettagliate)
@@ -209,7 +263,7 @@ function landAt(t) {
   for (const r of M.coast) {
     if (r.b < t) continue;   // terra non ancora formata (o non ancora presente nel modello)
     if (t < 0.02 && t > -0.02) { out.push({r, ring: r.ring, q: null}); continue; }
-    const q = t < 0 ? futQ(r.p, -t) : quatAt(M, r.p, tt); if (!q) continue;
+    const q = t < 0 ? futQB(r.p, blockOfR(r), -t) : quatAt(M, r.p, tt); if (!q) continue;
     const ring = new Array(r.n);
     for (let i = 0; i < r.n; i++) ring[i] = toLL(rotV(q, r.V[3 * i], r.V[3 * i + 1], r.V[3 * i + 2]));
     out.push({r, ring, q});
@@ -891,6 +945,12 @@ function halo(txt, x, y, font, col) {
 function drawLabels(t) {
   if (t > TECT_MAX) return;
   const f = `italic 600 ${clamp(13 + Z * 1.5, 14, 22)}px Alegreya, Georgia, serif`;
+  // nome del supercontinente del modello scelto, al centro dei blocchi riuniti
+  const M = modelNow();
+  if (M && t < -FUT_TECT && t > -1300 && smooth(FUT_TECT, -(M.t || -250), -t) > .6) {
+    const ll = modelCenter(M);
+    if (visible(ll[0], ll[1])) { const p = proj(ll); if (p) halo(M.name.toUpperCase().split("").join(" "), p[0], p[1], `italic 700 ${clamp(16 + Z * 2, 17, 28)}px Alegreya, Georgia, serif`, MOD_COL[M.id] || COL.ink); }
+  }
   for (const l of PLAB) {
     if (t > l.from || (t < l.to && !(l.to === 0 && t > -FUT_TECT * 1.2))) continue;
    const ll = paleo(l.lon, l.lat, t); if (!ll || !visible(ll[0], ll[1])) continue;
@@ -1088,6 +1148,37 @@ function futExtras(o) {
   if (f.length) h += `<details class="fonti"><summary>Fonti scientifiche</summary><ul>${f.map(s => `<li>${esc(s)}</li>`).join("")}</ul></details>`;
   return h;
 }
+// immagine di Wikimedia Commons scelta a mano (foto, mappa o ricostruzione), con autore e licenza
+function cimg(o) {
+  if (!o || !o.file) return "";
+  const name = String(o.file).replace(/^File:/i, "");
+  if (window.Cerca && window.Cerca.badImg(name)) return "";
+  const src = "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(name) + "?width=500", page = "https://commons.wikimedia.org/wiki/File:" + encodeURIComponent(name.replace(/ /g, "_"));
+  return `<figure class="cimg"><a href="${page}" target="_blank" rel="noopener"><img src="${src}" alt="${esc(o.cap || "")}" loading="lazy" onerror="this.closest('figure').remove()"></a><figcaption>${o.tipo === "ricostruzione" ? "<b>Ricostruzione</b> · " : o.tipo === "mappa" ? "<b>Mappa</b> · " : ""}${esc(o.cap || "")}<span>${esc([o.author, o.lic].filter(Boolean).join(" · "))} · Wikimedia Commons</span></figcaption></figure>`;
+}
+// modelli del prossimo supercontinente: scelta e scheda
+function modButtons() { return MODELLI.map(m => `<button data-mod="${esc(m.id)}" style="--cc:${MOD_COL[m.id] || "#7b6cd9"}" aria-pressed="${state.model === m.id}">${esc(m.name)}</button>`).join(""); }
+function bindModButtons(el) { el.querySelectorAll("[data-mod]").forEach(b => b.onclick = () => setModel(b.dataset.mod)); }
+function modCard(M) {
+  if (!M) return "";
+  const sc = (FUT && FUT.supercontinenti || []).find(s => s.id === M.id || s.name === M.name) || {}, wiki = M.wiki || sc.wiki, wikiEn = M.wikiEn || sc.wikiEn;
+  return `<div class="modcard" style="--cc:${MOD_COL[M.id] || "#7b6cd9"}"><b>${esc(M.name)}</b> <span class="note">${esc([M.author, M.year].filter(Boolean).join(" "))}${M.t ? " · fra circa " + nfi(-M.t) + " milioni di anni" : ""}</span>
+    ${cimg(M.img)}${M.meccanismo ? `<p><b>Come si forma:</b> ${esc(M.meccanismo)}</p>` : ""}<p>${esc(M.text || "")}</p>
+    ${M.differenze ? `<p><b>Che cosa cambia rispetto agli altri:</b> ${esc(M.differenze)}</p>` : ""}${futExtras({fonti: M.fonti})}${linksHtml({wiki, wikiEn})}</div>`;
+}
+function setModel(id) {
+  if (!MODELLI.some(m => m.id === id) || state.model === id) return;
+  state.model = id; LAND_T = NaN; LAND = null; TEX.t = NaN; QB.clear();
+  const md = $("modSel"); if (md) { md.innerHTML = modButtons(); bindModButtons(md); }
+  updateHead(); draw(); schedulePanel();
+  // si va a guardare il supercontinente (le tappe delle visite scelgono poi la loro inquadratura)
+  if (state.t < -FUT_TECT && !state.sc) { const c = modelCenter(modelNow()); if (c) flyTo(c[0], Math.max(-60, Math.min(60, c[1])), Z); }
+}
+function modelCenter(M) {
+  if (!M) return null;
+  const s = [0, 0, 0]; Object.values(M.blocks).forEach(b => { const v = vecOf(b[1], b[0]); s[0] += v[0]; s[1] += v[1]; s[2] += v[2]; });
+  return toLL(s.map(v => v / Math.hypot(...s)));
+}
 function showTaxon(x, site) {
   const g = G(x.group), s = site || x.sitesP[0];
   const facts = [["Quando", fmtRange(x.from, x.to)]];
@@ -1135,21 +1226,21 @@ function showEvent(ev) {
   const id = "img" + Math.random().toString(36).slice(2), col = CATCOL[ev.cat] || COL.accent;
   const CN = {geo: "Geologia", clima: "Clima", vita: "Vita", estinzione: "Estinzione", umani: "Esseri umani", cosmo: "Spazio e Sole"};
   openSel(`<div class="eyebrow"><i class="cdot" style="background:${col}"></i>${esc(CN[ev.cat] || "Evento")} · ${esc(fmtRange(ev.t, ev.t2))}</div>
-    <h3>${esc(ev.title)}</h3>${certHtml(ev)}${imgBlock(id)}<p>${esc(ev.text || "")}</p>
+    <h3>${esc(ev.title)}</h3>${certHtml(ev)}${ev.img ? cimg(ev.img) : imgBlock(id)}<p>${esc(ev.text || "")}</p>
     ${futExtras(ev)}
     ${linksHtml({wiki: ev.wiki, wikiEn: ev.wikiEn})}
     ${Math.abs(t2p(ev.t) - t2p(state.t)) > .002 ? `<div class="links"><button id="goWhen">⏱ Vai a questo momento</button></div>` : ""}`,
     ev.lat != null ? {ll: () => paleo(ev.lon, ev.lat, state.t)} : null);
   const gw = $("goWhen"); if (gw) gw.onclick = () => setTime(ev.t);
   if (ev.lat != null) flyToPresent(ev.lon, ev.lat, Math.max(Z, 1.6));
-  wikiBest(ev.wiki, ev.wikiEn).then(w => fillImg(id, w, ev.title));
+  if (!ev.img) wikiBest(ev.wiki, ev.wikiEn).then(w => fillImg(id, w, ev.title));
 }
 function showScMarker(m) {
   const x = m.taxon ? TAXA_.find(z => z.id === m.taxon) : null;
   if (x) { showTaxon(x); return; }
   const id = "img" + Math.random().toString(36).slice(2);
-  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${certHtml(m)}${m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${futExtras(m)}${linksHtml({wiki: m.wiki, wikiEn: m.wikiEn})}`, {ll: () => scPos(m.lon, m.lat, state.t)});
-  if (m.wiki || m.wikiEn) wikiBest(m.wiki, m.wikiEn).then(w => fillImg(id, w, m.label));
+  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${certHtml(m)}${m.img ? cimg(m.img) : m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${futExtras(m)}${linksHtml({wiki: m.wiki, wikiEn: m.wikiEn})}`, {ll: () => scPos(m.lon, m.lat, state.t)});
+  if (!m.img && (m.wiki || m.wikiEn)) wikiBest(m.wiki, m.wikiEn).then(w => fillImg(id, w, m.label));
 }
 
 /* ---------- pannello ---------- */
@@ -1191,7 +1282,7 @@ function updatePanel() {
     <div class="chain">${ch.map(u => `<span style="background:${u.color}" title="${esc(fmtRange(u.from, u.to))}">${esc(u.name)}</span>`).join("")}</div>
     <h3>${esc(last ? last.name : "")}${last ? ` <small style="font-family:var(--f-body);font-size:14px;color:var(--muted);font-weight:400">${esc(fmtRange(last.from, last.to))}</small>` : ""}</h3>
     ${last && last.text ? `<p>${esc(last.text)}</p>` : ""}
-    ${fc ? `<p class="note futnote">🔭 <b>Futuro possibile.</b> Una ricostruzione basata sugli studi scientifici di oggi, non una profezia: più ci si allontana, più le previsioni sono incerte. Il futuro vicino degli esseri umani è in <a href="sapiens.html?t=-0.000074">«Sapiens in Tempore»</a>.</p>` : ""}
+    ${fc ? `<p class="note futnote">🔭 <b>Futuro possibile.</b> Una ricostruzione basata sugli studi scientifici di oggi, non una profezia: più ci si allontana, più le previsioni sono incerte. Il futuro vicino degli esseri umani è in <a href="sapiens.html?t=-0.000074">«Sapiens in Tempore»</a>.</p>${FUT && FUT.scenari && FUT.scenari.length && !state.sc ? `<div class="links">${FUT.scenari.map((s, i) => `<button data-fsc="${i}" class="pri">▶ ${esc(s.title)}</button>`).join("")}</div>` : ""}` : ""}
     <dl class="facts box">
       <dt>Continenti</dt><dd>${esc(supercontinent(t))}</dd>
       ${cl.note ? `<dt>Clima</dt><dd>${esc(cl.note)}</dd>` : ""}
@@ -1204,7 +1295,11 @@ function updatePanel() {
       <dt>Ossigeno nell'aria</dt><dd>${o2 < .01 ? "quasi assente" : "circa " + nf(o2, o2 < 3 ? 1 : 0) + "% (oggi 21%)"}</dd>
       <dt>Durata del giorno</dt><dd>circa ${nf(day, day < 20 ? 0 : 1)} ore</dd>
     </dl>
-    ${SC ? `<div class="note" style="margin-top:10px">Quattro modelli del prossimo supercontinente:</div><ul class="gen">${SC.map(s => `<li><span><b>${esc(s.name)}</b> · ${esc(s.author || "")}${s.year ? " " + s.year : ""}<br><span style="color:var(--muted);font-size:13px">${esc(s.text || "")}</span></span><span>${s.wiki ? `<a href="${wpLink(s.wiki, "it")}" target="_blank" rel="noopener">Wikipedia</a>` : s.wikiEn ? `<a href="${wpLink(s.wikiEn, "en")}" target="_blank" rel="noopener">Wikipedia</a>` : ""}</span></li>`).join("")}</ul>` : ""}`;
+    ${MODELLI.length && t < -FUT_TECT && t > -1300 ? `<div class="note" style="margin-top:10px">🌐 Il prossimo supercontinente: ${MODELLI.length} ipotesi. Scegline una per vederla sul globo (le posizioni sono schematiche, ricavate dalle mappe pubblicate).</div>
+      <div class="futsel inpanel" role="group" aria-label="Modello del supercontinente">${modButtons()}</div>${modCard(modelNow())}` :
+    SC ? `<div class="note" style="margin-top:10px">Quattro modelli del prossimo supercontinente:</div><ul class="gen">${SC.map(s => `<li><span><b>${esc(s.name)}</b> · ${esc(s.author || "")}${s.year ? " " + s.year : ""}<br><span style="color:var(--muted);font-size:13px">${esc(s.text || "")}</span></span><span>${s.wiki ? `<a href="${wpLink(s.wiki, "it")}" target="_blank" rel="noopener">Wikipedia</a>` : s.wikiEn ? `<a href="${wpLink(s.wikiEn, "en")}" target="_blank" rel="noopener">Wikipedia</a>` : ""}</span></li>`).join("")}</ul>` : ""}`;
+  bindModButtons($("whenBox"));
+  $("whenBox").querySelectorAll("[data-fsc]").forEach(b => b.onclick = () => enterScenario(FUT.scenari[+b.dataset.fsc]));
   // eventi vicini
   const pool = state.sc ? (state.sc.steps || []).map((s, i) => ({t: s.t, title: s.title, text: s.text, step: i})) : EVENTS_;
   const p = t2p(t);
@@ -1326,13 +1421,15 @@ function updateHead() {
   const t = state.t, ch = chainAt(t), u = ch[ch.length - 1];
   $("eraLabel").innerHTML = u ? `<i style="background:${u.color}"></i>${esc(ch.map(x => x.name).slice(-2).join(" · "))}` : "";
   $("yearLabel").textContent = fmtAge(t);
+  const md = $("modSel");
+  if (md) { const on = MODELLI.length > 0 && t < -FUT_TECT && t > -1300; if (on && md.hidden) { md.innerHTML = modButtons(); bindModButtons(md); } md.hidden = !on; }
   const cl = climate(t);
   const msg = t > 4400 ? "Superficie fusa o appena solidificata: nessun continente, nessun oceano stabile." :
     t > 4000 ? "I primi oceani: la crosta dell'Adeano è quasi tutta scomparsa, ne restano solo minuscoli cristalli di zircone." :
     t > TECT_MAX ? "Prima di 1 miliardo di anni fa la posizione dei continenti è molto incerta: sono mostrati solo i nuclei di crosta già esistenti." :
     cl.snow >= 1 ? "Terra a palla di neve: ghiaccio fino all'equatore." :
     t < -7450 ? "Il Sole, diventato una gigante rossa, raggiunge l'orbita della Terra: probabilmente la inghiotte." :
-    t < -FUT_TECT ? "Futuro lontano: continenti in posizione schematica, previsioni sempre più incerte." : "";
+    t < -FUT_TECT ? (MODELLI.length && t > -1300 ? `Futuro lontano: continenti secondo il modello «${(modelNow() || {}).name || ""}» (posizioni schematiche).` : "Futuro lontano: continenti in posizione schematica, previsioni sempre più incerte.") : "";
   $("subLabel").textContent = msg || (t > 0.02 ? "Continenti nella posizione dell'epoca" : t < -0.02 ? "Futuro possibile: i continenti proseguono i moti di oggi" : t < 0 ? "Futuro possibile: dipende anche dalle nostre scelte" : "");
   $("subLabel").classList.toggle("warn", !!msg);
 }
@@ -1416,8 +1513,9 @@ function renderScenBox() {
   $("scenBox").innerHTML = `<div class="sel" style="border-color:${sc.color || "var(--accent)"}">
     <div class="eyebrow">Scenario speciale${s ? ` · tappa ${i + 1} di ${st.length}` : ""}</div>
     <h3>${esc(s ? s.title : sc.title)}</h3>
-    ${s ? `<div class="sci" style="font-style:normal">${esc(fmtAge(s.t))}</div><p>${esc(s.text)}</p>` : `<p>${esc(sc.intro || "")}</p>`}
+    ${s ? `<div class="sci" style="font-style:normal">${esc(fmtAge(s.t))}${s.modello && modelNow() ? " · modello «" + esc(modelNow().name) + "»" : ""}</div>${certHtml(s)}${cimg(s.img)}<p>${esc(s.text)}</p>` : `<p>${esc(sc.intro || "")}</p>`}
     <div class="stepnav"><button id="stPrev" ${i <= 0 ? "disabled" : ""}>‹ Precedente</button><button id="stNext" class="pri" ${i >= st.length - 1 ? "disabled" : ""}>Successiva ›</button></div>
+    ${s ? futExtras(s) : ""}
     <details style="margin-top:10px"${i <= 0 ? " open" : ""}><summary>Introduzione e tappe</summary><p style="color:var(--ink)">${esc(sc.intro || "")}</p>
     <ul class="steps">${st.map((x, k) => `<li><button data-k="${k}" class="${k === i ? "cur" : ""}"><span class="k">${k + 1}</span><span>${esc(x.title)} <span style="color:var(--muted);font-size:12.5px">· ${esc(fmtUnit(x.t, sc.unit))}</span></span></button></li>`).join("")}</ul></details>
     <div class="links"><button id="stExit">Esci dallo scenario</button></div></div>`;
@@ -1428,6 +1526,7 @@ function goStep(i) {
   const sc = state.sc; if (!sc || !sc.steps || !sc.steps.length) return;
   i = clamp(i, 0, sc.steps.length - 1); state.step = i;
   const s = sc.steps[i];
+  if (s.modello) { if (state.model !== s.modello) setModel(s.modello); }
   setTime(s.t);
   if (s.view) { const [lon, lat, z] = s.view; const ll = Math.abs(s.t) < 2 ? [lon, lat] : (paleo(lon, lat, s.t) || [lon, lat]); flyTo(ll[0], ll[1], z ? clamp(z * 1.0, .9, 8) : 1.2); }
   renderScenBox(); buildTrack(); updateThumb();

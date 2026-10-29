@@ -117,6 +117,11 @@ a{color:var(--accent)}
 .futsel button{font:inherit;font-size:13px;line-height:1.2;padding:4px 10px;border-radius:999px;border:1.5px solid var(--cc);background:var(--panel);color:var(--ink);cursor:pointer}
 .futsel button[aria-pressed=true]{background:var(--cc);color:#fff;font-weight:600}
 .futsel.inpanel{margin:8px 0 4px}
+.cimg{margin:8px 0;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--chip)}
+.cimg img{display:block;width:100%;max-height:280px;object-fit:cover}
+.cimg figcaption{padding:6px 9px;font-size:12.5px;line-height:1.4;color:var(--ink)}.cimg figcaption span{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.modcard{margin-top:8px;padding:9px 11px;border-radius:var(--r);border-left:4px solid var(--cc);background:var(--chip);font-size:13.5px}.modcard p{margin:6px 0}
+.spstep{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}.spstep button{font:inherit;font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}.spstep button.ex{border-color:#c0392b;color:#c0392b}
 @media (orientation:landscape) and (max-height:520px){.yearbox .futsel{display:none}}
 .agl{padding-left:18px;margin:8px 0}.agl li{margin:0 0 9px;font-size:13.5px;line-height:1.4}.agl .note{font-size:12.5px}
 .fate{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px;margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r)}
@@ -11026,8 +11031,273 @@ events: [
 
 {t: -1, scen: "pess", title: "Dopo di noi", text: "Se l'umanità sparisse, la natura si riprenderebbe: lo mostrano la zona di Černobyl', dove lupi, alci e cavalli di Przewalski vivono senza persone, e la Zona demilitarizzata coreana. In milioni di anni nuove specie riempirebbero il pianeta; delle nostre città resterebbero strati di rocce, i fondali di cemento dei porti e qualche oggetto sulla Luna.", cat: "natura", lat: 51.39, lon: 30.1, certezza: "ipotesi",
  oggi: "Riserva della biosfera radiologica ed ecologica di Černobyl' (Ucraina, 2016).",
- curiosita: "Sulla Luna restano, tra le altre cose, sei bandiere americane, le impronte degli astronauti e le orme dei rover: senza vento né pioggia, potrebbero durare milioni di anni, consumate solo dai micrometeoriti.",
- fonti: ["Deryabina et al. 2015, Current Biology"], wiki: "Zona di alienazione", wikiEn: "Chernobyl exclusion zone"}
+ curiosita: "Sulla Luna restano, tra le altre cose, sei bandiere americane, le impronte degli astronauti e le orme dei rover: senza vento né pioggia, potrebbero durare milioni di anni, consumate solo dai micrometeoriti. Il filosofo della scienza Telmo Pievani ha immaginato un pianeta senza di noi nel libro «La Terra dopo di noi» (Contrasto, 2019), con le fotografie di Frans Lanting.",
+ fonti: ["Deryabina et al. 2015, Current Biology", "Pievani e Lanting 2019, La Terra dopo di noi, Contrasto"], wiki: "Zona di alienazione", wikiEn: "Chernobyl exclusion zone"},
+
+// ---------------------------------------------------------------------
+// IL LIMITE TERMODINAMICO (tutti gli scenari)
+{t: -0.000274, scen: "tutti", title: "Il limite del calore: quanta energia può usare una civiltà?", text: "Ogni kilowattora che usiamo, anche se viene dal Sole, dal vento o dalla fusione, alla fine diventa calore. Oggi questo «calore di scarto» vale in media circa 0,04 watt per metro quadrato di superficie terrestre: quasi 70 volte meno della spinta dei gas serra (circa 2,7 W/m²). Ma dal 1800 l'uso di energia è cresciuto in media di circa il 2% all'anno, cioè di circa 7 volte ogni secolo. Amedeo Balbi e Manasvi Lingam (2025) hanno calcolato che, se i consumi continuassero a crescere anche solo dell'1% all'anno, il calore di scarto da solo renderebbe un pianeta come la Terra inabitabile in meno di mille anni, anche senza un grammo di CO₂. Per durare, una civiltà tecnologica deve prima o poi smettere di far crescere i consumi di energia sul suo pianeta.", cat: "tecnologia", lat: null, lon: null, certezza: "media",
+ img: {file: "File:Black Marble Americas.jpg", cap: "Le Americhe di notte viste dal satellite Suomi NPP (2012): ogni luce è energia che diventa calore", author: "NASA Earth Observatory", lic: "Pubblico dominio", tipo: "foto"},
+ oggi: "Nessun accordo parla del calore di scarto, perché oggi è trascurabile rispetto alla CO₂. Il Consenso degli Emirati (COP28, 2023) chiede però di raddoppiare l'efficienza energetica entro il 2030: fare di più con meno energia.",
+ curiosita: "Già nel 1969 il climatologo sovietico Michail Budyko avvertiva che, con la crescita dei consumi di allora, il calore prodotto dall'uomo sarebbe diventato importante in un paio di secoli. Il fisico Tom Murphy ha rifatto il conto: crescendo del 2,3% all'anno (dieci volte ogni secolo) anche una fonte «perfetta» come la fusione renderebbe la Terra invivibile in pochi secoli. Amedeo Balbi è un astrofisico dell'Università di Roma Tor Vergata e un noto divulgatore.",
+ fonti: ["Balbi e Lingam 2025, Astrobiology", "Budyko 1969, Tellus", "Chaisson 2008, Eos", "Flanner 2009, Geophysical Research Letters", "Murphy 2011, Do the Math (blog, UC San Diego)"], wiki: "Scala di Kardašëv", wikiEn: "Waste heat"},
+
+// ---------------------------------------------------------------------
+// EVENTI DELLO SCENARIO OTTIMISTICO
+{t: -0.000004, scen: "ott", title: "Le tigri tornano in Asia centrale", text: "La tigre del Caspio viveva dalla Turchia al Kazakistan: fu cacciata fino all'estinzione nel Novecento e in Kazakistan l'ultima fu vista nel 1948. Il 31 luglio 2026 una tigre dell'Amur di nome Umit («speranza» in kazako) è stata liberata nella riserva dell'Ile-Balkhash, preparata per anni reintroducendo i cervi di Bukhara, le sue prede. Nello scenario ottimistico, verso il 2030, nascono le prime tigri libere dell'Asia centrale dopo oltre ottant'anni.", cat: "conservazione", lat: 45.2, lon: 75.0, certezza: "media", taxon: "tigre",
+ img: {file: "File:Siberian Tiger by Malene Th.jpg", cap: "Tigre dell'Amur, la sottospecie scelta per riportare le tigri in Kazakistan (zoo di Aalborg)", author: "Malene Thyssen", lic: "CC BY 2.5", tipo: "foto"},
+ oggi: "Accordo del 2017 tra il governo del Kazakistan e il WWF; programma mondiale per raddoppiare le tigri selvatiche (vertice di San Pietroburgo, 2010). In India il censimento del 2022 ha contato circa 3 680 tigri.",
+ curiosita: "Il DNA ha mostrato che la tigre del Caspio e quella dell'Amur sono quasi identiche: le due popolazioni si sono separate solo poche migliaia di anni fa. Per questo la tigre dell'Amur è il miglior «sostituto» possibile (Driscoll et al. 2009).",
+ fonti: ["Driscoll et al. 2009, PLoS ONE", "WWF Kazakistan 2025–2026", "Mongabay, agosto 2026"], wiki: "Panthera tigris virgata", wikiEn: "Caspian tiger"},
+
+{t: -0.000009, scen: "ott", title: "La steppa delle saighe", text: "Nel 2003 restavano circa 48 000 saighe; nel 2015 un batterio, favorito da giorni di caldo umido, ne uccise in tre settimane circa 200 000 (Kock et al. 2018). Grazie alla lotta al bracconaggio i censimenti del 2024 ne contano oltre 2,8 milioni in Kazakistan, e nel 2023 la IUCN ha spostato la specie da «in pericolo critico» a «quasi minacciata». Nello scenario ottimistico la steppa resta aperta e senza recinzioni, e le grandi migrazioni continuano.", cat: "conservazione", lat: 48.5, lon: 48.5, certezza: "media", taxon: "saiga",
+ img: {file: "File:Saiga antelope 1.jpg", cap: "Saighe nel Kazakistan occidentale", author: "AlyonaKaptyonkina", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Convenzione di Bonn sulle specie migratrici (CMS), Memorandum d'intesa sulla saiga (2006); Lista Rossa IUCN, aggiornamento del dicembre 2023.",
+ curiosita: "Il grande naso a proboscide della saiga filtra la polvere della steppa d'estate e scalda l'aria gelida prima che arrivi ai polmoni d'inverno.",
+ fonti: ["Kock et al. 2018, Science Advances", "IUCN 2023", "ACBK, censimento 2024"], wiki: "Saiga tatarica", wikiEn: "Saiga antelope"},
+
+{t: -0.000014, scen: "ott", title: "Il castoro, ingegnere dei fiumi, torna in Italia", text: "Il castoro europeo era scomparso dall'Italia da circa cinque secoli. Nel 2018 è ricomparso in Friuli, arrivato dall'Austria, e dal 2020 vive anche lungo alcuni fiumi della Toscana e dell'Umbria (forse liberato illegalmente). Con le sue dighe trattiene l'acqua, crea stagni e zone umide e attenua gli effetti delle siccità. Nello scenario ottimistico i fiumi europei liberati dagli sbarramenti inutili tornano pieni di castori, lontre e pesci migratori.", cat: "conservazione", lat: 46.5, lon: 13.58, certezza: "media", taxon: "castoro-europeo",
+ img: {file: "File:Bever - Eurasian beaver - Castor fiber 6.jpg", cap: "Castoro europeo che nuota in un bacino vicino a Trondheim (Norvegia)", author: "Bouke ten Cate", lic: "CC BY 4.0", tipo: "foto"},
+ oggi: "Regolamento europeo sul ripristino della natura (2024): almeno 25 000 km di fiumi senza sbarramenti entro il 2030. Il castoro è protetto dalla Direttiva Habitat (1992).",
+ curiosita: "Nel Medioevo la Chiesa considerava il castoro un «pesce», per la coda squamosa e la vita in acqua, e così si poteva mangiare nei giorni di magro: anche per questo fu cacciato fino a scomparire da gran parte d'Europa.",
+ fonti: ["Pontarini et al. 2019, Hystrix", "Halley et al. 2021, Mammal Review"], wiki: null, wikiEn: "Eurasian beaver"},
+
+{t: -0.000014, scen: "ott", title: "Bisonti dai Carpazi ai Balcani", text: "Nel 1927 l'ultimo bisonte europeo selvatico fu ucciso nel Caucaso; tutti quelli di oggi discendono da pochi animali sopravvissuti negli zoo. Grazie agli allevamenti e alle reintroduzioni oggi migliaia di bisonti vivono liberi in Polonia, Bielorussia, Romania e altri paesi, e nel 2020 la IUCN ha spostato la specie da «vulnerabile» a «quasi minacciata». Nello scenario ottimistico corridoi verdi collegano le foreste e i branchi si allargano dai Carpazi ai Balcani.", cat: "conservazione", lat: 52.7, lon: 23.87, certezza: "media", taxon: "bisonte-europeo",
+ img: {file: "File:European bison (Bison bonasus) male Białowieza.jpg", cap: "Maschio di bisonte europeo nella foresta di Białowieża (Polonia)", author: "Charles J. Sharp", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Regolamento (UE) 2024/1991 sul ripristino della natura; Direttiva Habitat (1992), che protegge il bisonte; la foresta di Białowieża è patrimonio UNESCO dal 1979.",
+ curiosita: "Il bisonte europeo è il mammifero terrestre più pesante d'Europa: un grande maschio supera gli 800 kg.",
+ fonti: ["IUCN Red List 2020, Bison bonasus", "Tokarska et al. 2011, Mammal Review"], wiki: "Bison bonasus", wikiEn: "European bison"},
+
+{t: -0.000014, scen: "ott", title: "Tartarughe verdi: una specie salvata", text: "Nell'ottobre 2025 la IUCN ha spostato la tartaruga verde da «in pericolo» a «minor preoccupazione»: dagli anni Settanta la popolazione mondiale è cresciuta di circa il 28%, grazie alla protezione delle spiagge e delle uova e a reti da pesca più sicure. A Tortuguero, in Costa Rica, parco nazionale dal 1975, le deposizioni sono aumentate moltissimo. Nello scenario ottimistico il successo si estende ad altre tartarughe marine; ma senza protezione la specie tornerebbe in pericolo.", cat: "conservazione", lat: 10.54, lon: -83.5, certezza: "media", taxon: "tartaruga-verde",
+ img: {file: "File:Green turtle swimming over coral reefs in Kona.jpg", cap: "Tartaruga verde sopra una barriera corallina a Kona (Hawaii)", author: "Brocken Inaglory", lic: "CC BY-SA 3.0", tipo: "foto"},
+ oggi: "Lista Rossa IUCN, aggiornamento presentato al Congresso mondiale della natura di Abu Dhabi (ottobre 2025); alcune popolazioni regionali, nel Pacifico centro-meridionale e nell'Oceano Indiano settentrionale, restano minacciate.",
+ curiosita: "Le tartarughe verdi adulte mangiano quasi solo alghe e piante marine: sono i «tosaerba» delle praterie sottomarine, che senza di loro crescono troppo e si ammalano.",
+ fonti: ["IUCN Red List, ottobre 2025", "Troëng e Rankin 2005, Biological Conservation"], wiki: "Chelonia mydas", wikiEn: "Green sea turtle"},
+
+{t: -0.000019, scen: "ott", title: "Il gipeto vola su tutte le Alpi", text: "Il gipeto, il grande avvoltoio che si nutre di ossa, era stato sterminato sulle Alpi all'inizio del Novecento: l'ultimo in Italia fu abbattuto in Valle d'Aosta nel 1913. Dal 1986 un progetto internazionale libera giovani gipeti nati in allevamento e dal 1997 la specie si riproduce di nuovo in natura, anche nel Parco nazionale dello Stelvio. Nello scenario ottimistico, senza veleni e munizioni al piombo, le coppie si moltiplicano su tutto l'arco alpino.", cat: "conservazione", lat: 46.5, lon: 10.4, certezza: "media", taxon: "gipeto",
+ img: {file: "File:024 Wild Bearded Vulture Swiss Alps Pfyn-Finges Photo by Giles Laurent.jpg", cap: "Gipeto selvatico in volo sulle Alpi svizzere (Leukerbad)", author: "Giles Laurent", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Progetto internazionale di reintroduzione del gipeto sulle Alpi (dal 1986) e rete di monitoraggio IBM; Regolamento (UE) 2021/57 sul piombo nelle munizioni usate nelle zone umide.",
+ curiosita: "Il gipeto lascia cadere le ossa dall'alto sulle rocce per spezzarle, poi inghiotte anche i frammenti: il suo stomaco è acidissimo e le digerisce. Il colore arancione del petto viene da fanghi ricchi di ferro in cui si bagna.",
+ fonti: ["Vulture Conservation Foundation, International Bearded Vulture Monitoring", "Parco nazionale dello Stelvio"], wiki: "Gypaetus barbatus", wikiEn: "Bearded vulture"},
+
+{t: -0.000009, scen: "ott", title: "Il sole del deserto", text: "La centrale solare Noor di Ouarzazate, in Marocco, è una delle più grandi del mondo: migliaia di specchi concentrano la luce e scaldano sali fusi, così l'impianto produce elettricità anche dopo il tramonto. Dal 2010 il costo dell'elettricità solare è sceso di circa il 90%. Nello scenario ottimistico solare, eolico e batterie forniscono la maggior parte dell'elettricità del mondo già negli anni 2030.", cat: "tecnologia", lat: 31.02, lon: -6.86, certezza: "media",
+ img: {file: "File:Noor 1 and 2 - Ouarzazate Solar Power Station (48962353822).jpg", cap: "Gli specchi delle centrali Noor 1 e 2 a Ouarzazate (Marocco)", author: "Richard Allaway", lic: "CC BY 2.0", tipo: "foto"},
+ oggi: "Consenso degli Emirati (COP28, 2023): triplicare la capacità delle rinnovabili entro il 2030; Agenzia internazionale per le energie rinnovabili (IRENA).",
+ curiosita: "Il Sahara riceve dal Sole, in pochi giorni, tanta energia quanta l'umanità ne usa in un anno intero.",
+ fonti: ["IRENA, Renewable Power Generation Costs 2024", "Decisione COP28 1/CMA.5"], wiki: null, wikiEn: "Ouarzazate Solar Power Station"},
+
+{t: -0.000004, scen: "ott", title: "Un gemello digitale della Terra", text: "Nel 2024 l'Unione europea ha acceso le prime versioni di Destination Earth: «gemelli digitali» del pianeta che simulano clima ed eventi estremi con un dettaglio di pochi chilometri, su supercomputer come Leonardo, a Bologna. Programmi di intelligenza artificiale come GraphCast (2023) calcolano già previsioni del tempo a dieci giorni in meno di un minuto. Nello scenario ottimistico questi strumenti avvisano in tempo di alluvioni e ondate di calore e aiutano a decidere dove proteggere coste, campi e città.", cat: "tecnologia", lat: 44.51, lon: 11.36, certezza: "media",
+ img: {file: "File:Leonardo supercomputer.png", cap: "Il supercomputer Leonardo al Tecnopolo di Bologna", author: "Istituto Nazionale di Geofisica e Vulcanologia", lic: "CC BY 4.0", tipo: "foto"},
+ oggi: "Iniziativa europea Destination Earth (dal 2022); dal 2021 il centro dati del Centro europeo per le previsioni meteorologiche a medio termine (ECMWF) si trova al Tecnopolo di Bologna. Regolamento europeo sull'IA (AI Act, 2024).",
+ curiosita: "Quando fu inaugurato, nel novembre 2022, Leonardo era il quarto supercomputer più potente del mondo nella classifica TOP500.",
+ fonti: ["Lam et al. 2023, Science", "Commissione europea, Destination Earth", "TOP500, novembre 2022"], wiki: null, wikiEn: "Destination Earth"},
+
+{t: -0.000006, scen: "ott", title: "Riso «corretto» contro le malattie", text: "Nel maggio 2024, a Mezzana Bigli (Pavia), l'Università di Milano ha seminato il primo riso italiano modificato con le «tecniche di evoluzione assistita» (TEA): con CRISPR sono stati spenti alcuni geni che rendono la pianta vulnerabile al brusone, una malattia causata da un fungo. A giugno qualcuno ha distrutto la parcella, ma la ricerca è continuata. Nello scenario ottimistico piante più resistenti a funghi, caldo e siccità riducono pesticidi e perdite di raccolto; restano però discussioni su regole, brevetti ed etichette.", cat: "tecnologia", lat: 45.06, lon: 8.85, certezza: "media",
+ img: {file: "File:2012-04-28 Olevano Lomellina risaia.jpg", cap: "Risaia allagata in Lomellina (provincia di Pavia)", author: "Blackcat", lic: "CC BY-SA 3.0 IT", tipo: "foto"},
+ oggi: "In Italia le prove in campo delle TEA sono state autorizzate dal decreto-legge 44/2023 (convertito nella legge 68/2023); l'Unione europea discute un regolamento sulle «nuove tecniche genomiche» (NGT).",
+ curiosita: "CRISPR, le «forbici del DNA», è valso il premio Nobel per la chimica 2020 a Emmanuelle Charpentier e Jennifer Doudna.",
+ fonti: ["Università degli Studi di Milano, 2024", "Legge 68/2023"], wiki: null, wikiEn: "Genome editing"},
+
+{t: -0.000024, scen: "ott", title: "Nuova Zelanda senza predatori", text: "In Nuova Zelanda non c'erano mammiferi terrestri, a parte i pipistrelli: ratti, ermellini e opossum portati dall'uomo hanno sterminato uccelli che non sapevano difendersi. Il programma «Predator Free 2050» (2016) vuole eliminarli da tutto il paese entro il 2050, con trappole intelligenti, cani addestrati e forse in futuro tecniche genetiche. Nello scenario ottimistico ci riesce e il kakapo, il pappagallo notturno che non vola, torna a vivere nelle foreste delle isole principali.", cat: "conservazione", lat: -46.73, lon: 167.98, certezza: "bassa", taxon: "kakapo",
+ img: {file: "File:Kakapo Sirocco 1.jpg", cap: "Sirocco, il kakapo più famoso, sull'isola di Maud (Nuova Zelanda)", author: "Department of Conservation (Nuova Zelanda)", lic: "CC BY 2.0", tipo: "foto"},
+ oggi: "Strategia Predator Free 2050 del governo neozelandese (2016); obiettivo 6 del Quadro di Kunming-Montréal: ridurre l'impatto delle specie invasive.",
+ curiosita: "Il kakapo è il pappagallo più pesante del mondo (fino a circa 4 kg) e può vivere decine di anni; ogni esemplare ha un nome ed è seguito con una radio.",
+ fonti: ["Russell et al. 2015, BioScience", "Department of Conservation NZ"], wiki: "Strigops habroptila", wikiEn: "Predator Free 2050"},
+
+{t: -0.000024, scen: "ott", title: "Macchine che tolgono CO₂ dall'aria", text: "In Islanda l'azienda svizzera Climeworks ha acceso nel 2021 l'impianto Orca e nel 2024 Mammoth: aspirano aria, ne trattengono la CO₂ e la iniettano nel basalto, dove diventa roccia in circa due anni (Matter et al. 2016). Mammoth è progettato per 36 000 tonnellate all'anno, ma nel 2025 inchieste giornalistiche hanno rivelato che ne catturava molto meno. Lo scenario ottimistico richiede miliardi di tonnellate rimosse ogni anno nella seconda metà del secolo, soprattutto con foreste e suoli: una scommessa ancora aperta.", cat: "tecnologia", lat: 64.04, lon: -21.4, certezza: "bassa",
+ img: {file: "File:Climeworks-Anlage.jpg", cap: "Piccolo impianto dimostrativo di Climeworks per catturare CO₂ dall'aria (Berna, 2015)", author: "TRx340", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Regolamento (UE) 2024/3012 sulla certificazione degli assorbimenti di carbonio; IPCC AR6, terzo gruppo di lavoro, sui metodi di rimozione della CO₂.",
+ curiosita: "L'umanità emette circa 40 miliardi di tonnellate di CO₂ all'anno: per pareggiarle servirebbe più di un milione di impianti grandi come Mammoth.",
+ fonti: ["Matter et al. 2016, Science", "IPCC AR6 WGIII, cap. 12", "Heimildin 2025"], wiki: null, wikiEn: "Direct air capture"},
+
+{t: -0.000024, scen: "ott", title: "La Grande muraglia verde", text: "Dal 2007 undici paesi africani lavorano alla Grande muraglia verde: una fascia di alberi, pascoli e campi recuperati lunga circa 8 000 km, dal Senegal a Gibuti, contro la desertificazione del Sahel. Nel 2020 era realizzata solo in piccola parte. Nello scenario ottimistico, con finanziamenti stabili e il lavoro dei contadini, i 100 milioni di ettari di terre degradate previsti tornano produttivi, anche se in ritardo sul 2030.", cat: "conservazione", lat: 15.5, lon: -14.5, certezza: "bassa",
+ img: {file: "File:Desert greenery ESA19443666.jpeg", cap: "Il Sahel visto dal satellite, nell'immagine dell'ESA per la Giornata contro la desertificazione dedicata alla Grande muraglia verde", author: "ESA (Agenzia spaziale europea)", lic: "Attribuzione", tipo: "foto"},
+ oggi: "Convenzione ONU per la lotta alla desertificazione (UNCCD, 1994); «Great Green Wall Accelerator» lanciato al One Planet Summit (2021).",
+ curiosita: "In Niger i contadini hanno fatto rinverdire milioni di ettari quasi senza piantare: proteggendo i germogli che spuntano dalle radici degli alberi tagliati («rigenerazione naturale assistita»).",
+ fonti: ["UNCCD, The Great Green Wall Implementation Status 2020", "Reij et al. 2009, IFPRI"], wiki: null, wikiEn: "Great Green Wall (Africa)"},
+
+{t: -0.000029, scen: "ott", title: "Praterie sottomarine ripiantate", text: "Negli anni Trenta una malattia e un uragano cancellarono le praterie di zostera delle baie costiere della Virginia, negli Stati Uniti. Dal 1999 ricercatori e volontari hanno sparso oltre 70 milioni di semi: le praterie sono tornate su più di 3 600 ettari, con pesci, capesante e uccelli (Orth et al. 2020). Nello scenario ottimistico la stessa tecnica si usa in tutto il mondo, anche per la posidonia del Mediterraneo, e le praterie tornano a catturare carbonio.", cat: "conservazione", lat: 37.3, lon: -75.8, certezza: "media",
+ img: {file: "File:Herbier à zostère (Zostera marina) (Ifremer 00567-67906 - 43877).jpg", cap: "Prateria di zostera (Zostera marina) sulle coste francesi", author: "Olivier Dugornay (Ifremer)", lic: "CC BY 4.0", tipo: "foto"},
+ oggi: "Regolamento europeo sul ripristino della natura (2024), che cita le praterie di posidonia; Decennio ONU del ripristino degli ecosistemi (2021–2030).",
+ curiosita: "Le praterie marine coprono una parte piccolissima dei fondali, ma vi si accumula circa un decimo di tutto il carbonio sepolto negli oceani (Fourqurean et al. 2012).",
+ fonti: ["Orth et al. 2020, Science Advances", "Fourqurean et al. 2012, Nature Geoscience"], wiki: "Zostera marina", wikiEn: "Zostera marina"},
+
+{t: -0.000034, scen: "ott", title: "La migrazione delle monarca è salva", text: "Ogni autunno milioni di farfalle monarca volano fino a 4 000 km dal Canada e dagli Stati Uniti alle foreste di abeti del Messico centrale, dove passano l'inverno appese ai rami a grappoli. Nell'inverno 2024–25 occupavano circa 1,8 ettari di bosco, contro i 18 del 1996–97. Nello scenario ottimistico le asclepiadi piantate lungo la rotta, meno erbicidi e la protezione dei boschi messicani salvano una delle migrazioni più spettacolari della Terra.", cat: "natura", lat: 19.6, lon: -100.27, certezza: "media", taxon: "farfalla-monarca",
+ img: {file: "File:Angangueo monarchs.jpg", cap: "Farfalle monarca che svernano su un albero vicino ad Angangueo (Messico)", author: "Bfpage (Wikipedia in inglese)", lic: "CC BY 3.0", tipo: "foto"},
+ oggi: "Riserva della biosfera della farfalla monarca, patrimonio UNESCO dal 2008; nel dicembre 2024 gli Stati Uniti hanno proposto di proteggerla come specie «minacciata».",
+ curiosita: "Nessuna farfalla fa andata e ritorno: il viaggio verso nord richiede tre o quattro generazioni, ma la generazione d'autunno vive fino a otto mesi e trova la strada per il Messico senza esserci mai stata.",
+ fonti: ["WWF Messico 2025", "Flockhart et al. 2015, Journal of Animal Ecology"], wiki: "Danaus plexippus", wikiEn: "Monarch butterfly"},
+
+// ---------------------------------------------------------------------
+// EVENTI DELLO SCENARIO PROBABILE
+{t: -0.000006, scen: "prob", title: "Boschi alpini dopo Vaia", text: "Tra il 27 e il 30 ottobre 2018 la tempesta Vaia abbatté milioni di alberi in Veneto, Trentino, Alto Adige, Lombardia e Friuli. Sul legno a terra si è moltiplicato il bostrico, un piccolo coleottero che scava sotto la corteccia degli abeti rossi e che, con estati calde e secche, ha poi fatto seccare altri boschi. Nello scenario probabile le Alpi passano da boschi di soli abeti rossi a boschi misti, con più faggi, larici e latifoglie, più resistenti al caldo e alle tempeste.", cat: "natura", lat: 45.93, lon: 11.6, certezza: "alta",
+ img: {file: "File:Tempesta-Vaia-Marcesina-Val-Maron-Sette-Comuni.jpg", cap: "Alberi abbattuti dalla tempesta Vaia sull'Altopiano dei Sette Comuni (Vicenza)", author: "Nordavind", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Strategia forestale nazionale (2022); Regolamento europeo sul ripristino della natura (2024).",
+ curiosita: "Nella foresta di Paneveggio, in Trentino, crescono gli abeti «di risonanza», il cui legno si usa per le tavole armoniche dei violini: anche lì Vaia ha abbattuto moltissimi alberi.",
+ fonti: ["Chirici et al. 2019, Remote Sensing of Environment", "Hlásny et al. 2021, Current Forestry Reports"], wiki: "Tempesta Vaia", wikiEn: null},
+
+{t: -0.000006, scen: "prob", title: "Cicogne che non partono più", text: "Fino agli anni Ottanta quasi tutte le cicogne bianche d'Europa passavano l'inverno in Africa. Oggi decine di migliaia restano in Spagna e Portogallo, dove si nutrono nelle discariche e approfittano di inverni più miti (Gilbert et al. 2016). Nello scenario probabile sempre più uccelli accorciano il viaggio o smettono di migrare: risparmiano energia, ma rischiano molto se arriva un inverno freddo o se le discariche chiudono.", cat: "natura", lat: 40.3, lon: -3.6, certezza: "alta", taxon: "cicogna-bianca",
+ img: {file: "File:Зграя Лелеки білого (Ciconia ciconia).jpg", cap: "Cicogne bianche in una discarica vicino a Charkiv (Ucraina)", author: "Dementieieva Yana", lic: "CC BY 4.0", tipo: "foto"},
+ oggi: "Convenzione di Bonn sulle specie migratrici (CMS); la direttiva europea sulle discariche (1999/31/CE) riduce i rifiuti organici, cioè il cibo delle cicogne.",
+ curiosita: "Nel 1822 in Germania fu catturata una cicogna con una lancia africana conficcata nel collo: la «Pfeilstorch» dimostrò che gli uccelli migrano in Africa e non passano l'inverno nascosti nel fango, come si credeva.",
+ fonti: ["Gilbert et al. 2016, Movement Ecology", "Flack et al. 2016, Science"], wiki: "Ciconia ciconia", wikiEn: "White stork"},
+
+{t: -0.000009, scen: "prob", title: "Batteri ed enzimi mangia-plastica", text: "Nel 2016 scienziati giapponesi hanno scoperto, in un impianto di riciclo di Sakai, un batterio capace di nutrirsi di PET, la plastica delle bottiglie (Yoshida et al. 2016). Da allora gli enzimi che spezzano il PET sono stati migliorati in laboratorio, anche con l'aiuto dell'intelligenza artificiale: alcuni scompongono quasi tutta la plastica di un campione in poche ore. Nello scenario probabile il riciclo con gli enzimi aiuta, ma non basta: la plastica prodotta continua ad aumentare.", cat: "tecnologia", lat: 34.57, lon: 135.48, certezza: "media",
+ img: {file: "File:Ideonella Sakaiensis Eating Plastics.png", cap: "Disegno: il batterio Ideonella sakaiensis aderisce al PET e libera enzimi che lo scompongono", author: "Jessicaniezwicki", lic: "CC BY-SA 4.0", tipo: "ricostruzione"},
+ oggi: "Negoziati ONU per un trattato sulla plastica (ancora senza accordo nel 2026); direttiva europea sulla plastica monouso (2019).",
+ curiosita: "Un enzima migliorato da ricercatori francesi ha scomposto il 90% del PET di un campione in 10 ore, restituendo i «mattoni» con cui fare plastica nuova (Tournier et al. 2020).",
+ fonti: ["Yoshida et al. 2016, Science", "Tournier et al. 2020, Nature", "Lu et al. 2022, Nature"], wiki: null, wikiEn: "PETase"},
+
+{t: -0.000014, scen: "prob", title: "Tonni nei fiordi", text: "Negli anni Sessanta i tonni rossi arrivavano ogni estate fino alla Norvegia, poi la pesca eccessiva li fece sparire dal Nord. Con le quote decise dall'ICCAT dal 2007 la popolazione si è ripresa e dagli anni 2010 i tonni sono tornati nei mari del Nord, fino alla Groenlandia orientale, seguendo sgombri e aringhe che si spostano con l'acqua più calda (MacKenzie et al. 2014). Nello scenario probabile molti pesci si spostano verso i poli: un guadagno per la pesca del Nord, una perdita per quella del Sud.", cat: "natura", lat: 62.5, lon: 5.5, certezza: "alta", taxon: "tonno-rosso",
+ img: {file: "File:Thunnus thynnus Croatia.jpg", cap: "Tonno rosso nel mare Adriatico (Croazia)", author: "picturavis", lic: "CC0", tipo: "foto"},
+ oggi: "Commissione internazionale per la conservazione dei tonnidi dell'Atlantico (ICCAT), piano di ricostituzione del tonno rosso dal 2007.",
+ curiosita: "Il tonno rosso è un pesce «a sangue caldo»: grazie a uno scambiatore di calore nei vasi sanguigni tiene i muscoli molti gradi più caldi dell'acqua.",
+ fonti: ["MacKenzie et al. 2014, Global Change Biology", "ICCAT"], wiki: "Thunnus thynnus", wikiEn: "Atlantic bluefin tuna"},
+
+{t: -0.000019, scen: "prob", title: "Trichechi senza ghiaccio", text: "I trichechi del Pacifico riposano sui lastroni di ghiaccio sopra i fondali dove cercano molluschi. Quando d'estate il ghiaccio si ritira troppo lontano, decine di migliaia di animali si ammassano sulle spiagge dell'Alaska e della Russia: nel 2014, vicino a Point Lay, erano circa 35 000. Se qualcosa li spaventa, come un aereo o un orso, fuggono tutti verso il mare e i piccoli possono morire schiacciati.", cat: "natura", lat: 69.74, lon: -163.0, certezza: "alta", taxon: "tricheco",
+ img: {file: "File:Walruses resting on shore near Point Lay, Alaska.jpg", cap: "Decine di migliaia di trichechi sulla spiaggia vicino a Point Lay, Alaska (settembre 2013)", author: "USGS", lic: "Pubblico dominio", tipo: "foto"},
+ oggi: "Negli Stati Uniti si limitano voli e avvicinamenti vicino ai raduni di trichechi; monitoraggio dell'USGS e del Consiglio Artico.",
+ curiosita: "Il tricheco usa le zanne per tirarsi fuori dall'acqua sul ghiaccio: il nome del suo genere, Odobenus, vuol dire «che cammina con i denti».",
+ fonti: ["USGS 2014", "MacCracken 2012, Ecology and Evolution"], wiki: "Odobenus rosmarus", wikiEn: "Walrus"},
+
+{t: -0.000024, scen: "prob", title: "Koala: addio al Nuovo Galles del Sud?", text: "Nel 2020 un'inchiesta del parlamento del Nuovo Galles del Sud concluse che, senza interventi urgenti, il koala si sarebbe estinto in quello stato entro il 2050. Gli incendi del 2019–2020 ne avevano uccisi migliaia e distrutto i loro boschi di eucalipto. Nel 2022 l'Australia lo ha dichiarato «in pericolo» in Queensland, Nuovo Galles del Sud e Territorio della Capitale. Nello scenario probabile i koala spariscono da molte zone dell'est, ma sopravvivono più a sud.", cat: "estinzione", lat: -31.43, lon: 152.9, certezza: "media", taxon: "koala",
+ img: {file: "File:Koala climbing tree.jpg", cap: "Koala che si arrampica su un eucalipto nel Great Otway National Park (Victoria, Australia)", author: "Diliff", lic: "CC BY-SA 3.0", tipo: "foto"},
+ oggi: "Legge australiana sulla protezione dell'ambiente e della biodiversità (EPBC Act, 1999); nel 2025 il Nuovo Galles del Sud ha annunciato il Great Koala National Park.",
+ curiosita: "Il koala dorme fino a 18–22 ore al giorno: le foglie di eucalipto danno pochissima energia e sono piene di sostanze tossiche che deve smaltire.",
+ fonti: ["Parlamento del Nuovo Galles del Sud 2020", "Governo australiano 2022"], wiki: "Phascolarctos cinereus", wikiEn: "Koala"},
+
+{t: -0.000024, scen: "prob", title: "Il caffè sale in montagna", text: "Il caffè arabica è nato nelle foreste di montagna dell'Etiopia e ama il fresco. Secondo Bunn e colleghi (2015) entro il 2050 le aree adatte a coltivarlo si dimezzano circa; in Etiopia il caffè selvatico potrebbe perdere entro il 2080 dal 65% a quasi tutte le località adatte (Davis et al. 2012). Nello scenario probabile le piantagioni salgono di quota e si cercano specie più resistenti, come Coffea stenophylla, che sopporta temperature di circa 6 °C più alte.", cat: "natura", lat: 7.3, lon: 36.2, certezza: "media", taxon: "caffe-arabica",
+ img: {file: "File:Coffee cherries on bush at Fairview Estate, Kiambu, KE.jpg", cap: "Bacche di caffè mature in una piantagione del Kenya", author: "Daniel Case", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Organizzazione internazionale del caffè (ICO); il Regolamento europeo contro la deforestazione (2023) riguarda anche il caffè importato.",
+ curiosita: "Secondo una leggenda il caffè fu scoperto da Kaldi, un pastore etiope che vide le sue capre «ballare» dopo averne mangiato le bacche.",
+ fonti: ["Bunn et al. 2015, Climatic Change", "Davis et al. 2012, PLoS ONE", "Davis et al. 2021, Nature Plants"], wiki: "Coffea arabica", wikiEn: "Coffea arabica"},
+
+{t: -0.000029, scen: "prob", title: "Allocchi più bruni", text: "In Finlandia gli allocchi possono essere grigi o bruni, e il colore è ereditario. I grigi sopravvivono meglio negli inverni con molta neve; con inverni più miti la quota di allocchi bruni è salita, in circa 30 anni, da poco più del 10% a quasi il 40% (Karell et al. 2011). È selezione naturale misurata in diretta: nello scenario probabile molte specie cambiano così, se nella popolazione esiste già la varietà giusta.", cat: "natura", lat: 60.45, lon: 22.27, certezza: "alta",
+ img: {file: "File:Tawny owl, brown owl, Strix aluco, Kattuggla.jpg", cap: "Allocco di colore bruno", author: "blondinrikard", lic: "CC BY 2.0", tipo: "foto"},
+ oggi: "Il Quadro di Kunming-Montréal (obiettivo 4) chiede di conservare la diversità genetica delle specie: è la «riserva» da cui nasce l'adattamento.",
+ curiosita: "L'«uh-uuuh» dell'allocco nei film è spesso un duetto: il maschio fa il verso lungo e la femmina risponde con un acuto «chi-uit».",
+ fonti: ["Karell et al. 2011, Nature Communications"], wiki: "Strix aluco", wikiEn: "Tawny owl"},
+
+{t: -0.000034, scen: "prob", title: "Miami: strade allagate con il sole", text: "Durante le «maree reali» d'autunno, a Miami Beach l'acqua del mare risale dai tombini e allaga le strade anche senza pioggia. La città ha speso centinaia di milioni di dollari per alzare le strade e installare pompe. Nello scenario probabile allagamenti così diventano frequenti in decine di città costiere degli Stati Uniti, e assicurazioni e famiglie iniziano a spostarsi verso zone più alte.", cat: "umani", lat: 25.79, lon: -80.13, certezza: "alta",
+ img: {file: "File:Miami Beach tidal flooding with rain at high tide during king tides 12.jpg", cap: "Strada allagata a Miami Beach durante le maree più alte dell'anno", author: "B137", lic: "CC0", tipo: "foto"},
+ oggi: "Rapporto tecnico NOAA sull'innalzamento del mare (2022): entro il 2050 le coste degli Stati Uniti avranno 25–30 cm di mare in più; piano di resilienza di Miami Beach.",
+ curiosita: "Sotto Miami c'è un calcare pieno di buchi come un formaggio svizzero: un muro sulla spiaggia non basta, perché l'acqua del mare passa sotto.",
+ fonti: ["Sweet et al. 2022, NOAA Technical Report", "Città di Miami Beach"], wiki: "Miami Beach", wikiEn: "Miami Beach, Florida"},
+
+{t: -0.000044, scen: "prob", title: "Mantelli bianchi senza neve", text: "Lepri, donnole e pernici bianche cambiano colore: bianche d'inverno, brune d'estate. Con meno giorni di neve, un animale bianco sulla terra scura diventa una preda facile (Zimova et al. 2016). In alcune zone vivono già individui che d'inverno restano bruni: Mills e colleghi (2018) hanno disegnato la mappa dei luoghi dove queste varianti potrebbero salvare le specie. Nello scenario probabile si diffondono più in fretta.", cat: "natura", lat: 53.5, lon: -113.5, certezza: "media", taxon: "pernice-bianca",
+ img: {file: "File:Edmonton Leporidae (winter 1).jpg", cap: "Una lepre nel mantello bianco invernale a Edmonton (Canada)", author: "Jeffery J. Nichols", lic: "CC BY-SA 3.0", tipo: "foto"},
+ oggi: "Quadro di Kunming-Montréal, obiettivo 4: mantenere la diversità genetica delle popolazioni selvatiche.",
+ curiosita: "Il cambio di colore è comandato dalla lunghezza del giorno, non dalla neve: per questo l'animale non «si accorge» che la neve è in ritardo.",
+ fonti: ["Zimova et al. 2016, Ecology Letters", "Mills et al. 2018, Science"], wiki: "Lepus americanus", wikiEn: "Snowshoe hare"},
+
+{t: -0.000054, scen: "prob", title: "Il delta del Nilo e l'acqua salata", text: "Nel delta del Nilo vivono circa due egiziani su cinque e si coltiva gran parte del loro cibo. Il suolo si abbassa di alcuni millimetri all'anno e il mare che sale spinge l'acqua salata nelle falde e nei campi. Nello scenario probabile, con circa mezzo metro di mare in più a fine secolo, parte della costa tra Alessandria e Porto Said va difesa con dighe e dune, oppure abbandonata.", cat: "umani", lat: 31.2, lon: 30.0, certezza: "media",
+ img: {file: "File:Nile Delta (MODIS 2026-01-04).jpg", cap: "Il delta del Nilo visto dal satellite Terra/Aqua (gennaio 2026)", author: "MODIS Land Rapid Response Team, NASA GSFC", lic: "Pubblico dominio", tipo: "foto"},
+ oggi: "Progetto egiziano di adattamento delle coste del delta del Nilo con il Fondo verde per il clima (dal 2018); la COP27 (2022) si è tenuta a Sharm el-Sheikh, in Egitto.",
+ curiosita: "La diga di Assuan (1970) trattiene il fango del Nilo che per millenni ha costruito il delta: senza quei sedimenti, in alcuni punti la costa arretra di decine di metri all'anno.",
+ fonti: ["IPCC AR6 WGII, cap. 9", "Stanley e Clemente 2017, Journal of Coastal Research"], wiki: "Delta del Nilo", wikiEn: "Nile Delta"},
+
+{t: -0.000074, scen: "prob", title: "Himalaya: le torri d'acqua dell'Asia", text: "I ghiacciai dell'Hindu Kush-Himalaya alimentano dieci grandi fiumi, dall'Indo al Fiume Giallo, da cui dipende l'acqua di circa 1,6 miliardi di persone a valle. Secondo l'ICIMOD (2023) entro il 2100 perderebbero tra un terzo e metà del volume con 1,5–2 °C e fino a circa tre quarti con 4 °C. Mentre fondono si formano laghi glaciali che possono tracimare all'improvviso: nel 2016 il lago Imja, in Nepal, è stato abbassato di 3,4 m con un canale per ridurre il pericolo.", cat: "clima", lat: 27.9, lon: 86.93, certezza: "media", taxon: "leopardo-nevi",
+ img: {file: "File:Imja Lake and Glacier.jpg", cap: "Il lago glaciale Imja e il ghiacciaio che lo alimenta (Nepal)", author: "Daniel Alton Byers", lic: "CC BY-SA 3.0", tipo: "foto"},
+ oggi: "Rapporto ICIMOD «Water, ice, society, and ecosystems in the Hindu Kush Himalaya» (2023); Decennio ONU di azione per le scienze criosferiche (2025–2034).",
+ curiosita: "Per la quantità di ghiaccio che contiene, la regione dell'Himalaya è chiamata il «terzo polo» della Terra.",
+ fonti: ["ICIMOD 2023", "Rounce et al. 2023, Science"], wiki: null, wikiEn: "Imja Tsho"},
+
+{t: -0.000074, scen: "prob", title: "Lagos, la città più grande del mondo?", text: "Oggi Lagos, in Nigeria, ha circa 15–20 milioni di abitanti (le stime variano molto). Secondo alcune proiezioni (Hoornweg e Pope 2017) nel 2100 potrebbe superare gli 80 milioni e diventare la città più grande del mondo. Ma è costruita su lagune e isole a pochi metri sul mare: nello scenario probabile acqua alta e piogge estreme rendono urgente difendere soprattutto i quartieri più poveri.", cat: "umani", lat: 6.45, lon: 3.4, certezza: "bassa",
+ img: {file: "File:Lagos skyline with marina.jpg", cap: "Il quartiere della Marina a Lagos (Nigeria)", author: "kopee15", lic: "Pubblico dominio", tipo: "foto"},
+ oggi: "Nuova agenda urbana dell'ONU (Quito, 2016); Obiettivo di sviluppo sostenibile 11: città sicure, resilienti e sostenibili.",
+ curiosita: "Eko Atlantic, un nuovo quartiere di Lagos, sorge su terra strappata al mare e protetta da una barriera lunga circa 8 km fatta di blocchi di cemento da 5 tonnellate.",
+ fonti: ["Hoornweg e Pope 2017, Environment and Urbanization", "UN-Habitat"], wiki: "Lagos", wikiEn: "Lagos"},
+
+{t: -0.001, scen: "prob", title: "Lupi, coyote e cani: nascono nuovi ibridi", text: "Nel Nord America orientale, dove i lupi erano stati sterminati, i coyote arrivati da ovest si sono incrociati con gli ultimi lupi e con i cani: il «coyote orientale» è più grande dei coyote dell'ovest e porta nel DNA una parte di lupo (vonHoldt et al. 2016). Quando le specie si spostano per il clima gli incroci aumentano, come tra orso polare e grizzly. Nello scenario probabile, in mille anni, alcune forme ibride potrebbero diventare popolazioni nuove e stabili.", cat: "natura", lat: 44.5, lon: -72.5, certezza: "ipotesi", taxon: "lupo",
+ img: {file: "File:Eastern Coyote In Connecticut.jpg", cap: "Coyote orientale nel Connecticut (Stati Uniti)", author: "John Stockla", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Anche in Italia lupi e cani si incrociano: il progetto europeo LIFE MIRCo-lupo (2014–2019) ha studiato come ridurre gli ibridi.",
+ curiosita: "I coyote orientali hanno conquistato anche le grandi città: ne vivono a Chicago e perfino nella città di New York.",
+ fonti: ["vonHoldt et al. 2016, Science Advances", "Kays et al. 2010, Biology Letters"], wiki: null, wikiEn: "Coywolf"},
+
+// ---------------------------------------------------------------------
+// EVENTI DELLO SCENARIO PESSIMISTICO
+{t: -0.000004, scen: "pess", title: "Dieci miliardi di granchi scomparsi", text: "Tra il 2018 e il 2021 nel Mare di Bering sono spariti circa 10 miliardi di granchi delle nevi. L'acqua più calda aveva accelerato il loro metabolismo: avevano bisogno di più cibo e morirono di fame (Szuwalski et al. 2023). Nel 2022 l'Alaska chiuse per la prima volta la loro pesca, riaperta con quote piccole nel 2024. Nello scenario pessimistico crolli improvvisi delle specie dei mari freddi diventano comuni in tutto l'Artico.", cat: "estinzione", lat: 58.5, lon: -170.0, certezza: "alta",
+ img: {file: "File:Chionoecetes opilio 31353372.jpg", cap: "Granchio delle nevi (Chionoecetes opilio)", author: "Georgy Vinogradov", lic: "CC BY 4.0", tipo: "foto"},
+ oggi: "Accordo per prevenire la pesca non regolamentata nell'alto Mar Glaciale Artico (in vigore dal 2021): niente pesca commerciale nell'Artico centrale finché non sarà studiato.",
+ curiosita: "Il granchio delle nevi vive dove l'acqua del fondo resta sotto i 2 °C: il «cuscinetto freddo» del Mare di Bering è la sua casa, e ogni anno è più piccolo.",
+ fonti: ["Szuwalski et al. 2023, Science"], wiki: null, wikiEn: "Chionoecetes opilio"},
+
+{t: -0.000009, scen: "pess", title: "Il «Blob»: quando il mare diventa un deserto", text: "Tra il 2014 e il 2016 un'enorme bolla di acqua calda, soprannominata «the Blob», si allargò nel Pacifico nord-orientale. Il plancton cambiò, i piccoli pesci grassi scarseggiarono e circa 4 milioni di urie morirono di fame: metà di quelle dell'Alaska (Renner et al. 2024). Dieci anni dopo non si erano ancora riprese. Nello scenario pessimistico ondate di calore marine così diventano frequenti in tutti gli oceani.", cat: "estinzione", lat: 58.0, lon: -150.0, certezza: "alta",
+ img: {file: "File:Guillemot (Uria aalge) colony.jpg", cap: "Colonia di urie sull'isola di Skomer (Galles)", author: "Charles J. Sharp", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Decennio ONU delle scienze del mare per lo sviluppo sostenibile (2021–2030); le ondate di calore marine sono seguite da NOAA e Copernicus Marine.",
+ curiosita: "Le urie depongono un solo uovo, appuntito, sulla roccia nuda delle scogliere, senza nido. Secondo un'idea classica (oggi discussa) la forma a pera lo fa girare su sé stesso invece di rotolare giù.",
+ fonti: ["Renner et al. 2024, Science", "Piatt et al. 2020, PLoS ONE"], wiki: "Uria aalge", wikiEn: "The Blob (Pacific Ocean)"},
+
+{t: -0.000014, scen: "pess", title: "Pantanal in fiamme", text: "Il Pantanal, tra Brasile, Bolivia e Paraguay, è la più grande zona umida tropicale del mondo e una terra di giaguari. Nel 2020, dopo una siccità record, gli incendi ne bruciarono circa un terzo e uccisero, secondo una stima, circa 17 milioni di vertebrati (Tomas et al. 2021). Nello scenario pessimistico le stagioni secche si allungano, i grandi incendi tornano quasi ogni anno e parte della palude diventa prateria secca.", cat: "natura", lat: -17.7, lon: -57.4, certezza: "media",
+ img: {file: "File:Wildfires in Pantanal Matogrossense National Park, Brazil.jpg", cap: "Incendi nel Parco nazionale del Pantanal Matogrossense visti dal satellite (2020)", author: "Unione europea, Copernicus Sentinel-2", lic: "Attribuzione", tipo: "foto"},
+ oggi: "Il Pantanal è sito Ramsar e in parte patrimonio UNESCO (2000); Convenzione di Ramsar sulle zone umide (1971).",
+ curiosita: "Nel Pantanal i giaguari nuotano attraverso i fiumi e cacciano caimani e pesci: sono tra i giaguari più grandi del mondo.",
+ fonti: ["Tomas et al. 2021, Scientific Reports", "Libonati et al. 2022, Frontiers in Ecology and the Environment"], wiki: "Pantanal", wikiEn: "Pantanal"},
+
+{t: -0.000014, scen: "pess", title: "Il «giorno zero» dell'acqua", text: "Nel 2018, dopo tre anni di siccità, Città del Capo (circa 4 milioni di abitanti) si preparò al «Day Zero»: il giorno in cui i rubinetti delle case sarebbero stati chiusi e l'acqua distribuita in punti di raccolta. Limitando i consumi a 50 litri a testa al giorno, la città riuscì a evitarlo. Nello scenario pessimistico siccità così diventano più frequenti nelle regioni a clima mediterraneo, dalla Sicilia alla California.", cat: "umani", lat: -34.08, lon: 19.28, certezza: "media",
+ img: {file: "File:Theewaterskloof Dam 2018 02 10 (28425520089).jpg", cap: "Il bacino di Theewaterskloof, la principale riserva d'acqua di Città del Capo, quasi vuoto (Sentinel-2, febbraio 2018)", author: "Antti Lipponen", lic: "CC BY 2.0", tipo: "foto"},
+ oggi: "Regolamento (UE) 2020/741 sul riutilizzo delle acque reflue in agricoltura; nel 2024 in Sicilia è stato dichiarato lo stato di emergenza per la siccità.",
+ curiosita: "Secondo uno studio di attribuzione, il riscaldamento globale aveva reso circa tre volte più probabile una siccità come quella di Città del Capo (Otto et al. 2018).",
+ fonti: ["Otto et al. 2018, Environmental Research Letters", "Città del Capo 2018"], wiki: "Città del Capo", wikiEn: "Cape Town water crisis"},
+
+{t: -0.000019, scen: "pess", title: "Nuvole di locuste", text: "Nel 2018 due cicloni portarono piogge eccezionali nei deserti della penisola arabica; le locuste del deserto si moltiplicarono e tra il 2019 e il 2021 sciami enormi invasero l'Africa orientale: in Kenya fu la peggiore invasione da 70 anni. Secondo la FAO uno sciame di un chilometro quadrato contiene circa 40 milioni di locuste e mangia in un giorno quanto 35 000 persone. Nello scenario pessimistico piogge estreme e cicloni più forti favoriscono invasioni più frequenti.", cat: "natura", lat: 2.0, lon: 38.0, certezza: "media", taxon: "locusta-deserto",
+ img: {file: "File:Desert Locust swarm.jpg", cap: "Sciame di locuste del deserto che attraversa una strada nel Negev (Israele)", author: "Adam Matan", lic: "CC BY-SA 3.0", tipo: "foto"},
+ oggi: "Servizio di informazione sulle locuste del deserto della FAO, che sorveglia i paesi a rischio con satelliti e squadre a terra.",
+ curiosita: "Le locuste del deserto sono cavallette che, quando sono in tante e si toccano spesso, cambiano colore e comportamento e diventano «gregarie»: il segnale chimico è la serotonina (Anstey et al. 2009).",
+ fonti: ["FAO, Desert Locust Watch", "Anstey et al. 2009, Science"], wiki: "Schistocerca gregaria", wikiEn: "2019–2022 locust infestation"},
+
+{t: -0.000024, scen: "pess", title: "Spiagge dove nascono solo femmine", text: "Nelle tartarughe marine il sesso dei piccoli dipende dalla temperatura della sabbia: più caldo vuol dire più femmine. Sull'isola di Raine, nella Grande barriera corallina, dove nidifica una delle più grandi popolazioni di tartarughe verdi del mondo, oltre il 99% dei giovani nati negli ultimi decenni è femmina (Jensen et al. 2018). Nello scenario pessimistico i maschi diventano rarissimi e oltre circa 33 °C le uova muoiono.", cat: "estinzione", lat: -11.59, lon: 144.04, certezza: "media", taxon: "tartaruga-verde",
+ img: {file: "File:Chelonia mydas and bubbles.jpg", cap: "Tartaruga verde alle Hawaii", author: "Brocken Inaglory", lic: "CC BY-SA 3.0", tipo: "foto"},
+ oggi: "Progetto di recupero dell'isola di Raine (dal 2014), gestito dal governo del Queensland con i proprietari tradizionali Wuthathi e Meriam.",
+ curiosita: "Per raffreddare la sabbia alcuni ricercatori provano a ombreggiare i nidi o ad annaffiarli: piccoli trucchi per far nascere qualche maschio in più.",
+ fonti: ["Jensen et al. 2018, Current Biology"], wiki: null, wikiEn: "Raine Island"},
+
+{t: -0.000024, scen: "pess", title: "Gli insetti spariscono in silenzio", text: "In 63 aree protette della Germania, tra il 1989 e il 2016, il peso degli insetti volanti raccolti con le trappole è calato del 76%: lo hanno scoperto naturalisti volontari della Società entomologica di Krefeld (Hallmann et al. 2017). Altri studi trovano cali diversi a seconda dei luoghi, e alcuni insetti d'acqua dolce aumentano. Nello scenario pessimistico caldo, pesticidi e perdita di habitat insieme fanno crollare gli impollinatori, utili a circa tre quarti dei tipi di colture alimentari.", cat: "estinzione", lat: 51.33, lon: 6.56, certezza: "media",
+ img: {file: "File:Malaise trap, Germany.jpg", cap: "Una trappola Malaise per insetti volanti, come quelle usate nello studio tedesco", author: "Hallmann et al.", lic: "CC BY 2.5", tipo: "foto"},
+ oggi: "Regolamento europeo sul ripristino della natura (2024): invertire il declino degli impollinatori entro il 2030; IPBES, valutazione sugli impollinatori (2016).",
+ curiosita: "Molti adulti ricordano i parabrezza delle auto pieni di insetti dopo un viaggio d'estate: oggi succede molto meno. Lo chiamano «effetto parabrezza».",
+ fonti: ["Hallmann et al. 2017, PLoS ONE", "van Klink et al. 2020, Science", "IPBES 2016"], wiki: null, wikiEn: "Decline in insect populations"},
+
+{t: -0.000034, scen: "pess", title: "Alpi senza neve: la fine dello sci di bassa quota", text: "Uno studio su 2 234 stazioni sciistiche europee (François et al. 2023) calcola che con 2 °C di riscaldamento il 53% avrebbe un rischio molto alto di neve scarsa, e con 4 °C il 98%. La neve artificiale aiuta, ma consuma acqua ed energia e non funziona quando fa troppo caldo. Nello scenario pessimistico molte località alpine e appenniniche devono reinventarsi: escursioni, biciclette, turismo d'estate.", cat: "umani", lat: 44.96, lon: 6.88, certezza: "alta",
+ img: {file: "File:Snowless ski slopes from space ESA24674506.jpeg", cap: "Piste da sci quasi senza neve durante l'ondata di caldo invernale del gennaio 2023, viste dal satellite Sentinel-2", author: "ESA (contiene dati Copernicus Sentinel)", lic: "Attribuzione", tipo: "foto"},
+ oggi: "Convenzione delle Alpi (1991) e Piano nazionale di adattamento ai cambiamenti climatici (PNACC, 2023), che dedica una parte al turismo di montagna.",
+ curiosita: "Le Olimpiadi invernali di Milano-Cortina, nel febbraio 2026, hanno usato molta neve artificiale, come quasi tutte le Olimpiadi invernali recenti.",
+ fonti: ["François et al. 2023, Nature Climate Change"], wiki: null, wikiEn: "Artificial snow"},
+
+{t: -0.000044, scen: "pess", title: "Virus che cambiano ospite", text: "Quando le specie si spostano per il clima, animali che prima non si incontravano si ritrovano negli stessi luoghi e si scambiano virus. Carlson e colleghi (2022) hanno calcolato che entro il 2070 tra i mammiferi potrebbero esserci almeno 15 000 nuovi passaggi di virus tra specie diverse, soprattutto grazie ai pipistrelli, che volano lontano. Succede già con riscaldamenti moderati; con quello più forte i passaggi, e le occasioni che un virus arrivi anche agli esseri umani, aumentano.", cat: "umani", lat: 20.0, lon: 100.0, certezza: "media",
+ img: {file: "File:Egyptian fruit bats.jpg", cap: "Una colonia di pipistrelli della frutta egiziani (zoo di Budapest)", author: "Diana Lili M", lic: "CC BY 2.0", tipo: "foto"},
+ oggi: "Accordo dell'OMS sulle pandemie, adottato dall'Assemblea mondiale della sanità il 20 maggio 2025; approccio «One Health»: la salute di persone, animali e ambiente è una sola.",
+ curiosita: "I pipistrelli sono circa un quinto di tutte le specie di mammiferi: più di 1 400 specie, dai minuscoli pipistrelli calabrone alle volpi volanti.",
+ fonti: ["Carlson et al. 2022, Nature", "OMS 2025"], wiki: "Zoonosi", wikiEn: "Zoonosis"},
+
+{t: -0.000054, scen: "pess", title: "Mari che sciolgono le conchiglie", text: "Circa un quarto della CO₂ che emettiamo finisce nel mare e lo rende più acido. Gli pteropodi, minuscole «farfalle di mare» che nuotano con due lembi del piede, hanno conchiglie fragilissime: nell'Oceano Meridionale ne sono già state trovate con la superficie corrosa (Bednaršek et al. 2012). Nello scenario pessimistico, verso fine secolo, gran parte dell'Oceano Meridionale diventa corrosivo per le loro conchiglie: pesci, krill e balene perdono un cibo importante.", cat: "estinzione", lat: -60.0, lon: -45.0, certezza: "media", taxon: "krill-antartico",
+ img: {file: "File:LimacinaHelicinaNOAA.jpg", cap: "Uno pteropodo (Limacina helicina), la «farfalla di mare»", author: "Russ Hopcroft, University of Alaska Fairbanks (NOAA)", lic: "Pubblico dominio", tipo: "foto"},
+ oggi: "Obiettivo di sviluppo sostenibile 14.3: ridurre l'acidificazione degli oceani; Commissione per la conservazione delle risorse marine viventi dell'Antartide (CCAMLR).",
+ curiosita: "Dall'inizio della rivoluzione industriale il mare è diventato circa il 30% più acido, anche se il pH è sceso «solo» da circa 8,2 a 8,1: la scala del pH è logaritmica.",
+ fonti: ["Bednaršek et al. 2012, Nature Geoscience", "IPCC AR6 WGI, cap. 5"], wiki: "Acidificazione degli oceani", wikiEn: "Limacina helicina"},
+
+{t: -0.000054, scen: "pess", title: "Animali più piccoli", text: "Dal 1978 i ricercatori del Field Museum di Chicago raccolgono gli uccelli morti contro le finestre dei grattacieli. Misurando 70 716 esemplari di 52 specie, Weeks e colleghi (2020) hanno scoperto che in quarant'anni il corpo è diventato più piccolo e le ali un po' più lunghe. Con il caldo essere piccoli aiuta a disperdere calore (è un'idea legata alla «regola di Bergmann»). Nello scenario pessimistico molti animali, dai pesci ai mammiferi, si rimpiccioliscono.", cat: "natura", lat: 41.87, lon: -87.62, certezza: "media",
+ img: {file: "File:Miscellaneous bird wings in Biology Preparation Lab - Burke Museum - 01.jpg", cap: "Ali di uccelli preparate per lo studio in un museo di storia naturale (Burke Museum, Seattle)", author: "Joe Mabel", lic: "CC BY-SA 3.0", tipo: "foto"},
+ oggi: "Le collezioni dei musei di storia naturale sono archivi del cambiamento; in molte città si usano vetri «visibili» per ridurre gli urti degli uccelli.",
+ curiosita: "Il primo a raccogliere gli uccelli morti nel centro di Chicago fu l'ornitologo Dave Willard, che per decenni ha percorso le strade all'alba prima dei netturbini.",
+ fonti: ["Weeks et al. 2020, Ecology Letters"], wiki: "Regola di Bergmann", wikiEn: "Bergmann's rule"},
+
+{t: -0.000064, scen: "pess", title: "Il delta del Mekong sotto il mare", text: "Il delta del Mekong, in Vietnam, produce riso per decine di milioni di persone. È molto più basso di quanto si credesse: in media circa 80 cm sopra il mare (Minderhoud et al. 2019), e sprofonda in media di circa un centimetro all'anno perché si pompa l'acqua dal sottosuolo. Nello scenario pessimistico, con quasi un metro di mare in più, gran parte del delta finisce sotto il livello del mare entro il 2100 e l'acqua salata entra nelle risaie.", cat: "umani", lat: 9.9, lon: 105.8, certezza: "media",
+ img: {file: "File:Mekong Delta Ham Luong River.jpg", cap: "Il fiume Hàm Luông, uno dei rami del delta del Mekong (Vietnam)", author: "CaCo789", lic: "CC BY-SA 4.0", tipo: "foto"},
+ oggi: "Risoluzione 120 del governo vietnamita (2017): adattare il delta al clima, per esempio alternando riso e gamberi dove arriva l'acqua salata.",
+ curiosita: "Nel delta molti contadini alternano il riso, nella stagione delle piogge, all'allevamento di gamberetti, quando entra il mare: un modo per convivere con l'acqua salata.",
+ fonti: ["Minderhoud et al. 2019, Nature Communications", "Erban et al. 2014, Environmental Research Letters"], wiki: "Delta del Mekong", wikiEn: "Mekong Delta"},
+
+{t: -0.000074, scen: "pess", title: "Il rifugio del Mar Rosso", text: "Mentre altrove le barriere muoiono, i coralli del Golfo di Aqaba resistono a temperature molto più alte di quelle che oggi raggiungono: i loro antenati, risalendo il Mar Rosso, hanno attraversato acque caldissime e sono stati «selezionati» (Fine et al. 2013). Anche nello scenario pessimistico questa potrebbe essere una delle ultime grandi barriere del pianeta, un'arca da cui ripartire. Ma inquinamento, turismo e nuove costruzioni sulla costa la minacciano.", cat: "natura", lat: 29.5, lon: 34.95, certezza: "media",
+ img: {file: "File:Gulf of Eilat (Red Sea) coral reefs.jpg", cap: "Barriera corallina nel Golfo di Eilat-Aqaba, con pesci anthias", author: "Daviddarom", lic: "Pubblico dominio", tipo: "foto"},
+ oggi: "Centro transnazionale del Mar Rosso (dal 2019, Politecnico federale di Losanna), che studia i coralli del golfo con scienziati dei paesi della regione.",
+ curiosita: "Nel Golfo di Aqaba il fondale scende fino a circa 1 800 m: per questo l'acqua è limpidissima e le barriere arrivano a pochi metri dalle spiagge di Eilat e Aqaba.",
+ fonti: ["Fine et al. 2013, Global Change Biology", "Savary et al. 2021, PNAS"], wiki: "Golfo di Aqaba", wikiEn: "Gulf of Aqaba"},
+
+{t: -0.2, scen: "pess", title: "Le rocce ripuliscono l'aria", text: "Dopo che gli oceani hanno assorbito gran parte della CO₂, l'ultima parte viene tolta dall'aria dalle rocce: la pioggia, leggermente acida, scioglie i silicati delle montagne e porta il carbonio al mare, dove diventa calcare. È un «termostato» lentissimo, che richiede centinaia di migliaia di anni (Archer et al. 2009). Nello scenario pessimistico, 200 000 anni dopo, la Terra è ancora più calda di prima dell'industria, ma la CO₂ continua a scendere.", cat: "clima", lat: null, lon: null, certezza: "media",
+ oggi: "Alcuni progetti cercano di accelerare questo processo spargendo basalto macinato sui campi («alterazione accelerata delle rocce»): le sperimentazioni sono in corso, anche in Europa.",
+ curiosita: "Lo stesso termostato ha riportato il clima alla normalità dopo le grandi eruzioni del passato, come quelle della Siberia di 252 milioni di anni fa che causarono la più grande estinzione di massa.",
+ fonti: ["Archer et al. 2009, Annual Review of Earth and Planetary Sciences", "Colbourn et al. 2015, Global Biogeochemical Cycles"], wiki: "Ciclo del carbonio", wikiEn: "Carbonate–silicate cycle"}
 ],
 
 // =====================================================================
@@ -11158,10 +11428,10 @@ fate: {
  "corallo-rosso": {ott: [null, "Sopravvive soprattutto in profondità, dove l'acqua resta fresca."], prob: [null, "Le colonie più superficiali muoiono nelle ondate di calore; sopravvive sotto i 40–50 m."], pess: [-0.000274, "Ondate di calore sempre più profonde e acidificazione lo riducono a pochi rifugi profondi entro il 2300."]},
  "foca-monaca": {ott: [null, "Continua a crescere, come negli ultimi anni (IUCN «Vulnerabile» dal 2023), e torna a partorire anche in Italia."], prob: [null, "Sopravvive, ma il mare che sale e le spiagge occupate riducono le grotte adatte ai piccoli."], pess: [-0.000124, "Grotte allagate, pesca in crisi e Mediterraneo troppo caldo la riportano verso l'estinzione dopo il 2100."]},
  "caretta-caretta": {ott: [null, "Sopravvive e nidifica sempre più a nord, anche sulle coste italiane."], prob: [null, "Sopravvive spostandosi a nord; ma le sabbie troppo calde producono quasi solo femmine."], pess: [null, "Sopravvive ma con forte squilibrio tra i sessi: sopra circa 29 °C nella sabbia nascono soprattutto femmine e sopra 33 °C le uova muoiono."]},
- "tartaruga-liuto": {ott: [null, "Le popolazioni atlantiche resistono; quelle del Pacifico, già crollate, vengono salvate a fatica."], prob: [-0.000074, "La popolazione del Pacifico orientale scompare entro il 2100 se continuano reti e palangari."], pess: [-0.000074, "Spiagge di deposizione sommerse e sabbie troppo calde: le popolazioni del Pacifico spariscono entro il 2100."]},
+ "tartaruga-liuto": {ott: [null, "Le popolazioni atlantiche resistono; quelle del Pacifico, già crollate, vengono salvate a fatica."], prob: [null, "La popolazione del Pacifico orientale scompare entro il 2100 se continuano reti e palangari."], pess: [null, "Spiagge di deposizione sommerse e sabbie troppo calde: le popolazioni del Pacifico spariscono entro il 2100."]},
  "stambecco": {ott: [null, "Sopravvive salendo di quota e pascolando di notte."], prob: [null, "Sopravvive ma con meno piccoli: l'erba di alta quota cresce prima e i capretti nascono «in ritardo» (Pettorelli et al. 2007)."], pess: [null, "Sopravvive nei massicci più alti, con popolazioni ridotte e più isolate."]},
- "pernice-bianca": {ott: [null, "Sopravvive sulle Alpi più alte."], prob: [null, "Perde gran parte del suo habitat alpino (fino a due terzi secondo alcuni modelli); resta sopra i 2 500 m."], pess: [-0.000174, "Sulle Alpi resta solo su poche cime isolate e rischia di sparire dalle Alpi italiane dopo il 2100; sopravvive nell'Artico."]},
- "farfalla-apollo": {ott: [null, "Sopravvive in quota e grazie al ripristino dei prati."], prob: [null, "Scompare dalle zone più basse (già successo in parte della Germania e della Scandinavia meridionale), resta in montagna."], pess: [-0.000174, "Rischia di scomparire da quasi tutta l'Europa meridionale."]},
+ "pernice-bianca": {ott: [null, "Sopravvive sulle Alpi più alte."], prob: [null, "Perde gran parte del suo habitat alpino (fino a due terzi secondo alcuni modelli); resta sopra i 2 500 m."], pess: [null, "Sulle Alpi resta solo su poche cime isolate e rischia di sparire dalle Alpi italiane dopo il 2100; sopravvive nell'Artico."]},
+ "farfalla-apollo": {ott: [null, "Sopravvive in quota e grazie al ripristino dei prati."], prob: [null, "Scompare dalle zone più basse (già successo in parte della Germania e della Scandinavia meridionale), resta in montagna."], pess: [null, "Rischia di scomparire da quasi tutta l'Europa meridionale."]},
  "salamandra-lanza": {ott: [null, "Sopravvive nelle valli del Monviso e del Pellice."], prob: [null, "Areale ridotto: vive solo in poche valli delle Alpi Cozie e non può salire più in alto."], pess: [-0.000174, "Estati secche e calde la riducono a poche popolazioni isolate: possibile estinzione dopo il 2100."]},
  "gipeto": {ott: [null, "Continua il ritorno sulle Alpi iniziato con le reintroduzioni del 1986."], prob: [null, "Sopravvive: si nutre di ossa di animali morti, che non mancano."], pess: [null, "Sopravvive, se non ritornano veleni e munizioni al piombo."]},
  "abete-nebrodi": {ott: [null, "Sopravvive: le piantine coltivate vengono messe a dimora sulle Madonie."], prob: [null, "Sopravvive soprattutto in vivai, orti botanici e banche dei semi; in natura restano poche decine di alberi."], pess: [-0.000124, "Siccità e incendi possono uccidere gli ultimi 30 alberi selvatici; sopravvive solo in coltivazione."]},
@@ -11169,8 +11439,8 @@ fate: {
  "lupo": {ott: [null, "Sopravvive ovunque: specie adattabile."], prob: [null, "Sopravvive ovunque: specie adattabile."], pess: [null, "Sopravvive: tra i vincitori, se non torna la persecuzione."]},
  "tonno-rosso": {ott: [null, "Popolazione sana grazie alle quote di pesca (ICCAT)."], prob: [null, "Sopravvive, ma si sposta verso nord, fino al Mare del Nord e alla Norvegia, dove sta già tornando."], pess: [null, "Sopravvive, ma con aree di deposizione mediterranee troppo calde in estate."]},
  "anguilla-europea": {ott: [null, "Si riprende con il divieto di pesca delle ceche e la rimozione delle dighe inutili."], prob: [null, "Rimane «In pericolo critico»: le correnti atlantiche più deboli portano meno larve verso l'Europa."], pess: [-0.000124, "Con l'AMOC molto indebolita la sua migrazione dal Mar dei Sargassi potrebbe fallire."]},
- "koala": {ott: [null, "Sopravvive grazie alla protezione delle foreste di eucalipto."], prob: [-0.000024, "Nel Nuovo Galles del Sud il governo stimava l'estinzione locale entro il 2050 senza interventi (inchiesta parlamentare 2020); sopravvive altrove."], pess: [null, "Scompare da gran parte dell'Australia orientale per caldo, siccità e incendi; resiste nel sud e nelle isole."]},
- "orango-borneo": {ott: [null, "Sopravvive grazie a moratorie sulla deforestazione e olio di palma certificato."], prob: [null, "Continua a diminuire (oltre 100 000 persi tra 1999 e 2015); sopravvive nei parchi."], pess: [-0.000074, "Con foreste tagliate e incendi, entro il 2100 restano solo poche popolazioni isolate."]},
+ "koala": {ott: [null, "Sopravvive grazie alla protezione delle foreste di eucalipto."], prob: [null, "Nel Nuovo Galles del Sud il governo stimava l'estinzione locale entro il 2050 senza interventi (inchiesta parlamentare 2020); sopravvive altrove."], pess: [null, "Scompare da gran parte dell'Australia orientale per caldo, siccità e incendi; resiste nel sud e nelle isole."]},
+ "orango-borneo": {ott: [null, "Sopravvive grazie a moratorie sulla deforestazione e olio di palma certificato."], prob: [null, "Continua a diminuire (oltre 100 000 persi tra 1999 e 2015); sopravvive nei parchi."], pess: [null, "Con foreste tagliate e incendi, entro il 2100 restano solo poche popolazioni isolate."]},
  "orango-tapanuli": {ott: [null, "Sopravvive se la diga di Batang Toru e le strade non dividono la foresta."], prob: [-0.000074, "Con meno di 800 individui in una sola foresta, rischia l'estinzione entro il secolo."], pess: [-0.000034, "La grande scimmia più rara del mondo scompare verso il 2060."]},
  "vaquita": {ott: [null, "Se le reti da posta spariscono dal Golfo di California, i circa 10 superstiti possono ancora riprodursi."], prob: [-0.000009, "Senza controllo della pesca illegale del totoaba, si estingue entro il 2035."], pess: [-0.000004, "Si estingue entro il 2030, come il baiji cinese nel 2006."]},
  "balena-franca-nordatlantica": {ott: [null, "Sopravvive grazie a limiti di velocità per le navi e corde senza nodi o senza funi («ropeless»)."], prob: [-0.000124, "Circa 380 individui: con collisioni e reti continua a calare, estinzione funzionale dopo il 2100."], pess: [-0.000054, "Il cibo (copepodi) si sposta per il mare più caldo e le balene incontrano più navi: estinzione verso il 2080."]},
@@ -11298,71 +11568,461 @@ fonti: [
  "Bennett C. E. et al. 2018, The broiler chicken as a signal of a human reconfigured biosphere, Royal Society Open Science 5: 180325. doi:10.1098/rsos.180325",
  "Posiva / STUK 2026, licenza di esercizio del deposito di Onkalo (22 ottobre 2026). https://www.posiva.fi",
  "Bulletin of the Atomic Scientists 2026, Doomsday Clock Statement (27 gennaio 2026). https://thebulletin.org",
- "Legge costituzionale 11 febbraio 2022, n. 1 (modifica degli articoli 9 e 41 della Costituzione)."
+ "Legge costituzionale 11 febbraio 2022, n. 1 (modifica degli articoli 9 e 41 della Costituzione).",
+ "Balbi A., Lingam M. 2025, Waste heat and habitability: constraints from technological energy consumption, Astrobiology 25(1): 1–21. arXiv:2409.06737",
+ "Chaisson E. J. 2008, Long-term global heating from energy usage, Eos 89(28): 253–254",
+ "Flanner M. G. 2009, Integrating anthropogenic heat flux with global climate models, Geophysical Research Letters 36: L02801. doi:10.1029/2008GL036465",
+ "Murphy T. 2011, Galactic-scale energy, blog Do the Math (UC San Diego). https://dothemath.ucsd.edu/2011/07/galactic-scale-energy/",
+ "Pievani T., Lanting F. 2019, La Terra dopo di noi, Contrasto, Roma.",
+ "Szuwalski C. S. et al. 2023, The collapse of eastern Bering Sea snow crab, Science 382: 306–310. doi:10.1126/science.adf6035",
+ "Renner H. M. et al. 2024, Catastrophic and persistent loss of common murres after a marine heatwave, Science (dicembre 2024)",
+ "Carlson C. J. et al. 2022, Climate change increases cross-species viral transmission risk, Nature 607: 555–562. doi:10.1038/s41586-022-04788-w",
+ "Hallmann C. A. et al. 2017, More than 75 percent decline over 27 years in total flying insect biomass in protected areas, PLoS ONE 12: e0185809. doi:10.1371/journal.pone.0185809",
+ "Jensen M. P. et al. 2018, Environmental warming and feminization of one of the largest sea turtle populations in the world, Current Biology 28: 154–159. doi:10.1016/j.cub.2017.11.057",
+ "Minderhoud P. S. J. et al. 2019, Mekong delta much lower than previously assumed in sea-level rise impact assessments, Nature Communications 10: 3847. doi:10.1038/s41467-019-11602-1",
+ "Fine M., Gildor H., Genin A. 2013, A coral reef refuge in the Red Sea, Global Change Biology 19: 3640–3647. doi:10.1111/gcb.12356",
+ "Weeks B. C. et al. 2020, Shared morphological consequences of global warming in North American migratory birds, Ecology Letters 23: 316–325. doi:10.1111/ele.13434",
+ "François H. et al. 2023, Climate change exacerbates snow-water-energy challenges for European ski tourism, Nature Climate Change 13: 935–942. doi:10.1038/s41558-023-01759-5",
+ "Karell P. et al. 2011, Climate change drives microevolution in a wild bird, Nature Communications 2: 208. doi:10.1038/ncomms1213",
+ "Mills L. S. et al. 2018, Winter color polymorphisms identify global hot spots for evolutionary rescue from climate change, Science 359: 1033–1036. doi:10.1126/science.aan8097",
+ "Orth R. J. et al. 2020, Restoration of seagrass habitat leads to rapid recovery of coastal ecosystem services, Science Advances 6: eabc6434. doi:10.1126/sciadv.abc6434",
+ "Kock R. A. et al. 2018, Saigas on the brink: multidisciplinary analysis of the factors influencing mass mortality events, Science Advances 4: eaao2314. doi:10.1126/sciadv.aao2314",
+ "Matter J. M. et al. 2016, Rapid carbon mineralization for permanent disposal of anthropogenic carbon dioxide emissions, Science 352: 1312–1314. doi:10.1126/science.aad8132",
+ "Davis A. P. et al. 2012, The impact of climate change on indigenous arabica coffee: predicting future trends and identifying priorities, PLoS ONE 7: e47981. doi:10.1371/journal.pone.0047981",
+ "vonHoldt B. M. et al. 2016, Whole-genome sequence analysis shows two endemic species of North American wolf are admixtures of the coyote and gray wolf, Science Advances 2: e1501714. doi:10.1126/sciadv.1501714",
+ "Tomas W. M. et al. 2021, Counting the dead: 17 million vertebrates directly killed by the 2020's wildfires in the Pantanal wetland, Brazil, Scientific Reports 11: 23547. doi:10.1038/s41598-021-02844-5",
+ "Lam R. et al. 2023, Learning skillful medium-range global weather forecasting, Science 382: 1416–1421. doi:10.1126/science.adi2336"
 ]
 };
 
 // =====================================================================
-// SCENARI GUIDATI DEL FUTURO (stesso formato di SAP.scenari; t negativi = futuro)
-// =====================================================================
-SAP.scenari.push(
-{id: "futuro-secolo", title: "Il secolo decisivo (2026–2100)", sub: "Che cosa dipende dalle scelte di oggi",
- from: 0, to: -0.000074, unit: "anni", color: "#e9c46a", futuro: true,
- intro: "Nessuno conosce il futuro, ma la scienza può dire che cosa succede «se…». Le emissioni dei prossimi decenni decidono se il riscaldamento si fermerà intorno a 1,5–2 °C o salirà a 3–4 °C, e con esso il destino di coralli, ghiacciai, coste e milioni di specie. Questo percorso segue lo scenario probabile (politiche attuali) e indica quando gli altri due scenari divergono.",
+// SCENARI GUIDATI DEL FUTURO: i tre «racconti» qui sotto (uno per scenario) hanno sostituito le visite del 29/10/2026
+// «futuro-secolo», «futuro-mare» e «futuro-lontano». Stesso formato di SAP.scenari; t negativi = futuro.
+// ---------------------------------------------------------------------
+// RACCONTO GUIDATO — scenario probabile (bozza del 29/10/2026: immagini e autori da verificare su Commons)
+SAP.scenari.unshift({
+ id: "racconto-prob", scen: "prob", futuro: true, title: "Racconto: il mondo che cambia", sub: "Scenario probabile: le politiche di oggi, circa +2,7 °C nel 2100",
+ from: 0, to: -1, unit: "anni", color: "#d19a1c",
+ dom: [0, -0.000024, -0.000074, -0.000274, -0.01, -0.1, -1], rng: [0, .2, .45, .62, .78, .9, 1],
+ intro: "Che cosa succede se il mondo continua più o meno con le politiche di oggi? Il riscaldamento arriva a circa 2,6–2,8 °C nel 2100 (UNEP 2025). Non è la fine del mondo, ma è un mondo diverso: alcune specie scompaiono, molte si spostano, altre si adattano in modi sorprendenti. Segui le tappe: il globo ti porta nei luoghi dove succede.",
  steps: [
-  {t: 0, title: "2026: il punto di partenza", text: "CO₂ oltre 425 ppm, riscaldamento umano di circa 1,37 °C, popolazioni di vertebrati calate in media del 73% dal 1970. Stati Uniti fuori dall'Accordo di Parigi; Unione europea con l'obiettivo −90% al 2040.", view: [12, 30, 1]},
-  {t: -0.000004, title: "2030: le scadenze", text: "Scadono l'Agenda 2030 e l'obiettivo 30×30. La media di lungo periodo supera 1,5 °C. Nello scenario ottimistico le emissioni calano già in fretta; in quello probabile restano quasi ferme.", view: [0, 20, 1]},
-  {t: -0.000014, title: "2040: ghiacci e coralli", text: "Prima estate artica quasi senza ghiaccio (forse prima). Il ghiacciaio della Marmolada è quasi scomparso. Le barriere coralline tropicali hanno subito sbiancamenti ripetuti.", view: [11.86, 46.43, 4]},
-  {t: -0.000024, title: "2050: un mondo più caldo di 2 °C", text: "Nello scenario probabile si arriva a circa 2 °C; in quello ottimistico il mondo raggiunge zero emissioni nette di CO₂. Estati come quella del 2003 diventano normali in Italia; il Mediterraneo ospita sempre più specie tropicali.", view: [13, 40, 3]},
-  {t: -0.000044, title: "2070: il permafrost e le città costiere", text: "Il permafrost artico perde una parte importante del suo ghiaccio. Venezia alza il MOSE molto spesso; Giacarta, Bangkok e Dacca lottano contro il mare e la subsidenza.", view: [100, 30, 2]},
-  {t: -0.000058, title: "2084: il picco della popolazione", text: "L'umanità arriva a circa 10,3 miliardi e poi comincia a diminuire, per la prima volta dalla peste nera (ONU). Nello scenario ottimistico il picco arriva prima e più in basso.", view: [30, 10, 1]},
-  {t: -0.000074, title: "2100: tre futuri", text: "Ottimistico: 1,4–1,8 °C, mare +30–60 cm, natura in ripresa. Probabile: circa 2,7 °C, mare +45–75 cm, barriere coralline quasi scomparse. Pessimistico: circa 4,4 °C, mare fino a 1 m e oltre, orsi polari e pinguini imperatori vicini all'estinzione.", view: [0, 0, 1]}
+  {t: 0, title: "2026: il punto di partenza", view: [10, 30, 1.1], certezza: "alta",
+   img: {file: "File:Keeling Curve full record.png", author: "Scripps Institution of Oceanography", lic: "CC BY-SA 4.0", cap: "La curva di Keeling: la CO₂ nell'aria misurata a Mauna Loa (Hawaii) dal 1958", tipo: "grafico"},
+   text: "La Terra è circa 1,4 °C più calda dell'Ottocento e il 2024 ha superato per la prima volta 1,5 °C. La CO₂ nell'aria supera 425 parti per milione: non era così alta da milioni di anni. Con le politiche di oggi il riscaldamento arriverebbe a circa 2,6–2,8 °C nel 2100.",
+   oggi: "L'Accordo di Parigi (2015) chiede di restare «ben sotto» 2 °C; il rapporto UNEP sul divario delle emissioni (2025) calcola che le politiche attuali portano a circa 2,8 °C.",
+   curiosita: "Charles David Keeling iniziò le misure nel 1958 con strumenti costruiti da lui: la sua curva a dente di sega mostra anche il «respiro» delle piante, che in primavera assorbono CO₂.",
+   fonti: ["UNEP Emissions Gap Report 2025", "WMO State of the Global Climate 2024"]},
+  {t: -0.000002, title: "Il grande sbiancamento dei coralli", view: [147, -18, 3.5], certezza: "alta", species: ["corallo-corno-alce"],
+   img: {file: "File:Extensive bleaching in the Great Barrier Reef (Copernicus 2024-03-05).jpg", author: "Unione Europea, Copernicus Sentinel-2", lic: "Attribuzione", cap: "Grande Barriera Corallina, marzo 2024: le macchie chiare sono coralli sbiancati", tipo: "foto"},
+   text: "Dal 2023 è in corso il quarto sbiancamento globale dei coralli, il più grande mai visto: ha colpito più dell'80% delle barriere del mondo. Quando l'acqua resta troppo calda, i coralli espellono le alghe che li nutrono e diventano bianchi. Se il caldo dura, muoiono.",
+   oggi: "Il Global Tipping Points Report 2025 considera già superato il punto di non ritorno delle barriere coralline tropicali.",
+   curiosita: "I colori dei coralli vengono in gran parte dalle alghe microscopiche (zooxantelle) che vivono dentro di loro: senza di esse si vede lo scheletro bianco.",
+   fonti: ["NOAA Coral Reef Watch 2024–2025", "Lenton et al., Global Tipping Points Report 2025"]},
+  {t: -0.000006, title: "Il pesce scorpione arriva in Sicilia", view: [14.5, 37, 5], certezza: "alta", species: ["fut-pesce-scorpione"],
+   img: {file: "File:Pterois miles 2.jpg", author: "Vasilis Andreou", lic: "CC BY-SA 4.0", cap: "Pesce scorpione (Pterois miles), specie del Mar Rosso", tipo: "foto"},
+   text: "Il Mediterraneo si scalda più in fretta degli oceani. Specie tropicali entrate dal Canale di Suez, come il pesce scorpione, risalgono fino alla Sicilia e alla Puglia. È la «tropicalizzazione»: il nostro mare cambia abitanti.",
+   oggi: "Il regolamento europeo sulle specie esotiche invasive (UE 1143/2014) e la rete di segnalazione dei pescatori aiutano a seguire gli arrivi.",
+   curiosita: "Le sue spine sono velenose, ma la carne è buona: in alcuni paesi si organizzano gare di pesca e ricette per tenerlo sotto controllo.",
+   fonti: ["Azzurro et al. 2022, Global Change Biology", "Dimitriadis et al. 2020, Mediterranean Marine Science"]},
+  {t: -0.000009, title: "Addio vaquita", view: [-114.6, 31.1, 5.5], certezza: "media", extinct: ["vaquita"],
+   img: {file: "File:Vaquita6 Olson NOAA.jpg", author: "Paula Olson, NOAA", lic: "Pubblico dominio", cap: "Vaquite fotografate nel Golfo di California (NOAA)", tipo: "foto"},
+   text: "Nel Golfo di California restano meno di dieci vaquite. Muoiono impigliate nelle reti messe di nascosto per pescare il totoaba, un pesce la cui vescica natatoria vale moltissimo sul mercato nero. In questo scenario i controlli non bastano e verso il 2035 la vaquita scompare: il primo cetaceo estinto dopo il delfino del fiume Yangtze.",
+   oggi: "Il Messico ha creato una zona di tolleranza zero per le reti; la CITES vieta il commercio internazionale del totoaba.",
+   curiosita: "È lunga circa un metro e mezzo e ha cerchi scuri attorno agli occhi: per questo la chiamano «il panda del mare».",
+   fonti: ["IUCN Red List: Phocoena sinus (CR)", "Rojas-Bracho et al., rapporti CIRVA"]},
+  {t: -0.000012, title: "La Marmolada senza ghiacciaio", view: [11.86, 46.43, 6], certezza: "alta", species: ["stambecco"],
+   img: {file: "File:Marmolada glacier.jpg", author: "autore non indicato", lic: "Pubblico dominio", cap: "Il ghiacciaio della Marmolada, il più grande delle Dolomiti", tipo: "foto"},
+   text: "Il ghiacciaio della Marmolada perde spessore ogni estate. Il 3 luglio 2022 un pezzo si staccò e uccise undici persone. I glaciologi stimano che possa sparire quasi del tutto prima del 2040: le Alpi italiane perdono così le loro riserve d'acqua per l'estate.",
+   oggi: "Il Comitato Glaciologico Italiano misura i ghiacciai ogni anno; l'ONU ha dichiarato il 2025 «Anno internazionale della conservazione dei ghiacciai».",
+   curiosita: "Dentro il ghiaccio della Marmolada si trovano ancora resti della Prima guerra mondiale, quando gli austriaci scavarono una «città di ghiaccio».",
+   fonti: ["Comitato Glaciologico Italiano", "Carturan et al., studi sulla Marmolada"]},
+  {t: -0.00002, title: "La prima estate artica senza ghiaccio", view: [0, 85, 2], certezza: "media", species: ["orso-polare"],
+   img: {file: "File:Arctic Sea Ice Minimum 2025 (SVS5583).png", author: "NASA Scientific Visualization Studio", lic: "Pubblico dominio", cap: "Il ghiaccio marino artico al minimo di settembre 2025 (NASA)", tipo: "mappa"},
+   text: "In un settembre degli anni 2040 il Mar Glaciale Artico resta quasi senza ghiaccio per la prima volta da migliaia di anni. Le navi possono passare sopra il Polo, ma orsi polari, foche e trichechi perdono la piattaforma su cui cacciano e partoriscono.",
+   oggi: "Secondo l'IPCC (AR6) l'Artico sarà «praticamente senza ghiaccio» a settembre almeno una volta prima del 2050, in tutti gli scenari.",
+   curiosita: "Il ghiaccio bianco riflette la luce del Sole; il mare scuro la assorbe: per questo l'Artico si scalda quasi quattro volte più in fretta del resto del pianeta.",
+   fonti: ["IPCC AR6 WGI, SPM", "Rantanen et al. 2022, Communications Earth & Environment"]},
+  {t: -0.000024, title: "La nacchera di mare scompare", view: [17.9, 40.7, 5.5], certezza: "media", extinct: ["pinna-nobilis"],
+   img: {file: "File:Pinna nobilis - Torre Guaceto.jpg", author: "Ferdinando Traversa", lic: "CC BY-SA 4.0", cap: "Pinna nobilis nella riserva di Torre Guaceto (Puglia)", tipo: "foto"},
+   text: "Dal 2016 un parassita ha ucciso quasi tutte le nacchere del Mediterraneo, il più grande mollusco bivalve del nostro mare. Le acque più calde favoriscono la malattia. In questo scenario le ultime popolazioni, nelle lagune, non resistono e la specie si estingue in natura verso il 2050.",
+   oggi: "La specie è «in pericolo critico» per la IUCN dal 2019; in Italia e in Spagna si allevano esemplari sopravvissuti per salvarla.",
+   curiosita: "Con i filamenti della nacchera (il bisso) nell'antichità si tesseva la «seta di mare»: in Sardegna, a Sant'Antioco, quest'arte si tramanda ancora.",
+   fonti: ["Vázquez-Luis et al. 2017, Journal of Invertebrate Pathology", "IUCN Red List: Pinna nobilis (CR)"]},
+  {t: -0.000034, title: "I Caraibi perdono i loro coralli più belli", view: [-80.6, 25, 4.5], certezza: "media", extinct: ["corallo-corno-alce", "corallo-corno-cervo"], species: ["fut-corallo-resistente"],
+   img: {file: "File:FKNMS - coral nursery (27367671414).jpg", author: "NOAA National Marine Sanctuaries", lic: "Pubblico dominio", cap: "Un vivaio di coralli nelle Florida Keys", tipo: "foto"},
+   text: "Nel 2023 l'acqua attorno alla Florida superò i 38 °C, come in una vasca da bagno. I coralli corna d'alce e corna di cervo, che costruivano le barriere caraibiche, scompaiono quasi del tutto verso il 2060. Restano i vivai: coralli più resistenti al caldo, selezionati dagli scienziati, che forse un giorno ripopoleranno il mare.",
+   oggi: "Il programma «Mission: Iconic Reefs» della NOAA ripianta coralli nelle Florida Keys; la ricerca sull'evoluzione assistita cerca coralli tolleranti al calore.",
+   curiosita: "I coralli si possono «tagliare» come le talee delle piante: ogni frammento ricresce e diventa una nuova colonia.",
+   fonti: ["NOAA 2023 Florida marine heatwave", "van Oppen et al. 2015, PNAS"]},
+  {t: -0.000035, title: "L'ultimo rinoceronte di Sumatra", view: [105.8, -4.9, 5], certezza: "media", extinct: ["rinoceronte-sumatra"],
+   img: {file: "File:Sumatran Rhino 2.jpg", author: "Charles W. Hardin", lic: "CC BY 2.0", cap: "Rinoceronte di Sumatra, il più piccolo e peloso dei rinoceronti", tipo: "foto"},
+   text: "Ne restano poche decine, divisi in piccoli gruppi nelle foreste di Sumatra e del Borneo. Gli animali sono così pochi e lontani che faticano a incontrarsi e a riprodursi. In questo scenario gli ultimi esemplari muoiono verso il 2060.",
+   oggi: "In Indonesia un santuario a Way Kambas fa nascere cuccioli in cattività; l'IUCN lo classifica «in pericolo critico».",
+   curiosita: "È il parente vivente più stretto del rinoceronte lanoso dell'era glaciale: anche lui ha il corpo coperto di peli rossicci.",
+   fonti: ["IUCN Red List: Dicerorhinus sumatrensis (CR)", "Liu et al. 2021, Current Biology"]},
+  {t: -0.00004, title: "Gli animali salgono di quota", view: [7.3, 45.55, 5.5], certezza: "media", species: ["stambecco", "pernice-bianca"],
+   img: {file: "File:Capra ibex in Gran Paradiso National Park.jpg", author: "Irene Vercellino", lic: "CC BY-SA 4.0", cap: "Stambecchi nel Parco Nazionale del Gran Paradiso", tipo: "foto"},
+   text: "Con il caldo, piante e animali di montagna salgono verso l'alto, ma la montagna finisce. Gli stambecchi del Gran Paradiso hanno già cambiato abitudini: nei giorni più caldi pascolano di notte. Chi non può salire o adattarsi, come la pernice bianca, perde spazio.",
+   oggi: "Il Parco Nazionale del Gran Paradiso, nato nel 1922 per salvare lo stambecco, studia da decenni gli effetti del clima sulla fauna alpina.",
+   curiosita: "All'inizio del Novecento gli stambecchi erano ridotti a un centinaio, tutti nel Gran Paradiso: quasi tutti quelli delle Alpi di oggi discendono da loro.",
+   fonti: ["Brivio et al. 2024, Proceedings of the Royal Society B", "Lenoir et al. 2020, Nature Ecology & Evolution"]},
+  {t: -0.000058, title: "Il picco della popolazione umana", view: [20, 10, 1.2], certezza: "media",
+   text: "Verso la metà degli anni 2080 la popolazione mondiale raggiunge il massimo, circa 10,3 miliardi, poi comincia lentamente a calare. Le persone vivono più a lungo ma nascono meno bambini, soprattutto dove le ragazze studiano di più.",
+   oggi: "Le Prospettive della popolazione mondiale dell'ONU (2024) prevedono il picco verso il 2084.",
+   curiosita: "Già oggi in più di metà dei paesi del mondo nascono in media meno di 2,1 figli per donna, il numero che serve a mantenere stabile la popolazione.",
+   fonti: ["UN World Population Prospects 2024"]},
+  {t: -0.00006, title: "Venezia: il MOSE quasi sempre chiuso", view: [12.33, 45.43, 6.5], certezza: "media",
+   img: {file: "File:03 movimento paratoie.jpg", author: "Consorzio Venezia Nuova", lic: "CC BY-SA 3.0", cap: "Le paratoie del MOSE si alzano per chiudere la laguna", tipo: "foto"},
+   text: "Il MOSE, le paratoie mobili che chiudono la laguna, si alza quando la marea supera 110 cm. Con il mare più alto si chiude sempre più spesso: se restasse chiuso a lungo, l'acqua della laguna non si cambierebbe più. Venezia dovrà scegliere nuove difese.",
+   oggi: "Il MOSE funziona dal 2020; l'UNESCO segue Venezia, patrimonio dell'umanità, anche per i rischi del mare che sale.",
+   curiosita: "Le paratoie sono 78 e restano nascoste sul fondale: si alzano pompando aria al loro interno, come i palloncini.",
+   fonti: ["IPCC AR6 WGI, capitolo 9", "Lionello et al. 2021, Natural Hazards and Earth System Sciences"]},
+  {t: -0.000074, title: "2100: due specie di grandi mammiferi in meno", view: [99, 1.6, 4.5], certezza: "media", extinct: ["orango-tapanuli", "rinoceronte-giava"],
+   img: {file: "File:Pongo tapanuliensis female.jpg", author: "Tim Laman", lic: "CC BY 4.0", cap: "Femmina di orango di Tapanuli, la specie di grande scimmia descritta nel 2017", tipo: "foto"},
+   text: "L'orango di Tapanuli, scoperto solo nel 2017, vive in una sola foresta di Sumatra e ne restano meno di 800. Il rinoceronte di Giava sopravvive in un unico parco. Strade, dighe e bracconaggio bastano a cancellarli entro la fine del secolo in questo scenario.",
+   oggi: "Il quadro mondiale per la biodiversità di Kunming-Montréal (2022) chiede di fermare le estinzioni causate dall'uomo entro il 2030.",
+   curiosita: "L'orango di Tapanuli è stata la prima nuova specie di grande scimmia descritta dal 1929, quando fu riconosciuto il bonobo.",
+   fonti: ["Nater et al. 2017, Current Biology", "IUCN Red List: Pongo tapanuliensis, Rhinoceros sondaicus (CR)"]},
+  {t: -0.000075, title: "Il mondo del 2100", view: [12.3, 44.9, 5], certezza: "media",
+   img: {file: "File:Drought grips northern Italy (Copernicus).jpg", author: "Unione Europea, Copernicus Sentinel-2", lic: "Attribuzione", cap: "Il Po in secca, vista dal satellite (Copernicus)", tipo: "foto"},
+   text: "Nel 2100 la Terra è circa 2,7 °C più calda dell'Ottocento e il mare è salito di circa mezzo metro. In Pianura Padana estati più secche alternano piogge violente; nel delta del Po l'acqua salata risale il fiume per decine di chilometri. Molte città hanno imparato a convivere con il caldo: più alberi, tetti chiari, case diverse.",
+   oggi: "L'Italia ha approvato nel 2023 il Piano nazionale di adattamento ai cambiamenti climatici (PNACC).",
+   curiosita: "Nell'estate 2022 l'acqua salata risalì il Po per circa 40 km, la distanza più lunga mai misurata.",
+   fonti: ["IPCC AR6 WGI e WGII", "Autorità di bacino distrettuale del fiume Po"]},
+  {t: -0.000124, title: "La corrente atlantica rallenta", view: [-30, 50, 1.6], certezza: "bassa",
+   img: {file: "File:Atlantic Meridional Overturning Circulation at weakest point in a millennium.jpg", author: "Unione Europea, Copernicus Marine Service", lic: "Attribuzione", cap: "La circolazione atlantica (AMOC): acqua calda verso nord in superficie, fredda verso sud in profondità", tipo: "mappa"},
+   text: "La corrente che porta acqua calda dai tropici verso l'Europa (AMOC) si indebolisce, perché l'acqua dolce dei ghiacci rende il mare del Nord più leggero. Quanto e quando sono molto discussi: alcuni studi temono un collasso in questo secolo, altri lo ritengono improbabile prima del 2100.",
+   oggi: "L'IPCC (AR6) considera «molto probabile» l'indebolimento e improbabile un collasso prima del 2100, con fiducia media.",
+   curiosita: "Questa corrente trasporta ogni secondo circa cento volte l'acqua di tutti i fiumi del mondo messi insieme.",
+   fonti: ["IPCC AR6 WGI", "Ditlevsen & Ditlevsen 2023, Nature Communications", "Baker et al. 2025, Nature"]},
+  {t: -0.000125, title: "La balena franca nordatlantica", view: [-66, 43, 3.5], certezza: "media", extinct: ["balena-franca-nordatlantica"],
+   img: {file: "File:Eubalaena glacialis with calf.jpg", author: "NOAA", lic: "Pubblico dominio", cap: "Balena franca nordatlantica con il suo piccolo", tipo: "foto"},
+   text: "Ne restano meno di 400. Muoiono urtate dalle navi o impigliate nelle corde delle trappole per aragoste, e il cibo si sposta verso nord con il mare più caldo. In questo scenario la specie si spegne lentamente verso il 2150.",
+   oggi: "Stati Uniti e Canada impongono limiti di velocità alle navi nelle zone dove passano le balene.",
+   curiosita: "In inglese si chiama «right whale», la balena «giusta» da cacciare: era lenta e galleggiava da morta. Per questo fu quasi sterminata.",
+   fonti: ["NOAA Fisheries 2024", "IUCN Red List: Eubalaena glacialis (CR)"]},
+  {t: -0.000174, title: "L'orso polare perde il suo mare", view: [-85, 74, 2.8], certezza: "media", extinct: ["orso-polare"], species: ["fut-pizzly"],
+   img: {file: "File:Polar bear on sea ice (52791040875).jpg", author: "USFWS Alaska", lic: "Pubblico dominio", cap: "Orso polare sul ghiaccio marino", tipo: "foto"},
+   text: "Con estati senza ghiaccio sempre più lunghe gli orsi polari digiunano per mesi. Le ultime popolazioni resistono nell'arcipelago artico canadese, poi scompaiono verso il 2200. Intanto al sud gli orsi bruni salgono verso nord e nascono ibridi, i «pizzly»: un adattamento, ma non un salvataggio.",
+   oggi: "L'accordo internazionale per la conservazione dell'orso polare (1973) lega Canada, Groenlandia/Danimarca, Norvegia, Russia e Stati Uniti.",
+   curiosita: "Il pelo dell'orso polare non è bianco: è trasparente e cavo. Sotto, la pelle è nera per assorbire il calore del Sole.",
+   fonti: ["Molnár et al. 2020, Nature Climate Change", "IUCN Polar Bear Specialist Group"]},
+  {t: -0.000274, title: "2300: le isole basse", view: [73.5, 4.2, 6], certezza: "media",
+   img: {file: "File:Hulhumale, Maldives (hulhumale).jpg", author: "NASA/USGS Landsat", lic: "Pubblico dominio", cap: "Hulhumalé, l'isola costruita dalle Maldive più in alto del mare", tipo: "foto"},
+   text: "Il mare continua a salire anche quando le temperature si fermano: nel 2300 è da mezzo metro a più di due metri più alto di oggi. Le Maldive si spostano sulle isole artificiali più alte; altri arcipelaghi, come Tuvalu, si affidano a trattati di migrazione con i paesi vicini.",
+   oggi: "Con il trattato Falepili (2023) l'Australia offre ogni anno la residenza a un gruppo di abitanti di Tuvalu per motivi climatici.",
+   curiosita: "Nel 2009 il governo delle Maldive tenne una riunione sott'acqua, con le mute da sub, per chiedere al mondo di ridurre le emissioni.",
+   fonti: ["IPCC AR6 WGI, capitolo 9", "Trattato Falepili Australia-Tuvalu 2023"]},
+  {t: -0.01, title: "Diecimila anni dopo: l'Adriatico avanza", view: [12.5, 45, 4], certezza: "bassa",
+   text: "La CO₂ in più resta nell'aria per millenni e le calotte continuano a sciogliersi lentamente: il mare può essere molti metri più alto di oggi. Le coste basse, come quelle della Pianura Padana, si spostano verso l'interno. Le specie che sono sopravvissute si sono distribuite in un mondo nuovo.",
+   oggi: "L'IPCC ricorda che parte dell'innalzamento del mare è già «inevitabile» per secoli, qualunque cosa facciamo.",
+   curiosita: "Durante l'ultimo periodo caldo, circa 125 000 anni fa, il mare era 6–9 metri più alto di oggi.",
+   fonti: ["Clark et al. 2016, Nature Climate Change", "IPCC AR6 WGI"]},
+  {t: -0.3, title: "La glaciazione rimandata", view: [-85, 60, 1.5], certezza: "media",
+   img: {file: "File:Northern icesheet hg.png", author: "Hannes Grobe/AWI", lic: "CC BY 2.5", cap: "Le calotte dell'ultima glaciazione nell'emisfero nord", tipo: "mappa"},
+   text: "Senza di noi la prossima glaciazione sarebbe arrivata fra circa 50 000 anni. La CO₂ che abbiamo emesso la rimanda: in questo scenario arriva fra 100 000 e 500 000 anni. Poi i ghiacci tornano a coprire il Canada e il Nord Europa e il mare si abbassa di decine di metri.",
+   oggi: "Gli studi sui cicli di Milanković e sulla CO₂ (Ganopolski 2016) mostrano che le nostre emissioni lasciano un segno per centinaia di migliaia di anni.",
+   curiosita: "L'ultima volta che i ghiacci erano al massimo, 20 000 anni fa, si poteva andare a piedi dall'Italia alla Croazia attraverso il nord dell'Adriatico.",
+   fonti: ["Ganopolski et al. 2016, Nature", "Talento & Ganopolski 2021, Earth System Dynamics"]},
+  {t: -1, title: "Un milione di anni", view: [20, 10, 1], certezza: "ipotesi", species: ["fut-sapiens-terra"],
+   text: "Una specie di mammifero vive in media da uno a qualche milione di anni. Homo sapiens potrebbe esserci ancora, essere cambiato in qualcosa di diverso o essere scomparso. Intanto la vita, come dopo ogni grande crisi, avrà riempito di nuove specie gli spazi lasciati vuoti.",
+   oggi: "L'articolo 9 della Costituzione italiana, modificato nel 2022, tutela l'ambiente e la biodiversità «anche nell'interesse delle future generazioni».",
+   curiosita: "Dopo l'estinzione dei dinosauri ci vollero circa 10 milioni di anni perché la biodiversità tornasse ai livelli di prima.",
+   fonti: ["Barnosky et al. 2011, Nature", "Kirchner & Weil 2000, Nature"]}
  ],
  markers: [
-  {lat: 46.43, lon: 11.86, label: "Marmolada", kind: "evento", from: 0, to: -0.000034, text: "Il ghiacciaio più grande delle Dolomiti potrebbe sparire prima del 2040.", wiki: "Marmolada", wikiEn: "Marmolada"},
-  {lat: 45.42, lon: 12.34, label: "Venezia e il MOSE", kind: "sito", from: 0, to: -0.000074, text: "78 paratoie mobili contro l'acqua alta, in funzione dal 2020.", wiki: "MOSE", wikiEn: "MOSE"},
-  {lat: -8.52, lon: 179.2, label: "Tuvalu", kind: "sito", from: 0, to: -0.000074, text: "Atollo minacciato dal mare: dal 2024 i suoi abitanti possono trasferirsi in Australia con il trattato Falepili.", wiki: "Tuvalu", wikiEn: "Australia–Tuvalu relations"},
-  {lat: -18.29, lon: 147.7, label: "Grande barriera corallina", kind: "sito", from: 0, to: -0.000074, text: "Sbiancamenti di massa nel 2016, 2017, 2020, 2022, 2024 e 2025.", taxon: "corallo-corno-cervo", wiki: "Grande barriera corallina", wikiEn: "Great Barrier Reef"},
-  {lat: 61.24, lon: 21.44, label: "Onkalo", kind: "sito", from: 0, to: -0.000074, text: "Primo deposito definitivo di combustibile nucleare esaurito (licenza 2026).", wiki: null, wikiEn: "Onkalo spent nuclear fuel repository"}
- ]},
-
-{id: "futuro-mare", title: "Il mare che sale (2026–12026)", sub: "Diecimila anni di coste che cambiano",
- from: 0, to: -0.01, unit: "anni", color: "#3a8fd0", futuro: true,
- intro: "Il mare sale perché l'acqua calda si dilata e perché fondono ghiacciai e calotte. È un processo lento ma lunghissimo: anche se smettessimo di emettere CO₂ oggi, il mare continuerebbe a salire per secoli. Quanto salirà in 10 000 anni dipende da quanto carbonio bruceremo in questo secolo: circa 6–7 m con 1,5 °C, 8–13 m con 2 °C, 28–37 m con 5 °C (IPCC AR6).",
+  {lat: 31.0, lon: -114.5, label: "Rifugio della vaquita", kind: "evento", from: -0.000005, to: -0.000012, taxon: "vaquita", text: "Alto Golfo di California: l'ultimo luogo dove vive la vaquita."},
+  {lat: 46.43, lon: 11.86, label: "Ghiacciaio della Marmolada", kind: "sito", from: -0.000009, to: -0.000016, text: "Il più grande ghiacciaio delle Dolomiti, in rapida ritirata."},
+  {lat: 40.7, lon: 17.9, label: "Torre Guaceto", kind: "sito", from: -0.00002, to: -0.000028, taxon: "pinna-nobilis", text: "Riserva marina in Puglia dove si studiava la nacchera."},
+  {lat: 45.43, lon: 12.33, label: "MOSE di Venezia", kind: "sito", from: -0.000055, to: -0.000065, text: "Le paratoie mobili che difendono la laguna."},
+  {lat: 1.6, lon: 99.2, label: "Foresta di Batang Toru", kind: "sito", from: -0.00007, to: -0.000078, taxon: "orango-tapanuli", text: "L'unica foresta dove vive l'orango di Tapanuli."},
+  {lat: 4.2, lon: 73.54, label: "Hulhumalé", kind: "sito", from: -0.00025, to: -0.0003, text: "Isola artificiale delle Maldive, costruita più in alto del mare."}
+ ]});
+// RACCONTO GUIDATO — scenario pessimistico (bozza del 29/10/2026: immagini e autori da verificare su Commons)
+SAP.scenari.unshift({
+ id: "racconto-pess", scen: "pess", futuro: true, title: "Racconto: la tempesta perfetta", sub: "Scenario pessimistico: emissioni alte e punti di non ritorno",
+ from: 0, to: -1, unit: "anni", color: "#e63946",
+ dom: [0, -0.000024, -0.000074, -0.000274, -0.01, -0.1, -1], rng: [0, .2, .45, .62, .78, .9, 1],
+ intro: "Che cosa succederebbe se le emissioni continuassero a crescere per gran parte del secolo? È lo scenario «caso peggiore» dell'IPCC (SSP5-8.5): oggi è considerato poco probabile, ma serve a capire che cosa rischiamo. Il riscaldamento supera i 4 °C nel 2100 e si superano diversi punti di non ritorno. Segui il racconto: il globo ti porta nei luoghi dove le cose cambiano più in fretta.",
  steps: [
-  {t: 0, title: "Oggi: +4,5 mm all'anno", text: "Il mare sale circa il doppio più in fretta che negli anni Novanta: dal 1901 è salito di circa 20 cm.", view: [0, 20, 1]},
-  {t: -0.000024, title: "2050: +15–25 cm", text: "In tutti gli scenari, perché il riscaldamento già avvenuto continua a scaldare l'oceano. Le inondazioni di marea diventano frequenti a Venezia, Miami, Giacarta.", view: [-80.2, 25.8, 3]},
-  {t: -0.000074, title: "2100: da 30 cm a 1 metro", text: "Ottimistico +28–62 cm, probabile +44–76 cm, pessimistico +63 cm–1 m (fino a quasi 2 m se l'Antartide cede in fretta). Gli atolli del Pacifico diventano difficili da abitare.", view: [179.2, -8.5, 3]},
-  {t: -0.000274, title: "2300: da 30 cm a 7 metri", text: "Con emissioni basse +0,3–3 m; con emissioni alte +1,7–6,8 m, fino a circa 15 m nel caso peggiore.", view: [12.3, 45, 4]},
-  {t: -0.001, title: "3026: la Groenlandia si scioglie", text: "Con 2–3 °C stabili la calotta della Groenlandia (7,4 m di mare) continua a perdere ghiaccio per millenni. L'Antartide occidentale (circa 3,3 m) potrebbe cedere.", view: [-40, 72, 2]},
-  {t: -0.002, title: "4026: 2–6 metri o 20", text: "Secondo l'IPCC in 2 000 anni il mare sale di 2–3 m con 1,5 °C, 2–6 m con 2 °C, 19–22 m con 5 °C.", view: [4.9, 52.4, 3]},
-  {t: -0.01, title: "12026: nuove coste", text: "Ottimistico: +6–7 m, come nell'ultimo interglaciale. Probabile: +10–20 m, Venezia e il delta del Po sott'acqua. Pessimistico: +30–50 m, l'Adriatico entra nella Pianura Padana come nel Pliocene.", view: [11.5, 44.8, 3]}
+  {t: 0, title: "2026: il bivio", view: [10, 30, 1.1], certezza: "alta",
+   img: {file: "File:Keeling Curve full record.png", author: "Scripps Institution of Oceanography", lic: "CC BY-SA 4.0", cap: "La CO₂ nell'aria misurata a Mauna Loa dal 1958", tipo: "grafico"},
+   text: "In questo scenario il mondo non riduce le emissioni: si continua a bruciare carbone, petrolio e gas, e le foreste tropicali vengono tagliate. Nel 2100 il riscaldamento arriva a circa 4,4 °C (tra 3,3 e 5,7 °C) rispetto all'Ottocento.",
+   oggi: "Alla COP28 (2023) i paesi hanno deciso di «allontanarsi dai combustibili fossili»; questo scenario descrive che cosa succede se l'impegno non viene mantenuto.",
+   curiosita: "Lo scenario SSP5-8.5 si chiama «sviluppo alimentato dai fossili»: immagina un mondo ricco che cresce in fretta usando soprattutto carbone.",
+   fonti: ["IPCC AR6 WGI, SPM", "Hausfather & Peters 2020, Nature"]},
+  {t: -0.000004, title: "2030: la vaquita è la prima a sparire", view: [-114.6, 31.1, 5.5], certezza: "media", extinct: ["vaquita"],
+   img: {file: "File:Vaquita6 Olson NOAA.jpg", author: "Paula Olson, NOAA", lic: "Pubblico dominio", cap: "Vaquite fotografate nel Golfo di California (NOAA)", tipo: "foto"},
+   text: "Senza controlli sulla pesca illegale, le ultime vaquite muoiono nelle reti già entro il 2030. È il primo segnale: le specie già ridotte a pochissimi individui non hanno più margine.",
+   oggi: "La vaquita è «in pericolo critico» per la IUCN; il Messico ha vietato le reti da posta nel suo ultimo rifugio.",
+   curiosita: "Fu scoperta dagli scienziati solo nel 1958, grazie a tre crani trovati su una spiaggia.",
+   fonti: ["IUCN Red List: Phocoena sinus (CR)"]},
+  {t: -0.000008, title: "Il Mediterraneo bolle", view: [6, 40, 3], certezza: "alta", species: ["posidonia", "pinna-nobilis"],
+   img: {file: "File:Intense marine heatwave hits the western Mediterranean Sea (Copernicus 2025-06-25).png", author: "Unione Europea, Copernicus Marine Service", lic: "Attribuzione", cap: "Ondata di calore marina nel Mediterraneo occidentale, giugno 2025 (Copernicus)", tipo: "mappa"},
+   text: "Le ondate di calore marine diventano la normalità: per settimane l'acqua resta sopra i 28–30 °C. Gorgonie, spugne e praterie di Posidonia muoiono a chilometri di distanza. Meduse e specie tropicali prendono il loro posto.",
+   oggi: "Il programma europeo Copernicus misura ogni giorno la temperatura del mare dallo spazio e segnala le ondate di calore marine.",
+   curiosita: "Il Mediterraneo si scalda circa il 20% più in fretta della media degli oceani del mondo.",
+   fonti: ["Garrabou et al. 2022, Global Change Biology", "Copernicus Marine Service"]},
+  {t: -0.000013, title: "Addio alla nacchera di mare", view: [17.9, 40.7, 5.5], certezza: "media", extinct: ["pinna-nobilis"],
+   img: {file: "File:Pinna nobilis - Torre Guaceto.jpg", author: "Ferdinando Traversa", lic: "CC BY-SA 4.0", cap: "Pinna nobilis nella riserva di Torre Guaceto (Puglia)", tipo: "foto"},
+   text: "Il parassita che dal 2016 uccide le nacchere si diffonde con l'acqua calda fino nelle ultime lagune. Verso il 2040 il più grande bivalve del Mediterraneo scompare.",
+   oggi: "In Italia e in Spagna si allevano gli ultimi esemplari resistenti per salvarli.",
+   curiosita: "Una nacchera può superare un metro di lunghezza e vivere più di 40 anni.",
+   fonti: ["Vázquez-Luis et al. 2017", "IUCN Red List: Pinna nobilis (CR)"]},
+  {t: -0.000014, title: "Le barriere dei Caraibi crollano", view: [-80.6, 25, 4.5], certezza: "media", extinct: ["corallo-corno-alce", "corallo-corno-cervo"],
+   img: {file: "File:Acropora palmata 02 Pickles Reef 20230713.jpg", author: "Jstuby", lic: "CC0", cap: "Corallo corna d'alce sbiancato, Florida Keys, luglio 2023", tipo: "foto"},
+   text: "Ondate di calore sempre più lunghe uccidono i coralli più velocemente di quanto possano ricrescere. Entro il 2040 i grandi coralli corna d'alce e corna di cervo spariscono; le barriere diventano scogli coperti di alghe.",
+   oggi: "Il Global Tipping Points Report 2025 considera già superato il punto di non ritorno delle barriere coralline tropicali.",
+   curiosita: "Una barriera corallina copre meno dell'1% del fondo del mare ma ospita circa un quarto di tutte le specie marine.",
+   fonti: ["Lenton et al., Global Tipping Points Report 2025", "IPCC AR6 WGII"]},
+  {t: -0.000015, title: "L'ultimo rinoceronte di Sumatra", view: [105.8, -4.9, 5], certezza: "media", extinct: ["rinoceronte-sumatra"],
+   img: {file: "File:Sumatran Rhino 2.jpg", author: "Charles W. Hardin", lic: "CC BY 2.0", cap: "Rinoceronte di Sumatra", tipo: "foto"},
+   text: "Incendi e disboscamento riducono le ultime foreste. Senza nuove nascite in cattività, gli ultimi rinoceronti di Sumatra muoiono verso il 2040: scompare il parente vivente del rinoceronte lanoso.",
+   oggi: "L'IUCN lo considera «in pericolo critico»; ne restano poche decine.",
+   curiosita: "È l'unico rinoceronte asiatico con due corni ed è capace di nuotare nei fiumi.",
+   fonti: ["IUCN Red List: Dicerorhinus sumatrensis (CR)"]},
+  {t: -0.000018, title: "Il permafrost si scioglie", view: [134.8, 67.6, 5.5], certezza: "alta",
+   img: {file: "File:Batagaika crater NASA.jpg", author: "NASA Earth Observatory", lic: "Pubblico dominio", cap: "Il cratere di Batagaika in Siberia visto dal satellite (NASA)", tipo: "foto"},
+   text: "Il suolo ghiacciato dell'Artico, il permafrost, si scioglie e sprofonda. In Siberia il cratere di Batagaika, lungo più di un chilometro, si allarga ogni anno. Il terreno che si scongela libera CO₂ e metano, che scaldano ancora di più il pianeta.",
+   oggi: "Il permafrost contiene circa il doppio del carbonio che c'è oggi nell'aria: l'IPCC lo considera una delle retroazioni più importanti.",
+   curiosita: "Gli abitanti lo chiamano «la porta dell'inferno»: dalle sue pareti escono ossa di mammut e di cavalli dell'era glaciale.",
+   fonti: ["Schuur et al. 2015, Nature", "IPCC AR6 WGI"]},
+  {t: -0.000024, title: "2050: niente più rinoceronti di Giava", view: [105.4, -6.8, 6], certezza: "media", extinct: ["rinoceronte-giava"],
+   text: "Tutti i rinoceronti di Giava vivono in un solo parco, Ujung Kulon, ai piedi del vulcano Krakatoa. Bracconaggio, malattie o uno tsunami bastano a cancellarli: in questo scenario scompaiono verso il 2050.",
+   oggi: "Il parco nazionale di Ujung Kulon è patrimonio dell'umanità UNESCO dal 1991.",
+   curiosita: "L'ultimo rinoceronte di Giava del Vietnam fu ucciso dai bracconieri nel 2010.",
+   fonti: ["IUCN Red List: Rhinoceros sondaicus (CR)", "WWF Vietnam 2011"]},
+  {t: -0.000034, title: "2060: la scimmia scoperta troppo tardi", view: [99, 1.6, 5], certezza: "media", extinct: ["orango-tapanuli"],
+   img: {file: "File:Pongo tapanuliensis female.jpg", author: "Tim Laman", lic: "CC BY 4.0", cap: "Femmina di orango di Tapanuli", tipo: "foto"},
+   text: "L'orango di Tapanuli, descritto nel 2017, vive in una sola foresta. Strade, miniere e una centrale idroelettrica la dividono in pezzi troppo piccoli. Verso il 2060 la specie si estingue: era la grande scimmia più rara del mondo.",
+   oggi: "Il quadro di Kunming-Montréal chiede di fermare le estinzioni causate dall'uomo entro il 2030.",
+   curiosita: "Da quando è stato scoperto, nel 2017, è stato una specie «nuova» per meno di mezzo secolo.",
+   fonti: ["Nater et al. 2017, Current Biology", "IUCN Red List: Pongo tapanuliensis (CR)"]},
+  {t: -0.000045, title: "L'Amazzonia diventa savana?", view: [-60, -6, 3], certezza: "bassa",
+   img: {file: "File:Deforestation in the Amazon (46200453914).jpg", author: "Sentinel Hub", lic: "CC BY 2.0", cap: "Deforestazione in Amazzonia vista dall'alto", tipo: "foto"},
+   text: "Siccità, incendi e disboscamento potrebbero spingere parte dell'Amazzonia oltre una soglia: la foresta non riesce più a produrre la propria pioggia e si trasforma in savana. Quando e se succederà è molto discusso, ma il rischio cresce con il caldo.",
+   oggi: "Al vertice di Belém (2023) gli otto paesi amazzonici si sono impegnati a fermare la deforestazione illegale entro il 2030.",
+   curiosita: "Gli alberi dell'Amazzonia «sudano» così tanta acqua che sopra la foresta scorrono «fiumi volanti» di vapore.",
+   fonti: ["Flores et al. 2024, Nature", "Armstrong McKay et al. 2022, Science"]},
+  {t: -0.00005, title: "Troppo caldo per vivere all'aperto", view: [51.5, 26, 4], certezza: "media",
+   text: "Nel Golfo Persico l'aria diventa così calda e umida che per alcune ore il corpo umano non riesce più a raffreddarsi sudando. In quei giorni si può stare all'aperto solo per poco: le città vivono di notte e sotto l'aria condizionata.",
+   oggi: "L'Organizzazione mondiale della sanità considera il caldo estremo una delle principali minacce alla salute legate al clima.",
+   curiosita: "Il limite si misura con la «temperatura di bulbo umido»: un termometro avvolto in un panno bagnato. Oltre circa 35 °C anche una persona sana in ombra rischia la vita.",
+   fonti: ["Pal & Eltahir 2016, Nature Climate Change", "Vecellio et al. 2022, Journal of Applied Physiology"]},
+  {t: -0.000054, title: "La balena franca nordatlantica", view: [-66, 43, 3.5], certezza: "media", extinct: ["balena-franca-nordatlantica"],
+   img: {file: "File:Eubalaena glacialis with calf.jpg", author: "NOAA", lic: "Pubblico dominio", cap: "Balena franca nordatlantica con il piccolo", tipo: "foto"},
+   text: "Con il mare più caldo il suo cibo si sposta verso nord, in rotte piene di navi e di corde da pesca. Nascono sempre meno piccoli: verso il 2080 la specie scompare.",
+   oggi: "Stati Uniti e Canada impongono limiti di velocità alle navi nelle zone delle balene.",
+   curiosita: "Ogni balena franca ha sul capo callosità bianche diverse da tutte le altre: i ricercatori le riconoscono come impronte digitali.",
+   fonti: ["NOAA Fisheries 2024", "Meyer-Gutbrod et al. 2021, Oceanography"]},
+  {t: -0.00006, title: "Venezia sommersa", view: [12.33, 45.43, 6.5], certezza: "media",
+   img: {file: "File:Acqua alta in Piazza San Marco.jpg", author: "Wolfgang Moroder", lic: "CC BY-SA 3.0", cap: "Acqua alta in Piazza San Marco", tipo: "foto"},
+   text: "Con il mare quasi un metro più alto, il MOSE dovrebbe restare chiuso quasi sempre e la laguna morirebbe senza ricambio d'acqua. In questo scenario Venezia vive sommersa per buona parte dell'anno e molti abitanti se ne vanno.",
+   oggi: "Il MOSE funziona dal 2020 ed è stato progettato per proteggere la città da maree fino a circa 3 metri.",
+   curiosita: "L'«acqua granda» del 4 novembre 1966 arrivò a 194 cm: fu l'inondazione più alta mai misurata a Venezia.",
+   fonti: ["IPCC AR6 WGI, capitolo 9", "Lionello et al. 2021, Natural Hazards and Earth System Sciences"]},
+  {t: -0.000073, title: "2100: i pinguini imperatore", view: [-26.5, -75.6, 4], certezza: "media", extinct: ["pinguino-imperatore"],
+   img: {file: "File:Halley Emperor Penguin Colony in 1999.jpg", author: "Mtpaley", lic: "CC BY-SA 4.0", cap: "La colonia di pinguini imperatore di Halley Bay (Antartide)", tipo: "foto"},
+   text: "I pinguini imperatore allevano i piccoli sul ghiaccio marino attaccato alla costa. Se si rompe troppo presto, i pulcini, ancora senza piume impermeabili, annegano. Con emissioni alte quasi tutte le colonie scompaiono entro il 2100.",
+   oggi: "Ad aprile 2026 la IUCN ha spostato il pinguino imperatore tra le specie «in pericolo».",
+   curiosita: "Tra il 2016 e il 2018 la colonia di Halley Bay, una delle più grandi, perse quasi tutti i pulcini perché il ghiaccio si ruppe in anticipo.",
+   fonti: ["Jenouvrier et al. 2021, Global Change Biology", "Fretwell & Trathan 2019, Antarctic Science"]},
+  {t: -0.000074, title: "2100: le praterie di Posidonia", view: [12.3, 38, 5.5], certezza: "media", extinct: ["posidonia"],
+   img: {file: "File:Praterie di Posidonia oceanica.jpg", author: "Albarubescens", lic: "CC BY-SA 4.0", cap: "Prateria di Posidonia oceanica", tipo: "foto"},
+   text: "La Posidonia è una pianta, non un'alga: forma praterie sottomarine che proteggono le spiagge e sono asili per i pesci. Con il mare troppo caldo le praterie muoiono: nel caso peggiore la specie rischia l'estinzione funzionale entro il 2100.",
+   oggi: "La Posidonia è protetta dalla direttiva europea Habitat (1992) e il suo taglio è vietato.",
+   curiosita: "Una prateria di Posidonia vicino a Formentera è forse uno degli organismi più antichi della Terra: alcuni studi le danno decine di migliaia di anni.",
+   fonti: ["Chefaoui et al. 2018, Global Change Biology", "Arnaud-Haond et al. 2012, PLoS ONE"]},
+  {t: -0.000094, title: "La fine dell'orso polare", view: [-85, 74, 2.8], certezza: "media", extinct: ["orso-polare"], species: ["fut-pizzly"],
+   img: {file: "File:Polar bear on sea ice (52791040875).jpg", author: "USFWS Alaska", lic: "Pubblico dominio", cap: "Orso polare sul ghiaccio marino", tipo: "foto"},
+   text: "Senza ghiaccio marino per gran parte dell'anno gli orsi polari non riescono più a cacciare le foche. Con emissioni alte quasi tutte le popolazioni crollano entro il 2100, le ultime verso il 2120. Restano gli ibridi con l'orso bruno, i «pizzly».",
+   oggi: "L'accordo internazionale sull'orso polare (1973) unisce i cinque paesi dove vive.",
+   curiosita: "Un orso polare sente l'odore di una foca a più di un chilometro di distanza, anche sotto la neve.",
+   fonti: ["Molnár et al. 2020, Nature Climate Change"]},
+  {t: -0.000124, title: "Le perdite dell'Italia", view: [13.8, 41.8, 5], certezza: "bassa", extinct: ["orso-marsicano", "abete-nebrodi", "foca-monaca", "anguilla-europea"],
+   img: {file: "File:Orso bruno marsicano.jpg", author: "Marco Tersigni", lic: "CC BY 2.0", cap: "Orso bruno marsicano", tipo: "foto"},
+   text: "Verso il 2150 l'Italia perde alcune delle sue specie simbolo. L'orso marsicano, rimasto con una cinquantina di esemplari, non regge siccità e isolamento; l'abete dei Nebrodi, con una trentina di alberi selvatici, muore di caldo; la foca monaca non trova più grotte tranquille; l'anguilla europea, se la corrente atlantica collassa, non trova più la strada dal Mar dei Sargassi.",
+   oggi: "Il Parco Nazionale d'Abruzzo, Lazio e Molise protegge l'orso marsicano dal 1923; l'abete dei Nebrodi si moltiplica nei vivai delle Madonie.",
+   curiosita: "Le anguille europee nascono tutte nel Mar dei Sargassi, a più di 5000 km dall'Italia: lo scoprì il danese Johannes Schmidt negli anni Venti.",
+   fonti: ["Ciucci et al. 2017, Ursus", "IUCN Red List", "Jacoby et al. 2015"]},
+  {t: -0.000174, title: "La salamandra del Monviso", view: [7.1, 44.7, 6], certezza: "bassa", extinct: ["salamandra-lanza"],
+   img: {file: "File:Salamandra lanzai (Franco Andreone).jpeg", author: "Franco Andreone", lic: "CC BY-SA 2.5", cap: "Salamandra di Lanza", tipo: "foto"},
+   text: "La salamandra di Lanza vive solo in poche valli attorno al Monviso. Ama il fresco e l'umido: con estati sempre più calde e secche il suo piccolo mondo si restringe finché, verso il 2200, scompare.",
+   oggi: "È protetta dalla direttiva europea Habitat ed è oggetto di monitoraggio nel Parco del Monviso.",
+   curiosita: "Partorisce piccoli già formati, senza passare dallo stadio di girino: un adattamento alla montagna senza pozze d'acqua.",
+   fonti: ["Andreone et al., studi sulla salamandra di Lanza"]},
+  {t: -0.000274, title: "2300: il ghiacciaio dell'apocalisse", view: [-106, -75, 3], certezza: "bassa",
+   img: {file: "File:Thwaites Glacier.jpg", author: "NASA", lic: "Pubblico dominio", cap: "Il ghiacciaio Thwaites in Antartide occidentale", tipo: "foto"},
+   text: "Il ghiacciaio Thwaites è grande quanto la Gran Bretagna e tiene a freno la calotta dell'Antartide occidentale. Se cedesse, nel caso peggiore il mare potrebbe salire di molti metri entro il 2300. È poco probabile, ma non si può escludere.",
+   oggi: "Dal 2018 la collaborazione internazionale sul ghiacciaio Thwaites (ITGC) lo studia con robot sottomarini.",
+   curiosita: "I giornali lo chiamano «il ghiacciaio dell'apocalisse», ma i glaciologi preferiscono il suo nome vero.",
+   fonti: ["IPCC AR6 WGI, capitolo 9", "Scambos et al. 2017, Global and Planetary Change"]},
+  {t: -0.000474, title: "La sesta estinzione di massa", view: [20, 0, 1], certezza: "bassa",
+   img: {file: "File:Extinction Intensity.png", author: "Dragons flight", lic: "CC BY-SA 3.0", cap: "Le grandi estinzioni del passato nei fossili", tipo: "grafico"},
+   text: "Se si perdessero tutte le specie oggi minacciate e il ritmo continuasse, in alcuni secoli si raggiungerebbe una vera estinzione di massa: la sesta della storia della Terra, la prima causata da una sola specie.",
+   oggi: "L'IPBES (2019) stima che circa un milione di specie animali e vegetali sia a rischio di estinzione.",
+   curiosita: "Le cinque grandi estinzioni del passato hanno cancellato ciascuna almeno tre specie su quattro.",
+   fonti: ["Barnosky et al. 2011, Nature", "IPBES Global Assessment 2019"]},
+  {t: -0.002, title: "Dove gli umani se ne vanno", view: [30.1, 51.4, 5], certezza: "media", species: ["fut-ratto", "lupo"],
+   text: "Nei luoghi abbandonati, la natura torna. Nella zona di Chernobyl, evacuata nel 1986, oggi vivono lupi, alci e cavalli di Przewalski. Nelle città lasciate dal mare che sale e dal caldo, a prosperare sono le specie adattabili: ratti, piccioni, gabbiani.",
+   oggi: "La zona di esclusione di Chernobyl è diventata in parte una riserva naturale (2016).",
+   curiosita: "Nella zona di Chernobyl ci sono più lupi che nelle riserve vicine dove gli uomini vivono.",
+   fonti: ["Deryabina et al. 2015, Current Biology"]},
+  {t: -0.01, title: "Il mare entra nella Pianura Padana", view: [11.5, 45, 4], certezza: "bassa",
+   text: "In diecimila anni, con emissioni altissime, le calotte di Groenlandia e Antartide occidentale possono sciogliersi in gran parte: il mare sale di decine di metri. L'Adriatico entra nella Pianura Padana fino a Ferrara e oltre.",
+   oggi: "L'IPCC calcola che con 5 °C di riscaldamento il mare potrebbe salire di 19–22 metri in 2000 anni.",
+   curiosita: "Durante il Pliocene, tre milioni di anni fa, con una CO₂ simile a quella di oggi, il mare era circa 20 metri più alto.",
+   fonti: ["IPCC AR6 WGI", "Clark et al. 2016, Nature Climate Change"]},
+  {t: -0.1, title: "Una nuova radiazione della vita", view: [140, 0, 1.4], certezza: "ipotesi", species: ["fut-cervo-nano", "fut-ratto"],
+   text: "Dopo ogni estinzione di massa i sopravvissuti si diversificano e occupano i posti rimasti liberi. Su isole e in ambienti isolati nascono nuove forme: piccoli cervi nani, roditori più grandi, uccelli che perdono il volo. Ci vogliono centinaia di migliaia o milioni di anni.",
+   oggi: "Proteggere oggi le isole e le specie endemiche significa conservare il materiale da cui ripartirà l'evoluzione.",
+   curiosita: "In Sicilia vivevano elefanti nani alti meno di un metro: si erano evoluti da elefanti giganti arrivati sull'isola.",
+   fonti: ["Barnosky et al. 2011, Nature", "Lomolino 2005, Journal of Biogeography"]},
+  {t: -0.65, title: "La glaciazione che non arriva", view: [-85, 60, 1.5], certezza: "media",
+   img: {file: "File:Northern icesheet hg.png", author: "Hannes Grobe/AWI", lic: "CC BY 2.5", cap: "Le calotte dell'ultima glaciazione nell'emisfero nord", tipo: "mappa"},
+   text: "Con 3000 o più miliardi di tonnellate di carbonio emesse, la prossima glaciazione è rimandata di oltre mezzo milione di anni. Le nostre emissioni di pochi secoli cambiano il clima della Terra per un tempo più lungo di tutta la storia di Homo sapiens.",
+   oggi: "Talento e Ganopolski (2021) hanno calcolato come le emissioni umane spostano i prossimi cicli glaciali.",
+   curiosita: "Homo sapiens esiste da circa 300 000 anni: in questo scenario la prossima era glaciale arriverebbe fra un tempo più lungo del doppio.",
+   fonti: ["Talento & Ganopolski 2021, Earth System Dynamics"]},
+  {t: -1, title: "Un milione di anni", view: [20, 10, 1], certezza: "ipotesi", species: ["fut-sapiens-terra"],
+   text: "La Terra si è ripresa: nuove specie riempiono foreste, mari e isole. Se Homo sapiens c'è ancora, vive in un mondo che porta per sempre il segno di pochi secoli di storia umana, come uno strato sottile nelle rocce.",
+   oggi: "L'articolo 9 della Costituzione italiana tutela l'ambiente «anche nell'interesse delle future generazioni».",
+   curiosita: "Fra milioni di anni i geologi del futuro potrebbero riconoscere il nostro tempo da uno strato con plastica, cemento e isotopi delle bombe atomiche.",
+   fonti: ["Barnosky et al. 2011, Nature", "Zalasiewicz et al. 2016, Anthropocene"]}
  ],
  markers: [
-  {lat: 44.95, lon: 12.4, label: "Delta del Po", kind: "sito", from: 0, to: -0.01, text: "Terra bassa che sprofonda: tra le zone italiane più esposte al mare che sale.", wiki: "Delta del Po", wikiEn: "Po (river)"},
-  {lat: 52.37, lon: 4.9, label: "Paesi Bassi", kind: "sito", from: 0, to: -0.002, text: "Un quarto del paese è sotto il livello del mare: il Programma Delta prepara dighe e spazi per l'acqua.", wiki: "Piano Delta", wikiEn: "Delta Works"},
-  {lat: -75.5, lon: -106.8, label: "Ghiacciaio Thwaites", kind: "sito", from: 0, to: -0.01, text: "Il ghiacciaio che potrebbe destabilizzare l'Antartide occidentale.", wiki: "Ghiacciaio Thwaites", wikiEn: "Thwaites Glacier"},
-  {lat: 72, lon: -40, label: "Calotta della Groenlandia", kind: "sito", from: 0, to: -0.01, text: "7,4 m di mare congelati.", wiki: "Groenlandia", wikiEn: "Greenland ice sheet"}
- ]},
-
-{id: "futuro-lontano", title: "Il futuro lontano di Homo sapiens (fino a 1 milione di anni)", sub: "Glaciazioni, evoluzione e il destino della nostra specie",
- from: 0, to: -1, unit: "ka", color: "#8e7cc3", futuro: true,
- intro: "Su tempi lunghi il clima torna a essere guidato dall'orbita della Terra e dalle rocce che assorbono la CO₂. Ma le nostre emissioni lasciano un'impronta per centinaia di migliaia di anni, rinviando la prossima glaciazione. Intanto l'evoluzione continua, per noi e per tutte le specie. Le tappe lontane sono ipotesi ragionate, non previsioni.",
+  {lat: 31.0, lon: -114.5, label: "Rifugio della vaquita", kind: "evento", from: 0, to: -0.000006, taxon: "vaquita", text: "Alto Golfo di California."},
+  {lat: 67.58, lon: 134.77, label: "Cratere di Batagaika", kind: "sito", from: -0.000015, to: -0.000022, text: "Il cratere da permafrost più grande del mondo."},
+  {lat: -6.75, lon: 105.35, label: "Ujung Kulon", kind: "sito", from: -0.00002, to: -0.000028, taxon: "rinoceronte-giava", text: "L'unico parco dove vive il rinoceronte di Giava."},
+  {lat: 45.43, lon: 12.33, label: "Venezia", kind: "sito", from: -0.000055, to: -0.000066, text: "La città sulla laguna."},
+  {lat: -75.58, lon: -26.5, label: "Halley Bay", kind: "sito", from: -0.00007, to: -0.000076, taxon: "pinguino-imperatore", text: "Una delle più grandi colonie di pinguini imperatore."},
+  {lat: 51.39, lon: 30.1, label: "Chernobyl", kind: "sito", from: -0.0015, to: -0.003, text: "La zona di esclusione, oggi rifugio di animali selvatici."}
+ ]});
+// RACCONTO GUIDATO — scenario ottimistico (bozza del 29/10/2026: immagini e autori da verificare su Commons)
+SAP.scenari.unshift({
+ id: "racconto-ott", scen: "ott", futuro: true, title: "Racconto: la grande riparazione", sub: "Scenario ottimistico: zero emissioni nette verso il 2050–2070",
+ from: 0, to: -1, unit: "anni", color: "#2a9d8f",
+ dom: [0, -0.000024, -0.000074, -0.000274, -0.01, -0.1, -1], rng: [0, .2, .45, .62, .78, .9, 1],
+ intro: "E se ce la facessimo? In questo scenario il mondo riduce in fretta le emissioni, protegge il 30% di terre e mari e usa scienza e tecnologia per riparare la natura. Il riscaldamento supera di poco 1,5 °C e poi scende. Non tutto si salva: alcune perdite sono già inevitabili. Ma la storia è quella di una specie che impara a curare il proprio pianeta.",
  steps: [
-  {t: 0, title: "Oggi: un interglaciale «prolungato»", text: "Viviamo nell'Olocene, un periodo caldo tra due glaciazioni, iniziato 11 700 anni fa. Senza l'uomo, questo interglaciale sarebbe comunque durato a lungo: circa 50 000 anni.", view: [10, 45, 1]},
-  {t: -0.001, title: "1 000 anni: la lunga coda della CO₂", text: "Il 20–40% della CO₂ emessa è ancora nell'aria. Il mare continua a salire.", view: [0, 30, 1]},
-  {t: -0.01, title: "10 000 anni: l'evoluzione continua", text: "Come nei 10 000 anni passati (latte, alta quota, apnea), gli esseri umani si adattano a cibi, malattie e ambienti nuovi, ma restano un'unica specie.", view: [90, 30, 2]},
-  {t: -0.1, title: "100 000 anni: torna il ghiaccio?", text: "Nello scenario ottimistico inizia la prossima glaciazione; negli altri il clima è ancora troppo caldo. Le scorie di Onkalo hanno quasi finito il loro periodo di isolamento.", view: [-80, 60, 2]},
-  {t: -0.3, title: "300 000 anni: tanti anni quanti ne ha la nostra specie", text: "Homo sapiens è comparso circa 300 000 anni fa in Africa. Fra altri 300 000 anni potremmo essere molto cambiati, o esserci diffusi oltre la Terra.", view: [-8.9, 31.9, 3]},
-  {t: -0.6, title: "600 000 anni: l'ultima glaciazione rinviata", text: "Nello scenario pessimistico, con oltre 3 000 miliardi di tonnellate di carbonio bruciate, solo ora tornano le calotte nell'emisfero nord.", view: [20, 65, 2]},
-  {t: -1, title: "1 milione di anni: e noi?", text: "Una specie di mammifero dura in media 1–2 milioni di anni. Homo sapiens potrebbe esserci ancora, essere diventato (tra virgolette) un «altro Homo», o essere sparito. Il futuro non è scritto.", view: [20, 0, 1]}
+  {t: 0, title: "2026: la svolta", view: [10, 30, 1.1], certezza: "alta",
+   img: {file: "File:Keeling Curve full record.png", author: "Scripps Institution of Oceanography", lic: "CC BY-SA 4.0", cap: "La CO₂ nell'aria misurata a Mauna Loa dal 1958", tipo: "grafico"},
+   text: "La CO₂ nell'aria è la più alta da milioni di anni, ma le energie rinnovabili crescono più in fretta di ogni previsione: sole e vento sono già oggi le fonti di elettricità più economiche in gran parte del mondo. In questo scenario la curva della CO₂ smette di salire entro pochi anni.",
+   oggi: "Alla COP28 (2023) quasi 200 paesi si sono impegnati a triplicare le rinnovabili entro il 2030.",
+   curiosita: "Negli ultimi anni il solare è la fonte di elettricità che cresce più in fretta nel mondo.",
+   fonti: ["IEA Renewables 2024", "IPCC AR6 WGIII"]},
+  {t: -0.000005, title: "La vaquita si salva per un pelo", view: [-114.6, 31.1, 5.5], certezza: "bassa", species: ["vaquita"],
+   img: {file: "File:Vaquita6 Olson NOAA.jpg", author: "Paula Olson, NOAA", lic: "Pubblico dominio", cap: "Vaquite fotografate nel Golfo di California (NOAA)", tipo: "foto"},
+   text: "Restano meno di dieci vaquite, ma le femmine continuano a fare piccoli sani. Se le reti spariscono davvero dal loro rifugio, la popolazione può risalire lentamente: è già successo con altre specie ridotte a pochissimi individui.",
+   oggi: "Nella zona di tolleranza zero del Golfo di California le reti da posta sono vietate e controllate anche con i droni.",
+   curiosita: "Gli studi genetici mostrano che la vaquita ha sempre avuto una popolazione piccola: per questo soffre poco la consanguineità e può ancora riprendersi.",
+   fonti: ["Robinson et al. 2022, Science", "IUCN Red List: Phocoena sinus (CR)"]},
+  {t: -0.000006, title: "Rinoceronti bianchi del nord in provetta", view: [36.9, 0.0, 5.5], certezza: "media", species: ["rinoceronte-bianco"],
+   img: {file: "File:Najin and Fatu.jpg", author: "Schau99", lic: "CC BY-SA 4.0", cap: "Najin e Fatu, gli ultimi due rinoceronti bianchi settentrionali (Ol Pejeta, Kenya)", tipo: "foto"},
+   text: "Del rinoceronte bianco settentrionale restano solo due femmine, Najin e Fatu. Gli scienziati del progetto BioRescue hanno prodotto embrioni in laboratorio con i loro ovociti e il seme congelato di maschi morti. In questo scenario nascono i primi piccoli da madri «in affitto» di rinoceronte bianco meridionale.",
+   oggi: "Nel 2024 BioRescue ha annunciato la prima gravidanza di rinoceronte ottenuta con la fecondazione in vitro.",
+   curiosita: "Najin e Fatu sono madre e figlia e sono sorvegliate giorno e notte da guardie armate.",
+   fonti: ["Hildebrandt et al., BioRescue 2024", "IUCN SSC African Rhino Specialist Group"]},
+  {t: -0.000008, title: "La lince iberica torna", view: [-4, 38.3, 5], certezza: "alta", species: ["lince-iberica"],
+   img: {file: "File:Lince ibérico (Lynx pardinus), Almuradiel, Ciudad Real, España, 2021-12-19, DD 07.jpg", author: "Diego Delso", lic: "CC BY-SA 4.0", cap: "Lince iberica in Sierra Morena (Spagna)", tipo: "foto"},
+   text: "Nel 2002 restavano meno di cento linci iberiche. Grazie ad allevamenti, reintroduzioni e alla protezione dei conigli selvatici, nel 2024 erano più di duemila. È una delle storie di salvataggio più belle d'Europa e mostra che si può tornare indietro.",
+   oggi: "Nel 2024 la IUCN ha spostato la lince iberica da «in pericolo» a «vulnerabile», grazie al progetto europeo LIFE.",
+   curiosita: "La lince iberica mangia quasi solo conigli: per salvarla bisognava prima salvare loro, colpiti da due malattie virali.",
+   fonti: ["IUCN Red List 2024: Lynx pardinus (VU)", "Progetto LIFE Lynxconnect"]},
+  {t: -0.000012, title: "Coralli più resistenti al caldo", view: [146.5, -18.3, 4], certezza: "media", species: ["fut-corallo-resistente"],
+   img: {file: "File:FKNMS - coral nursery (27367671414).jpg", author: "NOAA National Marine Sanctuaries", lic: "Pubblico dominio", cap: "Un vivaio di coralli nelle Florida Keys", tipo: "foto"},
+   text: "Anche nello scenario migliore le barriere perdono gran parte dei coralli. Ma nei vivai si selezionano coralli che sopportano meglio il caldo, e si ripiantano sulle barriere. È l'«evoluzione assistita»: aiutare la natura a fare in fretta quello che farebbe in migliaia di anni.",
+   oggi: "In Australia il programma di ripristino della Grande Barriera (RRAP) sperimenta coralli tolleranti al calore.",
+   curiosita: "Alcuni coralli del Mar Rosso resistono a temperature che ucciderebbero quelli di altri mari: sono studiati come «super coralli».",
+   fonti: ["van Oppen et al. 2015, PNAS", "Fine et al. 2013, Global Change Biology"]},
+  {t: -0.000014, title: "La Marmolada si perde comunque", view: [11.86, 46.43, 6], certezza: "alta",
+   img: {file: "File:Marmolada glacier.jpg", author: "autore non indicato", lic: "Pubblico dominio", cap: "Il ghiacciaio della Marmolada", tipo: "foto"},
+   text: "Alcune perdite sono già scritte: il ghiacciaio della Marmolada sparirà quasi del tutto anche se smettessimo oggi di emettere CO₂, perché il caldo accumulato basta a scioglierlo. Ma con poco riscaldamento si salvano i ghiacciai più alti delle Alpi.",
+   oggi: "Uno studio del 2023 (Rounce et al.) calcola che con 1,5 °C si salverebbe circa metà dei ghiacciai del mondo.",
+   curiosita: "Dal 2019 in Islanda c'è una targa per il ghiacciaio Okjökull, il primo dichiarato «morto»: è indirizzata «a chi verrà dopo di noi».",
+   fonti: ["Rounce et al. 2023, Science", "Comitato Glaciologico Italiano"]},
+  {t: -0.000016, title: "Zanzare contro la malaria?", view: [-1.5, 12.4, 5], certezza: "ipotesi",
+   img: {file: "File:Anopheles gambiae mosquito feeding (CDC PHIL 1354).jpg", author: "CDC / James Gathany", lic: "Pubblico dominio", cap: "Zanzara Anopheles gambiae, che trasmette la malaria (CDC)", tipo: "foto"},
+   text: "La malaria uccide ogni anno più di mezzo milione di persone, quasi tutte bambini africani. Il «gene drive» è un pezzo di DNA che si diffonde da solo nelle zanzare e può renderle sterili o incapaci di trasmettere il parassita. È potentissimo e discusso: se funzionasse, potrebbe salvare milioni di vite, ma cambierebbe un ecosistema per sempre.",
+   oggi: "Nel 2025 il Burkina Faso ha sospeso il progetto Target Malaria; l'Organizzazione mondiale della sanità ha pubblicato linee guida per sperimentarlo con prudenza.",
+   curiosita: "Delle circa 3500 specie di zanzare, solo poche decine trasmettono la malaria all'uomo.",
+   fonti: ["WHO World Malaria Report 2024", "Hammond et al. 2016, Nature Biotechnology"]},
+  {t: -0.000024, title: "2050: zero emissioni nette", view: [10, 50, 1.3], certezza: "media",
+   text: "Verso il 2050 l'Europa e molti altri paesi emettono solo quanta CO₂ riescono a togliere dall'aria con foreste, suoli e tecnologie. Il riscaldamento si ferma poco sopra 1,5 °C e comincia a scendere. Aria più pulita, città più silenziose: anche la salute migliora.",
+   oggi: "La legge europea sul clima (2021) obbliga l'UE alla neutralità climatica entro il 2050; nel 2026 è stato fissato l'obiettivo del −90% per il 2040.",
+   curiosita: "L'inquinamento dell'aria da combustibili fossili causa ogni anno milioni di morti premature: ridurre la CO₂ salva vite anche per questo.",
+   fonti: ["IPCC AR6 WGIII", "Regolamento UE 2021/1119"]},
+  {t: -0.00003, title: "Le città diventano foreste", view: [9.19, 45.49, 7], certezza: "media", species: ["fut-trifoglio-urbano"],
+   img: {file: "File:Il Bosco Verticale Milano Px (137734459).jpeg", author: "Jeronimo Alcala", lic: "CC BY 3.0", cap: "Il Bosco Verticale a Milano", tipo: "foto"},
+   text: "Le città si riempiono di alberi, tetti verdi e corridoi per gli animali, che abbassano la temperatura nei giorni di caldo. Intanto l'evoluzione lavora anche in città: piante e animali urbani cambiano in pochi decenni per adattarsi al nuovo ambiente.",
+   oggi: "La legge europea sul ripristino della natura (2024) vieta di ridurre il verde urbano e chiede di aumentarlo.",
+   curiosita: "Uno studio in 160 città del mondo ha scoperto che il trifoglio bianco, in città, perde la capacità di produrre cianuro: è evoluzione «sotto casa».",
+   fonti: ["Santangelo et al. 2022, Science", "Regolamento UE 2024/1991"]},
+  {t: -0.00004, title: "La nacchera di mare torna", view: [17.9, 40.7, 5.5], certezza: "bassa", species: ["pinna-nobilis"],
+   img: {file: "File:Pinna nobilis - Torre Guaceto.jpg", author: "Ferdinando Traversa", lic: "CC BY-SA 4.0", cap: "Pinna nobilis a Torre Guaceto (Puglia)", tipo: "foto"},
+   text: "Alcune nacchere sono sopravvissute al parassita: forse sono resistenti. Allevate e riportate in mare, fanno ripartire la specie. Con un Mediterraneo che smette di scaldarsi, le praterie dove vive tornano a crescere.",
+   oggi: "Progetti di allevamento in Italia e Spagna cercano esemplari resistenti per salvare la specie.",
+   curiosita: "Le nacchere filtrano l'acqua: una sola ne pulisce diversi litri ogni ora.",
+   fonti: ["Vázquez-Luis et al. 2017", "IUCN Red List: Pinna nobilis (CR)"]},
+  {t: -0.00005, title: "La foresta atlantica e il tamarino leone dorato", view: [-42.3, -22.5, 5.5], certezza: "alta",
+   img: {file: "File:Golden lion tamarin family.jpg", author: "Steve, Washington DC", lic: "CC BY-SA 2.0", cap: "Famiglia di tamarini leone dorati", tipo: "foto"},
+   text: "Negli anni Settanta restavano circa duecento tamarini leone dorati. Corridoi di foresta ripiantata hanno riunito le popolazioni e oggi sono migliaia. In questo scenario la Foresta Atlantica del Brasile, ridotta a pezzi, torna a essere un tutt'uno.",
+   oggi: "Il Patto per il ripristino della Foresta Atlantica punta a ripristinare 15 milioni di ettari entro il 2050.",
+   curiosita: "Dopo l'epidemia di febbre gialla del 2016–2018, che ne uccise circa un terzo, gli scienziati hanno vaccinato i tamarini selvatici uno per uno.",
+   fonti: ["Associação Mico-Leão-Dourado", "IUCN Red List: Leontopithecus rosalia (EN)"]},
+  {t: -0.000074, title: "2100: Venezia si difende", view: [12.33, 45.43, 6.5], certezza: "media",
+   img: {file: "File:03 movimento paratoie.jpg", author: "Consorzio Venezia Nuova", lic: "CC BY-SA 3.0", cap: "Le paratoie del MOSE si alzano", tipo: "foto"},
+   text: "Nel 2100 la Terra è circa 1,4–1,8 °C più calda dell'Ottocento e il mare è salito di 30–60 cm. Il MOSE si chiude più spesso di oggi ma riesce ancora a proteggere Venezia. Le specie spostate dal caldo trovano spazio nelle aree protette collegate tra loro.",
+   oggi: "Il MOSE funziona dal 2020; l'Italia ha un Piano nazionale di adattamento ai cambiamenti climatici dal 2023.",
+   curiosita: "Venezia è costruita su milioni di pali di legno piantati nel fango della laguna, alcuni da più di mille anni.",
+   fonti: ["IPCC AR6 WGI, SPM"]},
+  {t: -0.000124, title: "Le barriere coralline rinascono", view: [146.5, -18.3, 3.5], certezza: "bassa", species: ["fut-corallo-resistente", "tartaruga-verde"],
+   img: {file: "File:Blue Linckia Starfish.JPG", author: "Richard Ling", lic: "CC BY-SA 3.0", cap: "Una barriera corallina sana con una stella marina blu", tipo: "foto"},
+   text: "Con la temperatura che scende lentamente, i coralli sopravvissuti e quelli ripiantati ricostruiscono le barriere. Non sono le stesse di prima: ci sono specie più resistenti e meno varietà. Ma pesci, tartarughe e squali tornano.",
+   oggi: "L'IPCC indica che con 1,5 °C si perde il 70–90% dei coralli, con 2 °C più del 99%: ogni decimo di grado conta.",
+   curiosita: "La Grande Barriera Corallina è la più grande struttura costruita da esseri viventi: si vede dallo spazio.",
+   fonti: ["IPCC SR1.5 2018", "Hughes et al. 2018, Nature"]},
+  {t: -0.000174, title: "L'orso polare resiste", view: [-85, 76, 2.8], certezza: "media", species: ["orso-polare"],
+   img: {file: "File:Polar bear on sea ice (52791040875).jpg", author: "USFWS Alaska", lic: "Pubblico dominio", cap: "Orso polare sul ghiaccio marino", tipo: "foto"},
+   text: "Con il riscaldamento fermo sotto i 2 °C, il ghiaccio marino estivo si riduce ma non scompare ogni anno, e torna a crescere quando la temperatura scende. Le popolazioni dell'alto Artico canadese e della Groenlandia resistono.",
+   oggi: "Secondo l'IPCC, la perdita di ghiaccio marino artico è reversibile: se il clima si raffredda, il ghiaccio torna.",
+   curiosita: "Gli orsi polari possono nuotare per giorni: una femmina seguita col radiocollare nuotò per 687 km di fila.",
+   fonti: ["Molnár et al. 2020, Nature Climate Change", "Pagano et al. 2012, Polar Biology"]},
+  {t: -0.000274, title: "2300: le Maldive costruiscono in alto", view: [73.5, 4.2, 6], certezza: "media",
+   img: {file: "File:Hulhumale, Maldives (hulhumale).jpg", author: "NASA/USGS Landsat", lic: "Pubblico dominio", cap: "Hulhumalé, isola artificiale delle Maldive", tipo: "foto"},
+   text: "Il mare continua a salire anche con poche emissioni, perché le calotte reagiscono lentamente. Le Maldive hanno costruito isole più alte e le città costiere si sono difese per tempo. Il cambiamento è lento abbastanza da permettere di adattarsi.",
+   oggi: "Nel 2025 la Corte internazionale di giustizia ha stabilito che gli stati hanno l'obbligo di proteggere il clima per le generazioni future.",
+   curiosita: "Le Maldive sono il paese più basso del mondo: il punto più alto naturale è a circa 2,4 metri sul mare.",
+   fonti: ["IPCC AR6 WGI, capitolo 9", "ICJ, parere consultivo del 23 luglio 2025"]},
+  {t: -0.01, title: "Diecimila anni: il mare più alto di qualche metro", view: [5, 52.5, 5], certezza: "media",
+   text: "In diecimila anni, anche nello scenario migliore, il mare sale di circa 6–7 metri, perché una parte del ghiaccio di Groenlandia e Antartide si scioglie comunque. I Paesi Bassi, che da secoli convivono con il mare, hanno spostato dighe e città.",
+   oggi: "Il Piano Delta dei Paesi Bassi programma le difese dal mare fino al 2100 e oltre.",
+   curiosita: "Circa un quarto dei Paesi Bassi è sotto il livello del mare: è stato strappato al mare con dighe e mulini.",
+   fonti: ["Clark et al. 2016, Nature Climate Change", "IPCC AR6 WGI"]},
+  {t: -0.1, title: "La glaciazione torna", view: [-85, 60, 1.5], certezza: "media",
+   img: {file: "File:Northern icesheet hg.png", author: "Hannes Grobe/AWI", lic: "CC BY 2.5", cap: "Le calotte dell'ultima glaciazione nell'emisfero nord", tipo: "mappa"},
+   text: "Con poche emissioni la CO₂ in più si riassorbe prima e la prossima glaciazione arriva fra circa 100 000 anni. I ghiacci tornano a coprire il Canada e il Nord Europa, il mare si abbassa e si può di nuovo camminare dalla Francia all'Inghilterra.",
+   oggi: "Gli studi sui cicli di Milanković mostrano che le emissioni di oggi decidono anche quando arriverà la prossima era glaciale.",
+   curiosita: "Durante l'ultima glaciazione il fondo del Mare del Nord era una pianura abitata, il Doggerland: i pescatori trovano ancora ossa di mammut e utensili nelle reti.",
+   fonti: ["Ganopolski et al. 2016, Nature"]},
+  {t: -0.3, title: "Homo sapiens nello spazio?", view: [0, 0, 1], certezza: "ipotesi", species: ["fut-homo-spazio"],
+   img: {file: "File:OSIRIS Mars true color.jpg", author: "ESA & MPS per il team OSIRIS", lic: "CC BY-SA 3.0 IGO", cap: "Marte fotografato dalla sonda Rosetta (ESA)", tipo: "foto"},
+   text: "Se l'umanità riuscisse a vivere a lungo su Marte o nello spazio, piccoli gruppi isolati per migliaia di generazioni potrebbero cambiare: ossa diverse con meno gravità, pelle più adatta alle radiazioni. È un'ipotesi lontana: oggi nessuno sa se sarà mai possibile.",
+   oggi: "Nell'aprile 2026 la missione Artemis II ha riportato astronauti attorno alla Luna, per la prima volta dal 1972.",
+   curiosita: "Gli astronauti che restano mesi sulla Stazione spaziale perdono fino all'1–2% della massa delle ossa al mese.",
+   fonti: ["NASA Human Research Program", "Sibonga et al. 2019"]},
+  {t: -1, title: "Un milione di anni", view: [20, 10, 1], certezza: "ipotesi", species: ["fut-sapiens-terra"],
+   text: "In questo futuro Homo sapiens ha superato il suo secolo più difficile. Fra un milione di anni potremmo esserci ancora, forse un po' diversi. La Terra avrà ancora barriere coralline, orsi polari, linci e foreste: perché qualcuno, nel XXI secolo, ha deciso di salvarle.",
+   oggi: "L'articolo 9 della Costituzione italiana tutela l'ambiente e la biodiversità «anche nell'interesse delle future generazioni».",
+   curiosita: "Le specie di mammiferi durano in media da uno a qualche milione di anni: Homo sapiens, con 300 000 anni, è ancora giovane.",
+   fonti: ["Barnosky et al. 2011, Nature"]}
  ],
  markers: [
-  {lat: 31.86, lon: -8.87, label: "Jebel Irhoud", kind: "fossile", from: 0, to: -1, text: "I più antichi fossili di Homo sapiens, circa 300 000 anni fa.", taxon: "sapiens", wiki: "Jebel Irhoud", wikiEn: "Jebel Irhoud"},
-  {lat: 61.24, lon: 21.44, label: "Onkalo", kind: "sito", from: 0, to: -0.1, text: "Scorie nucleari isolate per circa 100 000 anni.", wiki: null, wikiEn: "Onkalo spent nuclear fuel repository"},
-  {lat: 78.24, lon: 15.49, label: "Svalbard Global Seed Vault", kind: "sito", from: 0, to: -0.01, text: "La copia di sicurezza dei semi del mondo.", wiki: "Svalbard Global Seed Vault", wikiEn: "Svalbard Global Seed Vault"}
- ]}
-);
+  {lat: 0.0, lon: 36.9, label: "Ol Pejeta", kind: "sito", from: -0.000004, to: -0.000007, taxon: "rinoceronte-bianco", text: "Riserva in Kenya dove vivono Najin e Fatu."},
+  {lat: 38.3, lon: -4.0, label: "Sierra Morena", kind: "sito", from: -0.000007, to: -0.00001, taxon: "lince-iberica", text: "Il cuore del ritorno della lince iberica."},
+  {lat: 45.49, lon: 9.19, label: "Bosco Verticale", kind: "sito", from: -0.000028, to: -0.000032, text: "Due grattacieli con circa 800 alberi."},
+  {lat: -22.5, lon: -42.3, label: "Foresta Atlantica", kind: "sito", from: -0.000048, to: -0.000052, text: "Corridoi di foresta per il tamarino leone dorato."}
+ ]});
 </script>
 <script>/* =====================================================================
    Ecosistemi di oggi in 3D. Si aggancia al motore di src/ambienti.js
@@ -15000,7 +15660,7 @@ function collectSpecies(t, marks) {
     // (le piante e gli animali domestici, comparsi da poco, restano visibili)
     if (!present && !x.to && x.from >= T0 && x.group !== "umani" && (Z < 2.2 || state.sc) && !state.fGroup && !state.fCat) continue;
     // durante uno scenario: solo le specie di cui parla, le più note e gli umani
-    if (state.sc) { const st = state.sc._taxa || (state.sc._taxa = new Set((state.sc.markers || []).map(m => m.taxon).filter(Boolean))); if (st.has(x.id) || (!(x.star && present) && x.group !== "umani")) continue; }
+    if (state.sc) { const st = state.sc._taxa || (state.sc._taxa = new Set((state.sc.markers || []).map(m => m.taxon).concat(...(state.sc.steps || []).map(s => (s.species || []).concat(s.extinct || []))).filter(Boolean))); if (st.has(x.id) || (!(x.star && present) && x.group !== "umani")) continue; }
     let pri = x.star ? 60 : 10;
     if (x.group === "umani") pri += 70;
     if (present && x.iucn) pri += {CR: 40, EN: 30, VU: 20, EW: 35, EX: 12, NT: 6}[x.iucn] || 0;
@@ -15019,6 +15679,15 @@ function collectPeople(t, marks) {
   }
 }
 function collectScenario(t, marks) {
+  // le specie della tappa in corso, con la loro foto (quelle che scompaiono sbiadite)
+  const s = (state.sc.steps || [])[state.step];
+  if (s) {
+    for (const id of (s.species || []).concat(s.extinct || [])) {
+      const x = BYID.get(id); if (!x || !x.places || !x.places.length) continue;
+      const ex = (s.extinct || []).includes(id);
+      x.places.slice(0, Z >= 2 ? 3 : 1).forEach((pl, i) => marks.push({kind: "sp", x, pl, i, pri: 97 - i * 5, ghost: ex, ll: [pl[1], pl[0]]}));
+    }
+  }
   for (const m of state.sc.markers || []) {
     if (!scVis(m, t)) continue;
     const x = m.taxon && BYID.get(m.taxon);
@@ -15510,7 +16179,7 @@ function showEvent(ev) {
   const sk = ev.fut && ev.scen && ev.scen !== "tutti" ? (Array.isArray(ev.scen) ? ev.scen : [ev.scen]).filter(k => SCN[k]).map(k => SCN[k].name).join(", ") : "";
   const tx = ev.taxon && BYID.get(ev.taxon);
   openSel(`<div class="eyebrow"><i class="cdot" style="background:${col}"></i>${esc(CN[ev.cat] || "Evento")} · ${esc(fmtRange(ev.t, ev.t2))}${sk ? " · scenario " + esc(sk.toLowerCase()) : ev.fut ? " · tutti gli scenari" : ""}</div>
-    <h3>${esc(ev.title)}</h3>${certHtml(ev)}${imgBlock(id)}<p>${esc(ev.text || "")}</p>
+    <h3>${esc(ev.title)}</h3>${certHtml(ev)}${ev.img ? cimg(ev.img) : imgBlock(id)}<p>${esc(ev.text || "")}</p>
     ${futExtras(ev)}
     ${tx ? `<div class="links"><button id="evTx">${G(tx.group).emoji} ${esc(tx.common || tx.name)}: la scheda</button></div>` : ""}
     ${linkRow([ev.wiki ? A(wpLink(ev.wiki, "it"), "📖 Wikipedia") : ev.wikiEn ? A(wpLink(ev.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}
@@ -15522,7 +16191,7 @@ function showEvent(ev) {
   const gw = $("goWhen"); if (gw) gw.onclick = () => setTime(ev.t);
   if (OV.key) clearOverlay();
   if (ev.lat != null) flyTo(ev.lon, ev.lat, Math.max(Z, 1.6));
-  wikiBest(ev.wiki, ev.wikiEn).then(w => fillImg(id, w, ev.title));
+  if (!ev.img) wikiBest(ev.wiki, ev.wikiEn).then(w => fillImg(id, w, ev.title));
 }
 function showHotspot(h) {
   const id = uid();
@@ -15542,8 +16211,8 @@ function showScMarker(m) {
   const p = m.person ? PBYID.get(m.person) : null;
   if (p) { showPerson(p); return; }
   const id = uid();
-  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${certHtml(m)}${m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${futExtras(m)}${linkRow([m.wiki ? A(wpLink(m.wiki, "it"), "📖 Wikipedia") : m.wikiEn ? A(wpLink(m.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}`, {mark: {ll: () => [m.lon, m.lat]}});
-  if (m.wiki || m.wikiEn) wikiBest(m.wiki, m.wikiEn).then(w => fillImg(id, w, m.label));
+  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${certHtml(m)}${m.img ? cimg(m.img) : m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${futExtras(m)}${linkRow([m.wiki ? A(wpLink(m.wiki, "it"), "📖 Wikipedia") : m.wikiEn ? A(wpLink(m.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}`, {mark: {ll: () => [m.lon, m.lat]}});
+  if (!m.img && (m.wiki || m.wikiEn)) wikiBest(m.wiki, m.wikiEn).then(w => fillImg(id, w, m.label));
 }
 
 /* ---------- ricerca di una specie o di un genere qualsiasi ---------- */
@@ -15610,6 +16279,22 @@ function futExtras(o) {
   if (f.length) h += `<details class="fonti"><summary>Fonti scientifiche</summary><ul>${f.map(s => `<li>${esc(s)}</li>`).join("")}</ul></details>`;
   return h;
 }
+// immagine di Wikimedia Commons scelta a mano (foto, mappa o ricostruzione), con autore e licenza
+function cimg(o) {
+  if (!o || !o.file) return "";
+  const name = String(o.file).replace(/^File:/i, "");
+  if (window.Cerca && window.Cerca.badImg(name)) return "";
+  const src = "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(name) + "?width=500", page = "https://commons.wikimedia.org/wiki/File:" + encodeURIComponent(name.replace(/ /g, "_"));
+  return `<figure class="cimg"><a href="${page}" target="_blank" rel="noopener"><img src="${src}" alt="${esc(o.cap || "")}" loading="lazy" onerror="this.closest('figure').remove()"></a><figcaption>${o.tipo === "ricostruzione" ? "<b>Ricostruzione</b> · " : o.tipo === "mappa" ? "<b>Mappa</b> · " : ""}${esc(o.cap || "")}<span>${esc([o.author, o.lic].filter(Boolean).join(" · "))} · Wikimedia Commons</span></figcaption></figure>`;
+}
+// specie di una tappa del racconto: chi scompare (✝) e chi è protagonista
+function stepSpecies(s) {
+  const ex = (s.extinct || []).map(id => BYID.get(id)).filter(Boolean), sp = (s.species || []).map(id => BYID.get(id)).filter(x => x && !(s.extinct || []).includes(x.id));
+  if (!ex.length && !sp.length) return "";
+  return `<div class="spstep">${ex.map(x => `<button class="ex" data-sp="${esc(x.id)}">✝ ${esc(x.common || x.name)}</button>`).join("")}${sp.map(x => `<button data-sp="${esc(x.id)}">${G(x.group).emoji} ${esc(x.common || x.name)}</button>`).join("")}</div>`;
+}
+// racconti guidati del futuro (uno per scenario)
+const tourFor = k => SCENARI.find(s => s.id === "racconto-" + k) || SCENARI.find(s => s.futuro && s.scen === k && (s.steps || []).length > 4);
 // destino di una specie di oggi nei tre scenari
 function fateHtml(x) {
   const f = FATE[x.id]; if (!f) return "";
@@ -15649,7 +16334,7 @@ function updatePanel() {
     <h3>${esc(fmtAge(t))}</h3>
     ${au ? `<p>${esc(au.text)}</p>` : gu ? `<p>${esc(gu.text)}</p>` : ""}
     ${t < 0 && HAS_FUT ? `<div class="futsel inpanel" role="group" aria-label="Scenario">${futButtons()}</div>
-      <p class="note futnote">🔭 <b>Scenario ${esc((sc.name || "").toLowerCase())}</b>${sc.ssp ? " (" + esc(sc.ssp) + ")" : ""}. ${esc(sc.intro || "")} Non è una profezia: è ciò che gli studi di oggi ritengono plausibile.</p>` : ""}
+      <p class="note futnote">🔭 <b>Scenario ${esc((sc.name || "").toLowerCase())}</b>${sc.ssp ? " (" + esc(sc.ssp) + ")" : ""}. ${esc(sc.intro || "")} Non è una profezia: è ciò che gli studi di oggi ritengono plausibile.</p>${tourFor(state.fut) ? `<div class="links"><button id="tourGo" class="pri">▶ Racconto guidato: scenario ${esc((sc.name || "").toLowerCase())}</button></div>` : ""}` : ""}
     <dl class="facts box">
       <dt>Temperatura</dt><dd>${Math.abs(temp) < .05 ? "come nel 1850–1900" : (temp > 0 ? "+" : "−") + nf(Math.abs(temp), 1) + " °C rispetto al 1850–1900"}${t > 0.012 || t < 0 ? " (stima)" : ""}</dd>
       <dt>Livello del mare</dt><dd>${esc(seaTxt)}</dd>
@@ -15663,6 +16348,7 @@ function updatePanel() {
     ${gone.length ? `<div class="note" style="margin-top:10px">Specie di oggi scomparse in questo scenario (clicca per la scheda):</div><div class="links">${gone.slice(0, 24).map(x => `<button data-gone="${esc(x.id)}">✝ ${esc(x.common || x.name)} <span style="opacity:.65">${esc(fmtAge(futEnd(x), "short"))}</span></button>`).join("")}</div>` : ""}
     ${t < 0 && FUTS && FUTS.agende && FUTS.agende.length ? `<details class="agende" style="margin-top:10px"><summary>📜 Gli impegni di oggi: accordi, leggi e rapporti (${FUTS.agende.length})</summary>${agendeHtml(t)}</details>` : ""}`;
   bindFutButtons($("whenBox"));
+  const tg = $("tourGo"); if (tg) tg.onclick = () => enterScenario(tourFor(state.fut));
   $("whenBox").querySelectorAll("[data-gone]").forEach(b => b.onclick = () => showSpecies(BYID.get(b.dataset.gone)));
   // specie umane
   $("humSec").hidden = !HUMANS.length;
@@ -15887,13 +16573,15 @@ function renderScenBox() {
   $("scenBox").innerHTML = `<div class="sel" style="border-color:${sc.color || "var(--accent)"}">
     <div class="eyebrow">Scenario speciale${s ? ` · tappa ${i + 1} di ${st.length}` : ""}</div>
     <h3>${esc(s ? s.title : sc.title)}</h3>
-    ${s ? `<div class="sci" style="font-style:normal">${esc(fmtAge(s.t))}</div><p>${esc(s.text)}</p>` : `<p>${esc(sc.intro || "")}</p>`}
+    ${s ? `<div class="sci" style="font-style:normal">${esc(fmtAge(s.t))}${sc.scen && SCN[sc.scen] ? " · scenario " + esc(SCN[sc.scen].name.toLowerCase()) : ""}</div>${certHtml(s)}${cimg(s.img)}<p>${esc(s.text)}</p>${stepSpecies(s)}` : `<p>${esc(sc.intro || "")}</p>`}
     <div class="stepnav"><button id="stPrev" ${i <= 0 ? "disabled" : ""}>‹ Precedente</button><button id="stNext" class="pri" ${i >= st.length - 1 ? "disabled" : ""}>Successiva ›</button></div>
+    ${s ? futExtras(s) : ""}
     <details style="margin-top:10px"${i <= 0 ? " open" : ""}><summary>Introduzione e tappe</summary><p style="color:var(--ink)">${esc(sc.intro || "")}</p>
     <ul class="steps">${st.map((x, k) => `<li><button data-k="${k}" class="${k === i ? "cur" : ""}"><span class="k">${k + 1}</span><span>${esc(x.title)} <span style="color:var(--muted);font-size:12.5px">· ${esc(fmtUnit(x.t, sc.unit))}</span></span></button></li>`).join("")}</ul></details>
     <div class="links"><button id="stExit">Esci dallo scenario</button></div></div>`;
   $("stPrev").onclick = () => goStep(i - 1); $("stNext").onclick = () => goStep(i + 1); $("stExit").onclick = exitScenario;
   $("scenBox").querySelectorAll("[data-k]").forEach(b => b.onclick = () => goStep(+b.dataset.k));
+  $("scenBox").querySelectorAll("[data-sp]").forEach(b => b.onclick = () => showSpecies(BYID.get(b.dataset.sp)));
 }
 function goStep(i) {
   const sc = state.sc; if (!sc || !sc.steps || !sc.steps.length) return;
