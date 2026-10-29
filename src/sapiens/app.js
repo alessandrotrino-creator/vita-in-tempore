@@ -1474,7 +1474,7 @@ function updatePanel() {
     <h3>${esc(fmtAge(t))}</h3>
     ${au ? `<p>${esc(au.text)}</p>` : gu ? `<p>${esc(gu.text)}</p>` : ""}
     ${t < 0 && HAS_FUT ? `<div class="futsel inpanel" role="group" aria-label="Scenario">${futButtons()}</div>
-      <p class="note futnote">🔭 <b>Scenario ${esc((sc.name || "").toLowerCase())}</b>${sc.ssp ? " (" + esc(sc.ssp) + ")" : ""}. ${esc(sc.intro || "")} Non è una profezia: è ciò che gli studi di oggi ritengono plausibile.</p>${tourFor(state.fut) ? `<div class="links"><button id="tourGo" class="pri">▶ Racconto guidato: scenario ${esc((sc.name || "").toLowerCase())}</button></div>` : ""}` : ""}
+      <p class="note futnote">🔭 <b>Scenario ${esc((sc.name || "").toLowerCase())}</b>${sc.ssp ? " (" + esc(sc.ssp) + ")" : ""}. ${esc(sc.intro || "")} Non è una profezia: è ciò che gli studi di oggi ritengono plausibile.</p><div class="links">${tourFor(state.fut) ? `<button id="tourGo" class="pri">▶ Racconto guidato: scenario ${esc((sc.name || "").toLowerCase())}</button>` : ""}${SCENARI.filter(s => s.futuro && !s.scen).map(s => `<button data-tour="${esc(s.id)}">▶ ${esc(s.title.replace(/^Racconto: /, ""))}</button>`).join("")}</div>` : ""}
     <dl class="facts box">
       <dt>Temperatura</dt><dd>${Math.abs(temp) < .05 ? "come nel 1850–1900" : (temp > 0 ? "+" : "−") + nf(Math.abs(temp), 1) + " °C rispetto al 1850–1900"}${t > 0.012 || t < 0 ? " (stima)" : ""}</dd>
       <dt>Livello del mare</dt><dd>${esc(seaTxt)}</dd>
@@ -1489,6 +1489,7 @@ function updatePanel() {
     ${t < 0 && FUTS && FUTS.agende && FUTS.agende.length ? `<details class="agende" style="margin-top:10px"><summary>📜 Gli impegni di oggi: accordi, leggi e rapporti (${FUTS.agende.length})</summary>${agendeHtml(t)}</details>` : ""}`;
   bindFutButtons($("whenBox"));
   const tg = $("tourGo"); if (tg) tg.onclick = () => enterScenario(tourFor(state.fut));
+  $("whenBox").querySelectorAll("[data-tour]").forEach(b => b.onclick = () => enterScenario(SCENARI.find(s => s.id === b.dataset.tour)));
   $("whenBox").querySelectorAll("[data-gone]").forEach(b => b.onclick = () => showSpecies(BYID.get(b.dataset.gone)));
   // specie umane
   $("humSec").hidden = !HUMANS.length;
