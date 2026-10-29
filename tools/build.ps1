@@ -1,6 +1,6 @@
-﻿# Monta i due file unici a partire dai pezzi in src\ e data\:
+# Monta i due file unici a partire dai pezzi in src\ e data\:
 #   index.html   = «Vita in Tempore» (storia della Terra)
-#   sapiens.html = «Sapiens in Tempore» (da 60 000 anni fa a oggi)
+#   sapiens.html = «Sapiens in Tempore» (da 60 000 anni fa a oggi e futuri possibili)
 # Uso: powershell -File tools\build.ps1  (opzione -Out cartella per scrivere altrove)
 param([string]$Out)
 $ErrorActionPreference = "Stop"
@@ -33,7 +33,7 @@ Fill $tpl ([ordered]@{
   "/*@THREE*/"    = $three
   "/*@DATA*/"     = $data
   "/*@CONTENT*/"  = (ReadF "$root\src\content.js") + "`n" + (ReadF "$root\src\sapiens\scienziati.js")
-  "/*@SCENARI*/"  = ReadF "$root\src\scenari.js"
+  "/*@SCENARI*/"  = (ReadF "$root\src\scenari.js") + "`n" + (ReadF "$root\src\futuro.js")
   "/*@AMBIENTI*/" = (ReadF "$root\src\ecosistemi.js") + "`n" + (ReadF "$root\src\ambienti.js")
   "/*@APP*/"      = $cerca + "`n" + (ReadF "$root\src\app.js")
 }) "index.html"
@@ -43,7 +43,7 @@ $css = $tpl.Substring($tpl.IndexOf('<style>') + 7); $css = $css.Substring(0, $cs
 $bm = "data:image/jpeg;base64," + [Convert]::ToBase64String([IO.File]::ReadAllBytes("$root\data\bluemarble.jpg"))
 $enr = ReadF "$root\data\sapiens-enrich.json"; if (-not $enr) { $enr = '{"species":{},"people":{}}' }
 $sdata = 'window.DATA={"terra":' + (ReadF "$root\data\terra.json") + ',"bm":"' + $bm + '","enrich":' + $enr + '};'
-$content = (@("umani", "estinte", "viventi", "viventi-mondo", "scienziati") | ForEach-Object { ReadF "$root\src\sapiens\$_.js" }) -join "`n"
+$content = (@("umani", "estinte", "viventi", "viventi-mondo", "scienziati", "futuro") | ForEach-Object { ReadF "$root\src\sapiens\$_.js" }) -join "`n"
 Fill (ReadF "$root\src\sapiens\template.html") ([ordered]@{
   "/*@BASECSS*/"  = $css
   "/*@D3*/"       = ReadF "$root\src\d3.v7.min.js"

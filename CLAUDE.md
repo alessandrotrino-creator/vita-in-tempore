@@ -3,8 +3,8 @@
 Atlante didattico in italiano per la scuola: un globo interattivo che ripercorre la storia della Terra dalla formazione (4,57 miliardi di anni fa) a oggi. Mostra continenti in movimento, clima e ghiacci, fossili reali, organismi «protagonisti» con immagini, eventi, scenari ingranditi e ambienti 3D di ogni epoca. Fa coppia con «Lupus in Tempore» (atlante storico di una collega, Wolf Team · I.C. Almese).
 
 Il progetto contiene **due globi collegati tra loro**:
-- **`index.html` — «Vita in Tempore»**: la storia della Terra da 4,57 miliardi di anni fa a oggi.
-- **`sapiens.html` — «Sapiens in Tempore»**: da 60 000 anni fa a oggi. Colonizzazione del mondo da parte di Homo sapiens, le altre specie umane (Neanderthal, Denisoviani, H. floresiensis, H. luzonensis), la megafauna e le estinzioni, la biodiversità di oggi con lo stato IUCN e gli scienziati che l'hanno studiata.
+- **`index.html` — «Vita in Tempore»**: la storia della Terra da 4,57 miliardi di anni fa a oggi, e i futuri possibili fino al Sole gigante rossa (+7,6 miliardi di anni).
+- **`sapiens.html` — «Sapiens in Tempore»**: da 60 000 anni fa a oggi. Colonizzazione del mondo da parte di Homo sapiens, le altre specie umane (Neanderthal, Denisoviani, H. floresiensis, H. luzonensis), la megafauna e le estinzioni, la biodiversità di oggi con lo stato IUCN e gli scienziati che l'hanno studiata; poi tre scenari del futuro (ottimistico, probabile, pessimistico) fino a un milione di anni.
 
 Entrambi hanno una **barra di ricerca** (`src/cerca.js`) per qualsiasi specie o genere: quando è comparso (PBDB), dove vive (GBIF), stato IUCN, classificazione, OneZoom.
 
@@ -85,6 +85,44 @@ Il gioco deve funzionare bene su PC, smartphone (verticale e orizzontale) e LIM 
 - **Altre specie osservate (GBIF)** (strato `gbif`, interruttore «Altre specie osservate», acceso): nel presente e con zoom ≥ 2 la zona inquadrata si divide in 3 × 3 riquadri; per ognuno si chiedono a GBIF 60 osservazioni con foto di iNaturalist «research grade» (`datasetKey` 50c9509d-…) e si tengono le 9 specie più fotografate (al massimo circa 80). Simboli più piccoli, senza nome sul globo; le specie già schedate a mano (`BYNAME`) non si ripetono. Scheda automatica (`x._gb`): foto da Wikipedia o, se manca, quella dell'osservazione con autore e licenza; testo dal riassunto di Wikipedia italiana (o inglese); nome italiano da `species/{key}/vernacularNames` di GBIF; avviso che la scheda non è controllata a mano. Il conto alla rovescia (650 ms) riparte solo se cambia la zona: i ridisegni per le miniature non devono azzerarlo. GBIF non sempre dà la classe dei pesci: `gbGroup` mette tra i pesci i cordati non classificati.
 - **Parametri**: `?t=<Ma>`, `?cerca=<nome scientifico>`, `?persona=<id>` (anche `index.html?cerca=`).
 - **Arricchimento**: con `tools/serve.ps1` attivo aprire `http://localhost:8766/tools/arricchisci.html` (`?tutto=1` rifà tutto). Il server accetta `POST /salva/<nome>.json` solo per scrivere in `data/`. Al termine la pagina elenca specie senza immagine/OTT e le differenze tra lo stato IUCN nei file e quello riportato da GBIF: controllarle.
+
+## Futuri possibili (sessione del 29/10/2026)
+Richiesta dell'utente: futuri **plausibili**, basati sulle conoscenze scientifiche di oggi, anche spettacolari, con didascalie che li colleghino agli accordi, alle leggi, ai rapporti e alle missioni di oggi, e con curiosità per gli alunni.
+- **Convenzione**: il futuro è **tempo negativo** in Ma (anno 2100 → `-0.000074`; fra 250 milioni di anni → `-250`).
+- **Campi in più** di eventi, organismi e marcatori del futuro:
+  - `certezza`: `alta | media | bassa | ipotesi`; diventa un'etichetta colorata («Previsione solida», «Previsione probabile», «Previsione incerta», «Ipotesi»).
+  - `oggi`: il riquadro «📜 Oggi».
+  - `curiosita`: il riquadro «💡 Lo sapevi?».
+  - `fonti`: un elenco a scomparsa.
+  - Gli organismi ipotetici hanno `ipotesi: true` e un antenato reale: `baseName` nel globo principale, `base` in Sapiens. L'antenato serve per OneZoom e per l'immagine; la scheda avverte che la foto è dell'antenato.
+- **`index.html`**: `src/futuro.js` (`window.FUTURO`, incluso da `build.ps1` dopo `scenari.js`).
+  - Contenuti:
+    - `clima`: fotogrammi `{t, dT, sea, co2, lum, ocean, iceN, iceS, plants, animals, life, note}` interpolati da `futClim`;
+    - 46 eventi (categoria nuova `cosmo`) e 20 organismi;
+    - `supercontinenti`: 4 modelli, mostrati nel pannello tra +150 e +500 Ma;
+    - 2 scenari con scala a tratti (`dom`/`rng`, campo facoltativo valido per tutti gli scenari) e 95 fonti.
+  - La linea del tempo arriva a `FUT_END` = −7600: il passato occupa l'82%. `FUT_ERAS` è una suddivisione del futuro non ufficiale.
+  - **Continenti**: `futQ` prosegue il moto medio degli ultimi 10 Ma di ogni placca PALEOMAP (stesso metodo delle mappe future di Scotese) fino a `FUT_TECT` = 50 Ma. Dopo restano fermi e tratteggiati, perché i modelli del prossimo supercontinente non sono d'accordo. Il rilievo futuro è il PaleoDEM di oggi letto nelle coordinate attuali di ogni pixel.
+  - **Aspetto del globo**:
+    - `futSea` abbassa il mare quando gli oceani evaporano e i fondali rimasti all'asciutto diventano saline;
+    - `scorch` e `molten` (da `dT`) bruciano e poi fondono la superficie;
+    - `atmRGB` colora l'atmosfera;
+    - `drawSun` usa `SUN_R` (Schröder & Smith 2008) per il Sole gigante rossa.
+- **`sapiens.html`**: `src/sapiens/futuro.js` (`SAP.futuro`) contiene:
+  - `scen.ott|prob|pess`, ognuno con `series` = `[t, °C sul 1850–1900, mare m, CO₂, popolazione in miliardi, ghiacci, coralli, biodiversità]`;
+  - 67 eventi, che hanno `scen` (`"tutti"` o una chiave);
+  - 18 organismi ipotetici;
+  - `fate[id specie][scenario] = [t di scomparsa o null, testo]`;
+  - 31 `agende` (accordi, leggi, rapporti), 64 fonti e 3 visite guidate (`futuro-secolo`, `futuro-mare`, `futuro-lontano`).
+  - La linea del tempo arriva a −1 Ma (un milione di anni): il passato occupa il 78%.
+  - `state.fut` è lo scenario scelto: pulsanti `#futSel` sotto l'anno (nascosti sul telefono orizzontale) e nel pannello. Si sceglie anche con `?scenario=ott|prob|pess`, e una visita con `scen` lo sceglie da sola.
+  - `alive()` tiene vive nel futuro le specie di oggi, tranne quelle che `fate` fa scomparire nello scenario scelto. Le specie scomparse sono elencate nel pannello; con «Solo minacciate» compaiono sbiadite sul globo.
+  - Texture: il mare che sale sommerge le terre di oggi (acqua bassa e torbida); con `melt` = 1 − ghiacci, Groenlandia e Antartide si ritirano dai bordi, cioè dalle zone basse per prime.
+- **Incertezze** (dette nei testi):
+  - nel globo principale, `dT`/`co2`/`sea` sono indicativi dopo circa 1 Ma; i cicli glaciali futuri e le date dei `fate` sono stime;
+  - l'AMOC e il deperimento dell'Amazzonia sono dibattuti;
+  - le date di de-estinzione sono annunci delle aziende.
+  - Da riverificare in futuro: l'esito della COP17 sulla biodiversità (Erevan, ottobre 2026), la data della COP1 del trattato BBNJ e la pubblicazione dell'omnibus dell'AI Act.
 
 ## Ecosistemi di oggi in 3D (`src/ecosistemi.js`)
 Si aggancia a `src/ambienti.js` tramite `window.PaleoEcosistemi`, che riceve gli attrezzi del motore. Gli ambienti hanno `now: true`. Il terzo elemento di un cartello è l'id della specie: apre la scheda nel globo Sapiens (`sapiens.html?specie=` e `?ambiente=`).

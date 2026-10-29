@@ -19,7 +19,15 @@ const nf = (v, d) => (NF[d] || (NF[d] = new Intl.NumberFormat("it-IT", {maximumF
 const nfi = v => nf(Math.round(v), 0);
 function fmtAge(t, mode) {
   const sh = mode === "short";
-  if (t <= 2e-7) return sh ? "oggi" : "Oggi";
+  if (Math.abs(t) <= 2e-7) return sh ? "oggi" : "Oggi";
+  if (t < 0) {
+    // futuro: anni dopo il 2026
+    const f = -t * 1e6;
+    if (f < 8000) { const yr = Math.round(NOW_YEAR + f); return sh ? String(yr) : "Anno " + yr; }
+    if (f >= 1e6) return sh ? "+1 milione" : "Fra " + nf(f / 1e6, f % 1e6 ? 1 : 0).replace(/^1$/, "un") + " milion" + (f >= 2e6 ? "i" : "e") + " di anni";
+    const r = nfi(f >= 100000 ? Math.round(f / 1000) * 1000 : Math.round(f / 100) * 100);
+    return sh ? "+" + r + " anni" : "Fra " + r + " anni";
+  }
   const y = t * 1e6;
   if (y < 4000) {
     const yr = Math.round(NOW_YEAR - y);
@@ -30,27 +38,30 @@ function fmtAge(t, mode) {
   return nfi(Math.round(y / 10) * 10) + " anni fa";
 }
 function fmtUnit(t, unit) {
-  if (unit === "ka") return t <= 2e-7 ? "oggi" : nfi(t * 1000) + " ka";
+  if (unit === "ka") return Math.abs(t) <= 2e-7 ? "oggi" : (t < 0 ? "+" : "") + nfi(Math.abs(t) * 1000) + " ka";
   return fmtAge(t, "short");
 }
 function fmtRange(a, b) {
   if (a == null) return "";
   if (b == null || Math.abs(a - b) < 1e-9) return fmtAge(a);
-  if (b <= 2e-7) return "da " + fmtAge(a, "short") + " a oggi";
+  if (Math.abs(b) <= 2e-7) return "da " + fmtAge(a, "short") + " a oggi";
   return "da " + fmtAge(a, "short") + " a " + fmtAge(b, "short");
 }
 function firstSentence(s) { if (!s) return ""; const m = String(s).match(/^.{20,160}?[.!?](\s|$)/); return m ? m[0].trim() : String(s).slice(0, 140) + (String(s).length > 140 ? "…" : ""); }
 
 /* ---------- linea del tempo: scala a tratti (gli ultimi secoli allargati) ---------- */
-const MAIN_DOM = [T0, 0.03, 0.0117, 0.005, yearT(1), yearT(1500), yearT(1900), 0];
-const MAIN_RNG = [0, .2, .4, .54, .66, .79, .91, 1];
+// il passato occupa il 78% della linea, il futuro possibile (fino a un milione di anni) il resto
+const FUT_END = -1, P_NOW = .78;
+const MAIN_DOM = [T0, 0.03, 0.0117, 0.005, yearT(1), yearT(1500), yearT(1900), 0, yearT(2100), yearT(2300), -0.01, -0.1, FUT_END];
+const MAIN_RNG = [0, .156, .312, .421, .515, .616, .71, P_NOW, .86, .9, .94, .97, 1];
 let TL = d3.scaleLinear().domain(MAIN_DOM).range(MAIN_RNG).clamp(true);
 const t2p = t => TL(t), p2t = p => TL.invert(clamp01(p));
 
 /* ---------- periodi ---------- */
 const GEO = [
   {name: "Pleistocene superiore", from: 0.129, to: 0.0117, color: "#fff2c7", text: "L'ultima parte dell'«era glaciale»: fasi fredde e fasi più miti si alternano, il livello del mare è più basso di decine di metri e grandi mammiferi popolano tutti i continenti."},
-  {name: "Olocene", from: 0.0117, to: 0, color: "#fde9c9", text: "L'epoca calda in cui viviamo, iniziata 11 700 anni fa con la fine dell'ultima glaciazione. Il clima stabile permette la nascita dell'agricoltura, dei villaggi e delle città."}
+  {name: "Olocene", from: 0.0117, to: 0, color: "#fde9c9", text: "L'epoca calda in cui viviamo, iniziata 11 700 anni fa con la fine dell'ultima glaciazione. Il clima stabile permette la nascita dell'agricoltura, dei villaggi e delle città."},
+  {name: "Futuro possibile", from: 0, to: FUT_END, color: "#d6d0f2", fut: true, text: "Il futuro non si può prevedere con esattezza: qui ci sono scenari costruiti con le conoscenze scientifiche di oggi. Nel 2024 i geologi (IUGS) hanno deciso di non introdurre ufficialmente l'«Antropocene», ma il segno lasciato dalle attività umane resterà nelle rocce."}
 ];
 const AGES = [
   {name: "Paleolitico medio", from: 0.3, to: 0.045, color: "#d9c3a5", text: "Strumenti di pietra scheggiata preparati con cura (tecnica Levallois): li usano sia i Neanderthal sia i Sapiens."},
@@ -61,7 +72,11 @@ const AGES = [
   {name: "Età antica", from: 0.0028, to: yearT(476), color: "#e6c27a", text: "Grandi civiltà e imperi in tutto il mondo: Grecia, Roma, Persia, India, Cina, Mesoamerica."},
   {name: "Medioevo", from: yearT(476), to: yearT(1492), color: "#c9b18f", text: "Dalla caduta dell'Impero romano d'Occidente alla scoperta europea dell'America."},
   {name: "Età moderna", from: yearT(1492), to: yearT(1815), color: "#b9c6d8", text: "Esplorazioni, scambio colombiano, rivoluzione scientifica. Nascono la classificazione dei viventi (Linneo) e lo studio dei fossili."},
-  {name: "Età contemporanea", from: yearT(1815), to: 0, color: "#a9c3cf", text: "Industria, città enormi, medicina moderna: la popolazione umana passa da 1 a 8 miliardi e la pressione sulla natura cresce come mai prima."}
+  {name: "Età contemporanea", from: yearT(1815), to: 0, color: "#a9c3cf", text: "Industria, città enormi, medicina moderna: la popolazione umana passa da 1 a 8 miliardi e la pressione sulla natura cresce come mai prima."},
+  {name: "Il secolo decisivo", from: 0, to: yearT(2100), color: "#c9c2ef", fut: true, text: "Le scelte di questi decenni su energia, cibo, città e protezione della natura decidono quanto si scalderà la Terra e quante specie riusciremo a salvare. È il tempo in cui vivranno gli studenti di oggi."},
+  {name: "La lunga eredità", from: yearT(2100), to: -0.01, color: "#b8b0e8", fut: true, text: "Anche se le emissioni si fermassero, una parte della CO₂ resta nell'aria per millenni: il mare continua a salire per secoli e le calotte di ghiaccio rispondono lentamente."},
+  {name: "Le prossime glaciazioni", from: -0.01, to: -0.1, color: "#a9c6e8", fut: true, text: "L'orbita della Terra continua a cambiare: prima o poi tornerebbe un'era glaciale, ma la CO₂ che abbiamo emesso potrebbe rimandarla di decine di migliaia di anni."},
+  {name: "Il futuro lontano di Homo sapiens", from: -0.1, to: FUT_END, color: "#a49bd9", fut: true, text: "Una specie di mammifero vive in media da uno a qualche milione di anni. Che cosa saremo fra centinaia di migliaia di anni dipende da evoluzione, isolamento, tecnologia e fortuna."}
 ];
 const unitAt = (L, t) => L.find(u => t <= u.from + 1e-12 && t >= u.to - 1e-12) || null;
 
@@ -72,7 +87,7 @@ function interp(arr, x) {
   for (let i = 1; i < arr.length; i++) if (x <= arr[i][0]) { const [a, va] = arr[i - 1], [b, vb] = arr[i]; return va + (vb - va) * (x - a) / (b - a); }
   return arr[arr.length - 1][1];
 }
-const seaLevel = t => interp(SEA, t);
+const seaLevel = t => t < 0 ? ((futSer(t) || {}).sea || 0) : interp(SEA, t);
 const iceF = t => clamp01(-seaLevel(t) / 125);
 // temperatura media globale rispetto al 1850–1900 (°C): Tierney et al. 2020, Osman et al. 2021, Copernicus/WMO
 const TEMP = [[0, 1.5], [yearT(2015), 1.1], [yearT(1980), .3], [yearT(1950), .15], [yearT(1900), 0], [yearT(1700), -.25], [yearT(1500), -.1], [0.002, 0], [0.006, .1], [0.0105, -.4], [0.0117, -1.5], [0.0129, -3], [0.0147, -2], [0.0175, -5], [0.019, -6], [0.026, -6], [0.03, -5], [0.04, -4.5], [0.05, -4.5], [0.06, -5]];
@@ -80,9 +95,32 @@ const TEMP = [[0, 1.5], [yearT(2015), 1.1], [yearT(1980), .3], [yearT(1950), .15
 const CO2 = [[0, 427], [yearT(2020), 414], [yearT(2010), 390], [yearT(2000), 370], [yearT(1980), 339], [yearT(1960), 317], [yearT(1900), 296], [yearT(1850), 285], [yearT(1500), 280], [0.002, 278], [0.007, 261], [0.0105, 265], [0.0129, 240], [0.0147, 238], [0.018, 190], [0.022, 186], [0.03, 200], [0.04, 205], [0.05, 210], [0.06, 215]];
 const greenSahara = t => smooth(0.0148, 0.0118, t) * smooth(0.0048, 0.0058, t);   // Periodo umido africano
 
+/* ---------- futuri possibili (src/sapiens/futuro.js): tre scenari ----------
+   series: [t, riscaldamento sul 1850–1900 (°C), mare rispetto a oggi (m), CO₂ (ppm), popolazione (miliardi), ghiacci 0–1, coralli 0–1, biodiversità 0–1] */
+const FUTS = S.futuro || null;
+const SCEN_KEYS = ["ott", "prob", "pess"];
+const SCN = FUTS && FUTS.scen ? FUTS.scen : {};
+const SERIES = {};
+SCEN_KEYS.forEach(k => { const s = SCN[k] && SCN[k].series; if (s && s.length) SERIES[k] = s.slice().sort((a, b) => b[0] - a[0]); });
+const HAS_FUT = Object.keys(SERIES).length > 0;
+let FS_K = "", FS_V = null;
+function futSer(t) {
+  const sk = state.fut, key = sk + t;
+  if (key === FS_K) return FS_V;
+  const L = SERIES[sk] || SERIES.prob; let o = null;
+  if (L) {
+    let i = 0; while (i < L.length - 2 && L[i + 1][0] > t) i++;
+    const a = L[i], b = L[Math.min(i + 1, L.length - 1)], u = a === b ? 0 : clamp01((a[0] - t) / (a[0] - b[0]));
+    const v = j => a[j] == null || b[j] == null ? (u < .5 ? a[j] : b[j]) : a[j] + (b[j] - a[j]) * u;
+    o = {dT: v(1), sea: v(2), co2: v(3), pop: v(4), ice: v(5), coral: v(6), bio: v(7)};
+  }
+  FS_K = key; FS_V = o; return o;
+}
+const scenOK = s => !s || s === "tutti" || (Array.isArray(s) ? s.includes(state.fut) || s.includes("tutti") : s === state.fut);
+
 /* ---------- stato ---------- */
 const state = {
-  t: 0.05, mode: "globe", playing: false, sel: null, sc: null, step: -1,
+  t: 0.05, mode: "globe", playing: false, sel: null, sc: null, step: -1, fut: "prob",
   layers: {humans: true, species: true, gbif: true, threat: false, events: true, people: true, hotspots: false, names: true, climate: true, today: false},
   fGroup: null, fCat: null
 };
@@ -109,16 +147,32 @@ const TREND = {decreasing: "↘ in calo", increasing: "↗ in aumento", stable: 
 const iucnBadge = c => c && IUCN[c] ? `<span class="iucn ${c}" style="background:${IUCN[c][1]}" title="${esc(IUCN[c][0])}">${c}</span>` : "";
 const HUMCOL = ["#e0213a", "#3a86ff", "#8338ec", "#2a9d8f", "#06a77d", "#ff006e"];
 
+// organismi del futuro (ipotetici o evoluti): solo negli scenari in cui compaiono
+if (FUTS && FUTS.species) FUTS.species.forEach(x => { if (x && x.id) S.species.push(Object.assign({}, x, {fut: true, to: x.to == null ? FUT_END : x.to})); });
 const SPECIES = S.species.filter(x => x && x.id && x.places && x.places.length);
 const BYID = new Map(SPECIES.map(x => [x.id, x]));
 const PEOPLE = (S.people || []).filter(p => p && p.id).sort((a, b) => bornY(a) - bornY(b));
 const PBYID = new Map(PEOPLE.map(p => [p.id, p]));
-const EVENTS = (S.events || []).filter(e => e && e.t != null).slice().sort((a, b) => b.t - a.t);
+const EVENTS_ALL = (S.events || []).concat(FUTS && FUTS.events ? FUTS.events.map(e => Object.assign({fut: true}, e)) : []).filter(e => e && e.t != null).sort((a, b) => b.t - a.t);
+// gli eventi del futuro dipendono dallo scenario scelto
+let EVENTS = EVENTS_ALL;
+function refreshEvents() { EVENTS = EVENTS_ALL.filter(e => !e.fut || scenOK(e.scen)); }
+refreshEvents();
 const SCENARI = S.scenari || [];
 const HUMANS = SPECIES.filter(x => x.group === "umani" && /^Homo\b/.test(x.name || "") || x.group === "umani" && /denisov/i.test(x.id + x.common));
 HUMANS.forEach((x, i) => x._col = /sapiens/.test(x.name) ? HUMCOL[0] : HUMCOL[1 + (i % (HUMCOL.length - 1))]);
 const SAP_SP = HUMANS.find(x => /sapiens/.test(x.name));
-const alive = (x, t) => x.from >= t - 1e-12 && x.to <= t + 1e-12;
+// destino delle specie di oggi nei tre scenari: FATE[id][scenario] = [t di scomparsa o null, testo]
+const FATE = FUTS && FUTS.fate ? FUTS.fate : {};
+const fateOf = x => { const f = FATE[x.id]; return f && f[state.fut] ? f[state.fut] : null; };
+function alive(x, t) {
+  if (x.fut && !scenOK(x.scen)) return false;
+  if (x.from < t - 1e-12) return false;
+  if (t < 0 && x.to === 0) { const f = fateOf(x); return !(f && f[0] != null && t < f[0]); }
+  return x.to <= t + 1e-12;
+}
+// scomparsa nel futuro secondo lo scenario scelto (null se la specie sopravvive)
+const futEnd = x => { const f = x.to === 0 ? fateOf(x) : null; return f && f[0] != null ? f[0] : null; };
 
 /* ---------- immagini e testi da Wikipedia ---------- */
 const WCACHE = {};
@@ -182,6 +236,8 @@ const enrP = p => (ENR.people && ENR.people[p.id]) || {};
 const IMGS = new Map(); let imgRedraw = 0;
 function thumbUrl(o, isPerson) {
   const sf = !isPerson && window.Cerca && window.Cerca.safeImg(o.name); if (sf) return sf.thumb;
+  // organismi del futuro: miniatura del parente di oggi, chiesta a Wikipedia la prima volta
+  if (!isPerson && o.fut && !o._e && !o._req) { o._req = 1; wikiBest(o.wiki, o.wikiEn, o.base).then(w => { o._e = w && w.thumb && !(window.Cerca && window.Cerca.badImg(w.thumb)) ? {thumb: w.thumb, img: w.img, full: w.full, url: w.url, lang: w.lang} : {}; draw(); schedulePanel(); }); }
   const e = isPerson ? enrP(o) : enrS(o), u = e.thumb || e.img || null;
   return u && window.Cerca && window.Cerca.badImg(u) ? null : u;
 }
@@ -389,7 +445,12 @@ function baseFor(tw) {
   return (BASES[tw] = {tw, th, n, E, NZ, rgb, coast, P0: null});
 }
 function climParams(t) {
-  return {sl: seaLevel(t), fI: iceF(t), dT: interp(TEMP, Math.max(t, yearT(1900))), green: greenSahara(t)};
+  if (t < 0) {
+    // futuro: i biomi si spostano con il riscaldamento rispetto a oggi; le calotte si ritirano (melt) o avanzano (fI)
+    const f = futSer(t) || {dT: 1.4, sea: 0, ice: 1};
+    return {sl: f.sea || 0, fI: iceF(t), dT: (f.dT == null ? 1.4 : f.dT) - 1.2, green: 0, melt: clamp01(1 - (f.ice == null ? 1 : f.ice))};
+  }
+  return {sl: seaLevel(t), fI: iceF(t), dT: interp(TEMP, Math.max(t, yearT(1900))), green: greenSahara(t), melt: 0};
 }
 // colori del modello climatico per le terre emerse (null sul mare)
 function procColors(b, P) {
@@ -426,7 +487,7 @@ const TEX = {key: "", w: 0, h: 0, rgba: null, sea: null, cv: document.createElem
 const RCV = document.createElement("canvas");
 function texKey(t, tw) {
   const P = climParams(t);
-  return [tw, Math.round(P.sl), Math.round(P.fI * 60), Math.round(P.dT * 4), Math.round(P.green * 25), state.layers.climate ? 1 : 0, state.layers.today && t > yearT(1500) ? 1 : 0].join(",");
+  return [tw, Math.round(P.sl * (Math.abs(P.sl) < 10 ? 4 : 1)), Math.round(P.fI * 60), Math.round(P.dT * 4), Math.round(P.green * 25), Math.round(P.melt * 40), state.layers.climate ? 1 : 0, state.layers.today && (t > yearT(1500) || t < 0) ? 1 : 0].join(",");
 }
 function buildTex(t, tw) {
   const b = baseFor(tw), {th, n, E, rgb} = b, P = climParams(t);
@@ -446,7 +507,8 @@ function buildTex(t, tw) {
     rc.filter = "none"; iceM = rc.getImageData(0, 0, tw, th).data;
   }
   const rgba = new Uint8ClampedArray(n * 4), sea = new Uint8Array(n), P0 = b.P0.col, Pt = pc.col, o = [0, 0, 0];
-  const kmPx = 40030 / tw, kL = 1 / (kmPx * 1000) * 16, showCoast = state.layers.today && t > yearT(1500);
+  const kmPx = 40030 / tw, kL = 1 / (kmPx * 1000) * 16, showCoast = state.layers.today && (t > yearT(1500) || t < 0);
+  const melt = state.layers.climate ? P.melt : 0;
   for (let y = 0; y < th; y++) {
     const lat = 90 - (y + .5) / th * 180;
     for (let x = 0; x < tw; x++) {
@@ -464,6 +526,14 @@ function buildTex(t, tw) {
           r = Pt[j] * s; g = Pt[j + 1] * s; bb = Pt[j + 2] * s;
         }
         if (iceM && iceM[4 * i + 3] > 127) { o[0] = r; o[1] = g; o[2] = bb; mixC(o, o, C.ice, .95); r = o[0]; g = o[1]; bb = o[2]; }
+        // futuro caldo: le calotte di Groenlandia e Antartide si ritirano dai bordi (le zone basse per prime)
+        if (melt > 0 && Math.abs(lat) > 59 && Math.min(r, g, bb) > 175) {
+          const m = lat > 0 ? melt : melt * .55, thr = clamp01(e / 3300) * .9 + b.NZ[i] * .08 + .05;
+          if (m > thr) { const u = smooth(thr, thr + .08, m); r += (Pt[j] * .9 - r) * u; g += (Pt[j + 1] * .9 - g) * u; bb += (Pt[j + 2] * .9 - bb) * u; }
+        }
+      } else if (Pt && !land && e > 0) {
+        // terre di oggi sommerse dal mare che sale: acqua bassa e torbida
+        o[0] = r; o[1] = g; o[2] = bb; mixC(o, o, [40, 112, 138], .82); r = o[0]; g = o[1]; bb = o[2];
       } else if (!land && P.fI > .2 && state.layers.climate) {
         // banchisa più estesa nelle fasi glaciali
         const si = Math.max(smooth(80 - 14 * P.fI, 84 - 12 * P.fI, lat + NZ(i, b) * 3), smooth(-(66 - 8 * P.fI), -(70 - 8 * P.fI), lat + NZ(i, b) * 3));
@@ -693,7 +763,7 @@ function drawHumans(t) {
     }
   }
 }
-const CATCOL = {umani: "#d4882a", clima: "#4f8fc0", estinzione: "#c0392b", natura: "#2e9e6a", conservazione: "#1faa59", scienza: "#5b4bb7"};
+const CATCOL = {umani: "#d4882a", clima: "#4f8fc0", estinzione: "#c0392b", natura: "#2e9e6a", conservazione: "#1faa59", scienza: "#5b4bb7", tecnologia: "#0e7490"};
 function eventsNear(t, pw) {
   const p = t2p(t);
   return EVENTS.filter(e => { const a = t2p(e.t), b = e.t2 != null ? t2p(e.t2) : a; return p >= Math.min(a, b) - pw && p <= Math.max(a, b) + pw; });
@@ -714,7 +784,7 @@ function drawEvents(t) {
 function speciesShown(t) {
   const L = state.layers, present = t < yearT(1700), out = [];
   for (const x of SPECIES) {
-    const isAlive = alive(x, t), ghost = !isAlive && (x.iucn === "EX" || x.iucn === "EW") && x.to > t && t < yearT(1500) && (L.threat || state.fCat === x.iucn);
+    const isAlive = alive(x, t), ghost = !isAlive && ((x.iucn === "EX" || x.iucn === "EW") && x.to > t && t < yearT(1500) && (L.threat || state.fCat === x.iucn) || (t < 0 && futEnd(x) != null && L.threat));
     if (!isAlive && !ghost) continue;
     if (L.threat && isAlive && !THREAT.has(x.iucn) && x.iucn !== "EW" && x.group !== "umani") continue;
     if (state.fGroup && x.group !== state.fGroup) continue;
@@ -735,6 +805,8 @@ function collectSpecies(t, marks) {
     if (x.group === "umani") pri += 70;
     if (present && x.iucn) pri += {CR: 40, EN: 30, VU: 20, EW: 35, EX: 12, NT: 6}[x.iucn] || 0;
     if (!present && x.to > 0) pri += 45;          // nel passato in primo piano le specie che poi si estinguono
+    if (x.fut) pri += 50;                          // nel futuro in primo piano gli organismi nuovi
+    if (t < 0 && FATE[x.id]) pri += 15;            // e le specie di cui conosciamo il destino possibile
     if (state.sel && state.sel.id === x.id) pri += 500;
     const many = Z >= 2.4 || (x.star && Z >= 1.7);
     x.places.forEach((pl, i) => { if (i === 0 || many) marks.push({kind: "sp", x, pl, i, pri: pri - i * 8, ghost, ll: [pl[1], pl[0]]}); });
@@ -1143,7 +1215,8 @@ function bindSci(box) { box.querySelectorAll("[data-pid]").forEach(b => b.onclic
 function showSpecies(x, place, back) {
   const g = G(x.group), e = enrS(x), pl = place || x.places[0], present = !x.to;
   const facts = [];
-  if (x.group === "umani" || x.to > 0 || x.from < T0) facts.push(["Quando", x.to > 0 ? fmtRange(x.from, x.to) : x.from < T0 ? "da " + fmtAge(x.from, "short") + " a oggi" : "vive oggi"]);
+  if (x.fut) { facts.push(["Quando", fmtRange(x.from, x.to)]); if (x.base) facts.push(["Discende da", x.base]); }
+  else if (x.group === "umani" || x.to > 0 || x.from < T0) facts.push(["Quando", x.to > 0 ? fmtRange(x.from, x.to) : x.from < T0 ? "da " + fmtAge(x.from, "short") + " a oggi" : "vive oggi"]);
   if (x.to > 0 && x.to < yearT(1500)) facts.push(["Estinta", x.to < yearT(1990) ? "nel " + Math.round(NOW_YEAR - x.to * 1e6) : fmtAge(x.to)]);
   if (x.size) facts.push(["Dimensioni", x.size]);
   if (x.diet) facts.push(["Alimentazione", x.diet]);
@@ -1154,33 +1227,36 @@ function showSpecies(x, place, back) {
   const places = x.places.map((p, i) => `<li><button data-site="${i}">📍 ${esc(p[2] || (p[0] + ", " + p[1]))}</button></li>`).join("");
   const c = x.iucn && IUCN[x.iucn];
   const canGbif = e.gbif && x.group !== "umani";
-  openSel(`${back ? `<div class="links" style="margin:0 0 8px"><button id="grpBack">‹ Torna all'elenco</button></div>` : ""}<div class="eyebrow"><i class="cdot" style="background:${g.color}"></i>${esc(g.name)}${x.to > 0 && x.iucn !== "EW" ? " · estinta" : ""}</div>
-    <h3>${esc(x.common || x.name)}</h3><div class="sci">${esc(x.name)}</div>
+  const fe = futEnd(x);
+  openSel(`${back ? `<div class="links" style="margin:0 0 8px"><button id="grpBack">‹ Torna all'elenco</button></div>` : ""}<div class="eyebrow"><i class="cdot" style="background:${g.color}"></i>${esc(g.name)}${x.to > 0 && x.iucn !== "EW" ? " · estinta" : ""}${x.fut ? (x.ipotesi === false ? " · nel futuro" : " · futuro ipotetico") : ""}${fe != null && state.t < 0 && state.t <= fe ? " · scomparsa in questo scenario" : ""}</div>
+    <h3>${esc(x.common || x.name)}</h3><div class="sci">${x.fut && x.base ? `${x.ipotesi === false ? "" : "discendente ipotetico di "}<i>${esc(x.base)}</i>` : esc(x.name)}</div>
+    ${x.fut && x.ipotesi !== false ? certHtml({certezza: x.certezza || "ipotesi"}) : ""}
     ${c ? `<div class="iucnrow">${iucnBadge(x.iucn)}<b>${esc(c[0])}</b>${x.trend && TREND[x.trend] ? `<span class="tr">${esc(TREND[x.trend])}</span>` : ""}<span class="tr">· Lista Rossa IUCN</span></div>` : ""}
     ${imgBlock(id)}
     ${facts.length ? `<dl class="facts">${facts.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("")}</dl>` : ""}
     ${x._gb ? `<p id="gbTxt">Cerco la descrizione…</p><p class="note">Scheda automatica: la specie è tra le più fotografate in questa zona su iNaturalist (osservazioni verificate, dati GBIF); il testo viene da Wikipedia e non è stato controllato a mano.</p>` : `<p>${esc(x.text || "")}</p>`}
-    ${window.Cerca ? window.Cerca.reconHtml(x.name) : ""}
+    ${x.fut ? `${x.ipotesi !== false ? `<p class="note">L'immagine mostra l'antenato o il parente di oggi, non l'organismo del futuro.</p>` : ""}${futExtras(x)}` : fateHtml(x)}
+    ${x.fut ? "" : window.Cerca ? window.Cerca.reconHtml(x.name) : ""}
     <div id="${gid}"></div>
-    ${ozBlock(x.name, e.ott)}
+    ${x.fut ? (x.base ? ozBlock(x.base, null) : "") : ozBlock(x.name, e.ott)}
     ${canGbif ? `<div class="links"><button id="gbifBtn">🗺️ ${present ? "Dove è stata osservata" : "Dove sono stati trovati i resti"} (GBIF)</button></div><div class="gbifnote" id="gbifNote"></div>` : ""}
     ${places ? `<div class="note" style="margin-top:10px">Luoghi (clicca per andarci):</div><ul class="sites">${places}</ul>` : ""}
     ${linkRow([
       x._gb ? A(x._gb.url, "📷 L'osservazione (iNaturalist)") : x.wiki ? A(wpLink(x.wiki, "it"), "📖 Wikipedia") : x.wikiEn ? A(wpLink(x.wikiEn, "en"), "📖 Wikipedia (inglese)") : "",
       e.ott ? A(otLink(e.ott), "🌲 Open Tree of Life") : "",
       x.iucn && x.iucn !== "EX" || present ? A(iucnLink(x.name), "🟥 Lista Rossa IUCN") : x.iucn === "EX" ? A(iucnLink(x.name), "⬛ Lista Rossa IUCN") : "",
-      x.group !== "umani" ? A(gbifLink(e.gbif, x.name), "🗺️ GBIF") : "",
+      x.group !== "umani" && !x.fut ? A(gbifLink(e.gbif, x.name), "🗺️ GBIF") : "",
       x.to > yearT(1500) ? A(pbdbLink(x.name), "🦴 Paleobiology DB") : ""
     ].filter(Boolean))}
     ${sciButtons(x.sci)}
-    ${alive(x, state.t) ? "" : `<div class="links"><button id="goWhen">⏱ Vai a quando viveva</button></div>`}`,
+    ${alive(x, state.t) ? "" : `<div class="links"><button id="goWhen">⏱ ${x.fut ? "Vai a quando potrebbe vivere" : fe != null && state.t < 0 ? "Torna a oggi" : "Vai a quando viveva"}</button></div>`}`,
     {id: x.id, mark: pl ? {ll: () => [pl[1], pl[0]]} : null});
   const box = $("selBox");
   const gb = $("grpBack"); if (gb) gb.onclick = back;
   box.querySelectorAll("[data-site]").forEach(b => b.onclick = () => { const p = x.places[+b.dataset.site]; state.sel.mark = {ll: () => [p[1], p[0]]}; flyTo(p[1], p[0], Math.max(Z, 2.4)); });
   bindSci(box);
   if (window.Cerca) window.Cerca.bindRecon(box);
-  const gw = $("goWhen"); if (gw) gw.onclick = () => { const tt = x.to > 0 ? Math.min(x.from, x.to + Math.min(.002, (x.from - x.to) * .3)) : Math.min(x.from, state.t); if (state.sc && (tt > state.sc.from || tt < state.sc.to)) exitScenario(); setTime(tt); showSpecies(x, pl); };
+  const gw = $("goWhen"); if (gw) gw.onclick = () => { const tt = x.fut ? x.from + (x.to - x.from) * .15 : fe != null && state.t < 0 ? 0 : x.to > 0 ? Math.min(x.from, x.to + Math.min(.002, (x.from - x.to) * .3)) : Math.min(x.from, state.t); if (state.sc && (tt > state.sc.from || tt < state.sc.to)) exitScenario(); setTime(tt); showSpecies(x, pl); };
   if (canGbif) {
     const btn = $("gbifBtn"), note = $("gbifNote"), fossil = x.to > yearT(1500);
     const on = () => { btn.textContent = "Nascondi le osservazioni"; note.textContent = "Caricamento da GBIF…"; loadOverlay(e.gbif, fossil, n => { note.innerHTML = n < 0 ? "Non riesco a caricare i dati di GBIF (serve internet)." : n === 0 ? "Nessuna osservazione con coordinate in GBIF." : `<span style="color:#e028c0">●</span> In magenta i luoghi con osservazioni registrate in GBIF${fossil ? " (soprattutto reperti fossili e di museo)" : ""}. Non è l'areale ufficiale: alcuni punti possono essere animali in cattività o errori.`; }); };
@@ -1190,7 +1266,7 @@ function showSpecies(x, place, back) {
   } else if (OV.key) clearOverlay();
   if (pl) flyTo(pl[1], pl[0], Math.max(Z, 1.8));
   const sf = window.Cerca && window.Cerca.safeImg(x.name), okE = e.img && !(window.Cerca && window.Cerca.badImg(e.img));
-  const pre = sf ? Promise.resolve(Object.assign({title: x.common}, sf)) : okE ? Promise.resolve({img: e.img, thumb: e.thumb, full: e.full, url: e.url || wpLink(x.wikiEn || x.wiki, e.lang || "en"), lang: e.lang, title: x.common}) : wikiBest(x.wiki, x.wikiEn, x.name);
+  const pre = sf ? Promise.resolve(Object.assign({title: x.common}, sf)) : okE ? Promise.resolve({img: e.img, thumb: e.thumb, full: e.full, url: e.url || wpLink(x.wikiEn || x.wiki, e.lang || "en"), lang: e.lang, title: x.common}) : wikiBest(x.wiki, x.wikiEn, x.fut ? x.base : x.name);
   // specie automatiche: se Wikipedia non ha una foto si usa quella dell'osservazione, con autore e licenza
   pre.then(w => fillImg(id, (w && w.img) || !x._gb ? w : {img: x._gb.img, big: x._gb.big, url: x._gb.url, credit: x._gb.credit, lic: x._gb.lic}, x.common || x.name));
   if (x._gb) (async () => {
@@ -1230,14 +1306,19 @@ function showPerson(p) {
 }
 function showEvent(ev) {
   const id = uid(), col = CATCOL[ev.cat] || COL.accent;
-  const CN = {clima: "Clima", estinzione: "Estinzione", umani: "Esseri umani", natura: "Natura", conservazione: "Conservazione", scienza: "Scienza"};
-  openSel(`<div class="eyebrow"><i class="cdot" style="background:${col}"></i>${esc(CN[ev.cat] || "Evento")} · ${esc(fmtRange(ev.t, ev.t2))}</div>
-    <h3>${esc(ev.title)}</h3>${imgBlock(id)}<p>${esc(ev.text || "")}</p>
+  const CN = {clima: "Clima", estinzione: "Estinzione", umani: "Esseri umani", natura: "Natura", conservazione: "Conservazione", scienza: "Scienza", tecnologia: "Tecnologia"};
+  const sk = ev.fut && ev.scen && ev.scen !== "tutti" ? (Array.isArray(ev.scen) ? ev.scen : [ev.scen]).filter(k => SCN[k]).map(k => SCN[k].name).join(", ") : "";
+  const tx = ev.taxon && BYID.get(ev.taxon);
+  openSel(`<div class="eyebrow"><i class="cdot" style="background:${col}"></i>${esc(CN[ev.cat] || "Evento")} · ${esc(fmtRange(ev.t, ev.t2))}${sk ? " · scenario " + esc(sk.toLowerCase()) : ev.fut ? " · tutti gli scenari" : ""}</div>
+    <h3>${esc(ev.title)}</h3>${certHtml(ev)}${imgBlock(id)}<p>${esc(ev.text || "")}</p>
+    ${futExtras(ev)}
+    ${tx ? `<div class="links"><button id="evTx">${G(tx.group).emoji} ${esc(tx.common || tx.name)}: la scheda</button></div>` : ""}
     ${linkRow([ev.wiki ? A(wpLink(ev.wiki, "it"), "📖 Wikipedia") : ev.wikiEn ? A(wpLink(ev.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}
     ${sciButtons(ev.sci)}
     ${Math.abs(t2p(ev.t) - t2p(state.t)) > .002 ? `<div class="links"><button id="goWhen">⏱ Vai a questo momento</button></div>` : ""}`,
     ev.lat != null ? {mark: {ll: () => [ev.lon, ev.lat]}} : {});
   bindSci($("selBox"));
+  const et = $("evTx"); if (et) et.onclick = () => showSpecies(tx);
   const gw = $("goWhen"); if (gw) gw.onclick = () => setTime(ev.t);
   if (OV.key) clearOverlay();
   if (ev.lat != null) flyTo(ev.lon, ev.lat, Math.max(Z, 1.6));
@@ -1261,7 +1342,7 @@ function showScMarker(m) {
   const p = m.person ? PBYID.get(m.person) : null;
   if (p) { showPerson(p); return; }
   const id = uid();
-  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${linkRow([m.wiki ? A(wpLink(m.wiki, "it"), "📖 Wikipedia") : m.wikiEn ? A(wpLink(m.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}`, {mark: {ll: () => [m.lon, m.lat]}});
+  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${certHtml(m)}${m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${futExtras(m)}${linkRow([m.wiki ? A(wpLink(m.wiki, "it"), "📖 Wikipedia") : m.wikiEn ? A(wpLink(m.wikiEn, "en"), "📖 Wikipedia (inglese)") : ""].filter(Boolean))}`, {mark: {ll: () => [m.lon, m.lat]}});
   if (m.wiki || m.wikiEn) wikiBest(m.wiki, m.wikiEn).then(w => fillImg(id, w, m.label));
 }
 
@@ -1299,6 +1380,42 @@ async function showSearch(r) {
 }
 if (window.Cerca) window.Cerca.mountUI($("searchBox"), {local: localSearch, onPick: showSearch});
 
+/* ---------- futuro: scelta dello scenario, impegni di oggi, quanto è sicura una previsione ---------- */
+const SCEN_COL = {ott: "#2a9d8f", prob: "#d19a1c", pess: "#e63946"};
+function futButtons() {
+  return SCEN_KEYS.filter(k => SERIES[k]).map(k => `<button data-fut="${k}" style="--cc:${(SCN[k] && SCN[k].color) || SCEN_COL[k]}" aria-pressed="${state.fut === k}">${esc((SCN[k] && SCN[k].name) || k)}</button>`).join("");
+}
+function bindFutButtons(el) { el.querySelectorAll("[data-fut]").forEach(b => b.onclick = () => setFut(b.dataset.fut)); }
+function setFut(k) {
+  if (!SERIES[k] || state.fut === k) return;
+  state.fut = k; FS_K = ""; TEX.key = ""; refreshEvents();
+  if (!state.sc) buildTrack();
+  updateHead(); draw(); schedulePanel();
+}
+const AG_KIND = {accordo: "🤝 Accordo", legge: "⚖️ Legge", agenda: "🗓️ Agenda", rapporto: "📊 Rapporto", iniziativa: "🚀 Iniziativa"};
+function agendeHtml(t) {
+  const yr = Math.round(NOW_YEAR - t * 1e6);
+  return `<ul class="agl">${FUTS.agende.slice().sort((a, b) => (a.year || 0) - (b.year || 0)).map(a => `<li><b>${esc(a.title)}</b>${a.year ? ` <span class="note">(${esc(a.year)})</span>` : ""} <span class="note">${esc(AG_KIND[a.kind] || "")}</span>
+    <div>${esc(a.text || "")}</div>${a.target ? `<div class="note">🎯 Obiettivo: ${esc(a.target)}</div>` : ""}${a.status ? `<div class="note">📍 Oggi: ${esc(a.status)}</div>` : ""}
+    <div class="note">${a.wiki ? A(wpLink(a.wiki, "it"), "Wikipedia") : a.wikiEn ? A(wpLink(a.wikiEn, "en"), "Wikipedia") : ""}${a.url ? " · " + A(a.url, "sito ufficiale") : ""}</div></li>`).join("")}</ul>
+    <p class="note">Anno sul globo: ${yr > 99999 ? "futuro lontano" : yr}. Gli impegni sono quelli presi entro il 2026: il futuro dipende anche da se e come verranno rispettati.</p>`;
+}
+const CERT = {alta: ["Previsione solida", "#2e9e6a", "misure e leggi fisiche ben note"], media: ["Previsione probabile", "#b8901c", "molti studi sono d'accordo, i tempi sono incerti"], bassa: ["Previsione incerta", "#d4682a", "modelli e opinioni diverse"], ipotesi: ["Ipotesi", "#9d4edd", "possibile ma non prevedibile: un esempio di ciò che potrebbe accadere"]};
+function certHtml(o) { const c = o && CERT[o.certezza]; return c ? `<div class="cert" style="--cc:${c[1]}"><b>${esc(c[0])}</b><span>${esc(c[2])}</span></div>` : ""; }
+function futExtras(o) {
+  let h = "";
+  if (o.oggi) h += `<div class="oggi"><b>📜 Oggi</b><p>${esc(o.oggi)}</p></div>`;
+  if (o.curiosita) h += `<div class="curio"><b>💡 Lo sapevi?</b><p>${esc(o.curiosita)}</p></div>`;
+  const f = Array.isArray(o.fonti) ? o.fonti : o.fonti ? [o.fonti] : [];
+  if (f.length) h += `<details class="fonti"><summary>Fonti scientifiche</summary><ul>${f.map(s => `<li>${esc(s)}</li>`).join("")}</ul></details>`;
+  return h;
+}
+// destino di una specie di oggi nei tre scenari
+function fateHtml(x) {
+  const f = FATE[x.id]; if (!f) return "";
+  return `<div class="note" style="margin-top:10px">🔭 Il suo futuro possibile:</div><div class="fate">${SCEN_KEYS.filter(k => f[k]).map(k => `<b style="color:${(SCN[k] && SCN[k].color) || SCEN_COL[k]}" class="${state.fut === k ? "cur" : ""}">${esc((SCN[k] && SCN[k].name) || k)}</b><span${state.fut === k ? ' class="cur"' : ""}>${f[k][0] != null ? "✝ " + esc(fmtAge(f[k][0], "short")) + ": " : ""}${esc(f[k][1] || "")}</span>`).join("")}</div>`;
+}
+
 /* ---------- pannello ---------- */
 let panelRaf = 0;
 function schedulePanel() { if (!panelRaf) panelRaf = requestAnimationFrame(() => { panelRaf = 0; updatePanel(); }); }
@@ -1317,19 +1434,36 @@ function fmtPop(v) {
   return "circa " + nfi(Math.round(v / 1e4) * 1e4);
 }
 function updatePanel() {
-  const t = state.t, gu = unitAt(GEO, t), au = unitAt(AGES, t), P = climParams(t), temp = interp(TEMP, t), co2 = interp(CO2, t), pop = popAt(t);
+  const t = state.t, gu = unitAt(GEO, t), au = unitAt(AGES, t), P = climParams(t), fs = t < 0 ? futSer(t) : null;
+  const temp = fs && fs.dT != null ? fs.dT : interp(TEMP, Math.max(0, t)), co2 = fs && fs.co2 != null ? fs.co2 : interp(CO2, Math.max(0, t)), pop = fs ? (fs.pop != null ? fs.pop * 1e9 : null) : popAt(t);
   const humAlive = HUMANS.filter(x => alive(x, t));
+  const sc = SCN[state.fut] || {};
+  const seaTxt = t < 0 ? (P.sl < -1 ? "circa " + nfi(-P.sl) + " m più basso di oggi (era glaciale)" : P.sl < .05 ? "come oggi" : P.sl < 1 ? "circa " + nfi(P.sl * 100) + " cm più alto di oggi" : "circa " + nf(P.sl, P.sl < 10 ? 1 : 0) + " m più alto di oggi") :
+    P.sl > -1 ? (t < yearT(1900) ? "circa 20 cm più alto che nel 1900, e sale" : "come oggi") : "circa " + nfi(-P.sl) + " m più basso di oggi";
+  const meter = (v, col) => `<div class="meter"><i style="width:${Math.round(clamp01(v) * 100)}%;background:${col}"></i></div>`;
+  const pct = v => v == null ? "—" : "circa il " + nfi(clamp01(v) * 100) + "% di oggi";
+  // specie di oggi scomparse entro questo momento nello scenario scelto
+  const gone = t < 0 ? SPECIES.filter(x => { const e = futEnd(x); return e != null && t <= e; }).sort((a, b) => futEnd(b) - futEnd(a)) : [];
   $("whenBox").innerHTML = `<h2>Quando</h2>
     <div class="chain">${[gu, au].filter(Boolean).map(u => `<span style="background:${u.color}" title="${esc(fmtRange(u.from, u.to))}">${esc(u.name)}</span>`).join("")}</div>
     <h3>${esc(fmtAge(t))}</h3>
     ${au ? `<p>${esc(au.text)}</p>` : gu ? `<p>${esc(gu.text)}</p>` : ""}
+    ${t < 0 && HAS_FUT ? `<div class="futsel inpanel" role="group" aria-label="Scenario">${futButtons()}</div>
+      <p class="note futnote">🔭 <b>Scenario ${esc((sc.name || "").toLowerCase())}</b>${sc.ssp ? " (" + esc(sc.ssp) + ")" : ""}. ${esc(sc.intro || "")} Non è una profezia: è ciò che gli studi di oggi ritengono plausibile.</p>` : ""}
     <dl class="facts box">
-      <dt>Temperatura</dt><dd>${Math.abs(temp) < .05 ? "come nel 1850–1900" : (temp > 0 ? "+" : "−") + nf(Math.abs(temp), 1) + " °C rispetto al 1850–1900"}${t > 0.012 ? " (stima)" : ""}</dd>
-      <dt>Livello del mare</dt><dd>${P.sl > -1 ? (t < yearT(1900) ? "circa 20 cm più alto che nel 1900, e sale" : "come oggi") : "circa " + nfi(-P.sl) + " m più basso di oggi"}</dd>
+      <dt>Temperatura</dt><dd>${Math.abs(temp) < .05 ? "come nel 1850–1900" : (temp > 0 ? "+" : "−") + nf(Math.abs(temp), 1) + " °C rispetto al 1850–1900"}${t > 0.012 || t < 0 ? " (stima)" : ""}</dd>
+      <dt>Livello del mare</dt><dd>${esc(seaTxt)}</dd>
       <dt>CO₂ nell'aria</dt><dd>circa ${nfi(co2)} ppm${t < yearT(1950) ? " (prima dell'industria: 280)" : ""}</dd>
-      ${pop ? `<dt>Esseri umani</dt><dd>${fmtPop(pop)}</dd>` : ""}
+      ${pop ? `<dt>Esseri umani</dt><dd>${fmtPop(pop)}</dd>` : t < -0.001 ? `<dt>Esseri umani</dt><dd>impossibile da prevedere</dd>` : ""}
+      ${fs && fs.ice != null ? `<dt>Ghiacci</dt><dd>${pct(fs.ice)}${meter(fs.ice, "#7fb3d5")}</dd>` : ""}
+      ${fs && fs.coral != null ? `<dt>Barriere coralline</dt><dd>${pct(fs.coral)}${meter(fs.coral, "#f08a5d")}</dd>` : ""}
+      ${fs && fs.bio != null ? `<dt>Biodiversità</dt><dd>${pct(fs.bio)}${meter(fs.bio, "#3fae6a")}</dd>` : ""}
       <dt>Specie umane</dt><dd>${humAlive.length ? humAlive.map(x => x.common || x.name).join(", ") : "—"}</dd>
-    </dl>`;
+    </dl>
+    ${gone.length ? `<div class="note" style="margin-top:10px">Specie di oggi scomparse in questo scenario (clicca per la scheda):</div><div class="links">${gone.slice(0, 24).map(x => `<button data-gone="${esc(x.id)}">✝ ${esc(x.common || x.name)} <span style="opacity:.65">${esc(fmtAge(futEnd(x), "short"))}</span></button>`).join("")}</div>` : ""}
+    ${t < 0 && FUTS && FUTS.agende && FUTS.agende.length ? `<details class="agende" style="margin-top:10px"><summary>📜 Gli impegni di oggi: accordi, leggi e rapporti (${FUTS.agende.length})</summary>${agendeHtml(t)}</details>` : ""}`;
+  bindFutButtons($("whenBox"));
+  $("whenBox").querySelectorAll("[data-gone]").forEach(b => b.onclick = () => showSpecies(BYID.get(b.dataset.gone)));
   // specie umane
   $("humSec").hidden = !HUMANS.length;
   $("humList").innerHTML = humAlive.concat(HUMANS.filter(x => !alive(x, t))).map(x => spButton(x, !alive(x, t))).join("");
@@ -1354,7 +1488,7 @@ function updatePanel() {
   const shown = speciesShown(t).map(o => o.x).filter(x => x.group !== "umani");
   const present = t < yearT(1700), rank = {CR: 0, EW: 1, EN: 2, VU: 3, EX: 4, NT: 5, DD: 6, LC: 7};
   shown.sort((a, b) => present ? ((rank[a.iucn] ?? 8) - (rank[b.iucn] ?? 8) || (b.star ? 1 : 0) - (a.star ? 1 : 0)) : ((b.to > 0) - (a.to > 0) || (b.star ? 1 : 0) - (a.star ? 1 : 0)));
-  $("taxaTitle").textContent = present ? "Le specie di oggi" : "Chi vive in quest'epoca";
+  $("taxaTitle").textContent = t < 0 ? "Chi vive in questo futuro" : present ? "Le specie di oggi" : "Chi vive in quest'epoca";
   const allAlive = SPECIES.filter(x => x.group !== "umani" && alive(x, t));
   const gc = {}; allAlive.forEach(x => gc[x.group] = (gc[x.group] || 0) + 1);
   $("grpFilt").innerHTML = `<button data-g="" aria-pressed="${!state.fGroup}">Tutti</button>` + Object.keys(GDEF).filter(k => gc[k]).map(k => `<button data-g="${k}" aria-pressed="${state.fGroup === k}">${G(k).emoji} ${esc(G(k).name)} <span style="opacity:.6">${gc[k]}</span></button>`).join("");
@@ -1418,8 +1552,12 @@ function buildTrack() {
   else $("evdots").innerHTML = (sc.steps || []).map((s, i) => `<div class="stepdot${i === state.step ? " cur" : ""}" data-step="${i}" style="left:${t2p(s.t) * 100}%" title="${esc(s.title)}"></div>`).join("");
   $("evdots").querySelectorAll("[data-step]").forEach(d => d.addEventListener("pointerdown", e => { e.stopPropagation(); goStep(+d.dataset.step); }));
   let ticks;
-  if (!sc) ticks = [[T0, track.getBoundingClientRect().width < 500 ? "60 000" : "60 000 anni fa", 1], [0.03, "30 000"], [0.0117, "11 700", 1], [0.005, "5000"], [yearT(1), "anno 1", 1], [yearT(1500), "1500"], [yearT(1900), "1900"], [0, "oggi", 1]];
-  else { const n = 6; ticks = d3.range(n + 1).map(i => { const tt = sc.from - (sc.from - sc.to) * i / n; return [tt, fmtUnit(tt, sc.unit), i === 0 || i === n || i === n / 2 ? 1 : 0]; }); }
+  const wide = track.getBoundingClientRect().width >= 760;
+  if (!sc) ticks = [[T0, track.getBoundingClientRect().width < 500 ? "60 000" : "60 000 anni fa", 1], [0.03, "30 000"], [0.0117, "11 700", 1], [0.005, "5000"], [yearT(1), "anno 1", 1], [yearT(1500), "1500"], [yearT(1900), "1900"], [0, "oggi", 1], [yearT(2100), "2100", wide], [-0.01, "+10 000"], [FUT_END, wide ? "+1 milione" : "+1 Ma", wide]];
+  else { const n = 6; ticks = d3.range(n + 1).map(i => { const tt = sc.dom ? p2t(i / n) : sc.from - (sc.from - sc.to) * i / n; return [tt, fmtUnit(tt, sc.unit), i === 0 || i === n || i === n / 2 ? 1 : 0]; }); }
+  // zona del futuro sulla linea del tempo
+  const pf = sc ? (sc.to < 0 ? clamp01(t2p(0)) : null) : P_NOW, fz = $("futZone");
+  if (fz) { fz.hidden = pf == null || pf >= 1; if (pf != null) fz.style.left = pf * 100 + "%"; }
   $("ticks").innerHTML = ticks.map(([tt, lab, key], i) => `<div class="tick${key ? " key" : ""}${i === 0 ? " edge-l" : i === ticks.length - 1 ? " edge-r" : ""}" style="left:${t2p(tt) * 100}%">${esc(lab)}</div>`).join("");
   thumb.setAttribute("aria-valuemin", "0"); thumb.setAttribute("aria-valuemax", "1000");
   track.classList.toggle("narrow", track.getBoundingClientRect().width < 760);
@@ -1463,6 +1601,14 @@ function updateHead() {
   $("eraLabel").innerHTML = gu ? `<i style="background:${(au || gu).color}"></i>${esc([gu.name, au && au.name].filter(Boolean).join(" · "))}` : "";
   $("yearLabel").textContent = fmtAge(t);
   const P = climParams(t);
+  const fsel = $("futSel");
+  if (fsel) { fsel.hidden = !(t < 0 && HAS_FUT); if (!fsel.hidden) { fsel.innerHTML = futButtons(); bindFutButtons(fsel); } }
+  if (t < 0) {
+    const f = futSer(t) || {}, sc = SCN[state.fut] || {};
+    $("subLabel").textContent = `Futuro possibile · scenario ${(sc.name || "").toLowerCase()}: ${f.dT != null ? "+" + nf(f.dT, 1) + " °C" : ""}${P.sl >= .05 ? ", mare +" + (P.sl < 1 ? nfi(P.sl * 100) + " cm" : nf(P.sl, P.sl < 10 ? 1 : 0) + " m") : P.sl < -1 ? ", mare −" + nfi(-P.sl) + " m (glaciazione)" : ""}`;
+    $("subLabel").classList.remove("warn");
+    return;
+  }
   $("subLabel").textContent = P.sl < -60 ? `Era glaciale: il mare è ${nfi(-P.sl)} m più basso di oggi e grandi calotte coprono il nord.` : P.sl < -15 ? `Il ghiaccio si scioglie: il mare sale (oggi −${nfi(-P.sl)} m).` : P.green > .3 ? "Il Sahara è verde: savane, laghi e fiumi dove oggi c'è il deserto." : t < yearT(1950) ? "La «grande accelerazione»: popolazione, consumi e perdita di natura crescono rapidamente." : "";
   $("subLabel").classList.remove("warn");
 }
@@ -1506,7 +1652,7 @@ $("play").onclick = play;
 function openScenChooser() {
   stopPlay();
   const box = $("scenList");
-  box.innerHTML = SCENARI.length ? `<section><div class="ch-grid">${SCENARI.map((s, i) => `<button class="ch-card" data-i="${i}" style="--cc:${s.color || "var(--accent)"}"><span class="ch-sw"></span><span class="ch-name">${esc(s.title)}</span><span class="ch-when">${esc(fmtUnit(s.from, s.unit))} → ${esc(s.to <= 2e-7 ? "oggi" : fmtUnit(s.to, s.unit))}</span><span class="ch-intro">${esc(s.sub || firstSentence(s.intro))}</span></button>`).join("")}</div></section>` : `<p class="note">Gli scenari non sono disponibili.</p>`;
+  box.innerHTML = SCENARI.length ? `<section><div class="ch-grid">${SCENARI.map((s, i) => `<button class="ch-card" data-i="${i}" style="--cc:${s.color || "var(--accent)"}"><span class="ch-sw"></span><span class="ch-name">${esc(s.title)}</span><span class="ch-when">${esc(fmtUnit(s.from, s.unit))} → ${esc(Math.abs(s.to) <= 2e-7 ? "oggi" : fmtUnit(s.to, s.unit))}</span><span class="ch-intro">${esc(s.sub || firstSentence(s.intro))}</span></button>`).join("")}</div></section>` : `<p class="note">Gli scenari non sono disponibili.</p>`;
   box.querySelectorAll(".ch-card").forEach(b => b.onclick = () => { closeChooser("scenChooser"); enterScenario(SCENARI[+b.dataset.i]); });
   $("scenChooser").hidden = false; const f = box.querySelector(".ch-card"); if (f) f.focus();
 }
@@ -1517,9 +1663,11 @@ $("scenBtn").onclick = openScenChooser;
 function enterScenario(sc) {
   stopPlay(); closeSel();
   state.sc = sc; state.step = -1;
-  TL = d3.scaleLinear().domain([sc.from, sc.to]).range([0, 1]).clamp(true);
+  // una visita del futuro legata a uno scenario lo sceglie
+  if (sc.scen && SERIES[sc.scen] && state.fut !== sc.scen) { state.fut = sc.scen; FS_K = ""; TEX.key = ""; refreshEvents(); }
+  TL = d3.scaleLinear().domain(sc.dom || [sc.from, sc.to]).range(sc.rng || [0, 1]).clamp(true);
   $("scBar").hidden = false; $("scBarT").textContent = sc.title;
-  $("tlHint").innerHTML = `<span>Scenario: ${esc(sc.title)} · da ${esc(fmtUnit(sc.from, sc.unit))} a ${esc(sc.to <= 2e-7 ? "oggi" : fmtUnit(sc.to, sc.unit))}</span><span>I cerchi sulla linea sono le tappe della visita</span>`;
+  $("tlHint").innerHTML = `<span>Scenario: ${esc(sc.title)} · da ${esc(fmtUnit(sc.from, sc.unit))} a ${esc(Math.abs(sc.to) <= 2e-7 ? "oggi" : fmtUnit(sc.to, sc.unit))}</span><span>I cerchi sulla linea sono le tappe della visita</span>`;
   buildTrack(); renderScenBox(); goStep(0);
 }
 function exitScenario() {
@@ -1625,6 +1773,8 @@ async function start() {
   new ResizeObserver(() => resize()).observe($("mapwrap"));
   buildTrack();
   const q = new URLSearchParams(location.search), qt = parseFloat(q.get("t"));
+  // ?scenario=ott|prob|pess sceglie il futuro
+  const qf = q.get("scenario"); if (qf && SERIES[qf]) { state.fut = qf; refreshEvents(); }
   resize();
   setTime(isFinite(qt) ? qt : 0.05);
   try { await Promise.all([loadTerra(), loadBM()]); } catch (e) { console.warn("Dati del globo non disponibili", e); }

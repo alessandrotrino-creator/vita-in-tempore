@@ -15,6 +15,26 @@ const EVENTS_ = (typeof EVENTS !== "undefined" ? EVENTS : []).slice().sort((a, b
 const TAXA_ = typeof TAXA !== "undefined" ? TAXA : [];
 const GROUPS_ = typeof GROUPS !== "undefined" ? GROUPS : {};
 const SCENARI_ = typeof SCENARI !== "undefined" ? SCENARI : [];
+// il futuro possibile (src/futuro.js): tempo negativo = milioni di anni da oggi in avanti
+const FUT = typeof FUTURO !== "undefined" ? FUTURO : null;
+const FUT_END = -7600;
+if (FUT) {
+  (FUT.events || []).forEach(e => EVENTS_.push(e));
+  EVENTS_.sort((a, b) => b.t - a.t);
+  (FUT.taxa || []).forEach(x => TAXA_.push(Object.assign({}, x, {fut: true, to: x.to == null ? FUT_END : x.to})));
+  (FUT.scenari || []).forEach(s => SCENARI_.push(s));
+}
+// suddivisione del futuro: non ufficiale, solo per orientarsi
+const FUT_ERAS = [
+  {level: "eone", name: "Futuro possibile", from: 0, to: FUT_END, color: "#b9b3e6", fut: true, text: "Il futuro non ha una scala ufficiale: queste fasi servono solo a orientarsi. Più ci si allontana da oggi, più le previsioni sono incerte, tranne quelle sull'evoluzione del Sole, che seguono leggi fisiche ben note."},
+  {level: "periodo", name: "Glaciazioni e Antropocene", from: 0, to: -2, color: "#cfe3f2", fut: true, text: "Il clima dei prossimi millenni dipende dalla CO₂ che emettiamo oggi; poi tornano i cicli delle glaciazioni guidati dall'orbita terrestre."},
+  {level: "periodo", name: "Continenti in cammino", from: -2, to: -200, color: "#d9e8c4", fut: true, text: "I continenti proseguono i loro moti: l'Africa chiude il Mediterraneo, l'Australia raggiunge l'Asia, si apre un nuovo oceano in Africa orientale."},
+  {level: "periodo", name: "Nuovo supercontinente", from: -200, to: -500, color: "#e8dcb8", fut: true, text: "I continenti potrebbero riunirsi in un nuovo supercontinente, con interni caldissimi e aridi."},
+  {level: "periodo", name: "Il Sole più caldo", from: -500, to: -1300, color: "#f0c89a", fut: true, text: "Il Sole diventa sempre più luminoso: la CO₂ dell'aria diminuisce, le piante scompaiono, poi gli animali; restano i microbi."},
+  {level: "periodo", name: "Terra senza oceani", from: -1300, to: -5000, color: "#e8a77c", fut: true, text: "Gli oceani evaporano e l'acqua si perde nello spazio: la Terra diventa un deserto rovente, forse senza più vita."},
+  {level: "periodo", name: "Il Sole gigante rossa", from: -5000, to: FUT_END, color: "#e0786a", fut: true, text: "Il Sole esaurisce l'idrogeno nel nucleo, si gonfia e diventa una gigante rossa: inghiotte Mercurio, Venere e probabilmente la Terra."}
+];
+FUT_ERAS.forEach(u => ERAS_.push(u));
 
 /* ---------- formati ---------- */
 const NF = {};
@@ -23,7 +43,8 @@ const nfi = v => nf(Math.round(v), 0);
 function fmtAge(t, mode) {
   // mode: "long" (default) | "short"
   const sh = mode === "short";
-  if (t <= 2e-7) return sh ? "oggi" : "Oggi";
+  if (Math.abs(t) <= 2e-7) return sh ? "oggi" : "Oggi";
+  if (t < 0) return fmtFut(-t, sh);
   if (t >= 1000) { const g = t / 1000; return nf(g, 2) + (sh ? " Ga" : " miliardi di anni fa"); }
   if (t >= 1) return nf(t, t >= 100 ? 0 : t >= 10 ? 1 : 2) + (sh ? " Ma" : " milioni di anni fa");
   const y = t * 1e6;
@@ -35,23 +56,36 @@ function fmtAge(t, mode) {
   if (y >= 10000) return nfi(Math.round(y / 100) * 100) + (sh ? "" : " anni fa");
   return nfi(Math.round(y / 10) * 10) + (sh ? "" : " anni fa");
 }
+// futuro: f = milioni di anni da oggi
+const trimZ = s => s.includes(",") ? s.replace(/0+$/, "").replace(/,$/, "") : s;
+function fmtFut(f, sh) {
+  if (f >= 1000) { const g = trimZ(nf(f / 1000, 2)); return sh ? "+" + g + " Ga" : "Fra " + g + " miliardi di anni"; }
+  if (f >= 1) { const m = trimZ(nf(f, f >= 100 ? 0 : f >= 10 ? 1 : 2)); return sh ? "+" + m + " Ma" : "Fra " + m + (f < 2 ? " milione di anni" : " milioni di anni"); }
+  const y = f * 1e6;
+  if (y < 8000) { const yr = Math.round(NOW_YEAR + y); return sh ? String(yr) : "Anno " + yr; }
+  const r = nfi(y >= 100000 ? Math.round(y / 1000) * 1000 : Math.round(y / 100) * 100);
+  return sh ? "+" + r + " anni" : "Fra " + r + " anni";
+}
 function fmtUnit(t, unit) {
-  if (unit === "Ga") return nf(t / 1000, 2) + " Ga";
-  if (unit === "Ma") return nf(t, t >= 100 ? 0 : t >= 10 ? 1 : 2) + " Ma";
-  if (unit === "ka") return nfi(t * 1000) + " ka";
-  if (unit === "anni") return fmtAge(t, "short");
+  if (Math.abs(t) <= 2e-7) return "oggi";
+  const s = t < 0 ? "+" : "", a = Math.abs(t);
+  if (unit === "Ga") return s + nf(a / 1000, 2) + " Ga";
+  if (unit === "Ma") return s + nf(a, a >= 100 ? 0 : a >= 10 ? 1 : 2) + " Ma";
+  if (unit === "ka") return s + nfi(a * 1000) + " ka";
   return fmtAge(t, "short");
 }
 function fmtRange(a, b) {
   if (a == null) return "";
   if (b == null || Math.abs(a - b) < 1e-9) return fmtAge(a);
-  if (b <= 2e-7) return "da " + fmtAge(a, "short").replace(/ (Ga|Ma)$/, m => m) + " a oggi";
+  if (Math.abs(b) <= 2e-7) return "da " + fmtAge(a, "short").replace(/ (Ga|Ma)$/, m => m) + " a oggi";
   return "da " + fmtAge(a, "short") + " a " + fmtAge(b, "short");
 }
 
 /* ---------- linea del tempo: scala a tratti ---------- */
-const MAIN_DOM = [4567, 4000, 2500, 1000, 541, 252, 66, 23, 2.58, 0.3, 0.0117, 0];
-const MAIN_RNG = [0, .045, .12, .2, .28, .5, .71, .8, .9, .955, .99, 1];
+// il passato occupa l'82% della linea, il futuro (fino alla gigante rossa) il resto
+const MAIN_DOM = [4567, 4000, 2500, 1000, 541, 252, 66, 23, 2.58, 0.3, 0.0117, 0, -0.1, -10, -300, -1500, FUT_END];
+const MAIN_RNG = [0, .037, .098, .164, .23, .41, .582, .656, .738, .783, .812, .82, .85, .885, .93, .965, 1];
+const P_NOW = .82;
 let TL = d3.scaleLinear().domain(MAIN_DOM).range(MAIN_RNG).clamp(true);
 const t2p = t => TL(t), p2t = p => TL.invert(clamp01(p));
 
@@ -118,6 +152,24 @@ function quatAt(M, pid, t) {
   }
   M.QC.set(pid, q); return q;
 }
+/* futuro: ogni placca prosegue il moto medio degli ultimi 10 milioni di anni (PALEOMAP), come nelle mappe
+   «future» di Scotese; oltre FUT_TECT le posizioni restano quelle di FUT_TECT (schematiche). */
+const FUT_TECT = 50, FQC = new Map();
+function futQ(pid, f) {
+  f = Math.min(f, FUT_TECT);
+  const key = pid + ":" + Math.round(f * 20);
+  if (FQC.has(key)) return FQC.get(key);
+  const a = MP.RQ[pid]; let q = null;
+  const q10 = a ? qGet(a, Math.round(10 / MP.step)) : null;
+  if (q10) {
+    let [w, x, y, z] = q10; if (w < 0) { w = -w; x = -x; y = -y; z = -z; }
+    const h = Math.acos(clamp(w, -1, 1)), sh = Math.sin(h);
+    if (sh < 1e-9) q = [1, 0, 0, 0];
+    else { const h2 = -h * f / 10, k = Math.sin(h2) / sh; q = [Math.cos(h2), x * k, y * k, z * k]; }
+  }
+  if (FQC.size > 6000) FQC.clear();
+  FQC.set(key, q); return q;
+}
 // placca di un punto (coordinate attuali) in un modello: poligono che lo contiene, altrimenti il vertice più vicino
 function pidOf(M, lon, lat, fallback) {
   const key = lon.toFixed(2) + "," + lat.toFixed(2);
@@ -141,10 +193,10 @@ function pidOf(M, lon, lat, fallback) {
 }
 // posizione all'età t di un punto di oggi; fb = plate ID di riserva {pm, md}
 function paleo(lon, lat, t, fb) {
-  if (t < 0.02) return [lon, lat];
+  if (t < 0.02 && t > -0.02) return [lon, lat];
   const M = modelAt(t), pid = pidOf(M, lon, lat, fb ? fb[M.key] : null);
   if (pid == null) return null;
-  const q = quatAt(M, pid, Math.min(t, M.max)); if (!q) return null;
+  const q = t < 0 ? futQ(pid, -t) : quatAt(M, pid, Math.min(t, M.max)); if (!q) return null;
   const v = vecOf(lon, lat); return toLL(rotV(q, v[0], v[1], v[2]));
 }
 const COAST = MM.coast;   // coste di oggi (le più dettagliate)
@@ -156,8 +208,8 @@ function landAt(t) {
   const M = modelAt(t), tt = Math.min(t, M.max), out = [];
   for (const r of M.coast) {
     if (r.b < t) continue;   // terra non ancora formata (o non ancora presente nel modello)
-    if (t < 0.02) { out.push({r, ring: r.ring, q: null}); continue; }
-    const q = quatAt(M, r.p, tt); if (!q) continue;
+    if (t < 0.02 && t > -0.02) { out.push({r, ring: r.ring, q: null}); continue; }
+    const q = t < 0 ? futQ(r.p, -t) : quatAt(M, r.p, tt); if (!q) continue;
     const ring = new Array(r.n);
     for (let i = 0; i < r.n; i++) ring[i] = toLL(rotV(q, r.V[3 * i], r.V[3 * i + 1], r.V[3 * i + 2]));
     out.push({r, ring, q});
@@ -206,13 +258,35 @@ function interp(arr, x) {
   for (let i = 1; i < arr.length; i++) if (x <= arr[i][0]) { const [a, va] = arr[i - 1], [b, vb] = arr[i]; return va + (vb - va) * (x - a) / (b - a); }
   return arr[arr.length - 1][1];
 }
-const seaLevel = t => t > 0.5 ? 0 : interp(SEA, t);
-const iceF = t => clamp01(-seaLevel(t) / 125);
-const DAY = [[0, 24], [70, 23.5], [250, 22.7], [400, 22], [620, 21.9], [1000, 19], [2000, 19], [2500, 17], [3200, 13], [4500, 6]];
-const O2 = [[0, 21], [66, 25], [100, 26], [150, 22], [200, 18], [230, 16], [260, 25], [300, 32], [350, 25], [400, 17], [450, 14], [541, 13], [700, 5], [800, 1], [1800, 1], [2050, 2], [2300, 1], [2450, 0.001], [4567, 0]];
+// futuro: fotogrammi del clima di src/futuro.js (t decrescente), interpolati
+const FCL = (FUT && FUT.clima && FUT.clima.length ? FUT.clima : [{t: 0, dT: 0, sea: 0, co2: 425, lum: 1, ocean: 1, iceN: 74, iceS: -63, plants: 1, animals: 1, life: 1}]).slice().sort((a, b) => b.t - a.t);
+let FC_T = NaN, FC_V = null;
+function futClim(t) {
+  if (t === FC_T) return FC_V;
+  let i = 0; while (i < FCL.length - 2 && FCL[i + 1].t > t) i++;
+  const a = FCL[i], b = FCL[Math.min(i + 1, FCL.length - 1)], u = a === b ? 0 : clamp01((a.t - t) / (a.t - b.t)), o = {t};
+  for (const k of ["dT", "sea", "co2", "lum", "ocean", "iceN", "iceS", "plants", "animals", "life"]) {
+    const va = a[k], vb = b[k];
+    o[k] = typeof va === "number" && typeof vb === "number" ? va + (vb - va) * u : (u < .5 ? va : vb);
+    if (o[k] === undefined) o[k] = null;
+  }
+  o.note = (u < .5 ? a.note : b.note) || a.note || "";
+  FC_T = t; FC_V = o; return o;
+}
+// livello del mare nel futuro: quello del modello, più l'abbassamento quando gli oceani evaporano
+function futSea(t) { const f = futClim(t), w = f.ocean == null ? 1 : clamp01(f.ocean); return (f.sea || 0) - (w < 1 ? (w <= 0 ? 12000 : 5200 * Math.pow(1 - w, .7)) : 0); }
+const seaLevel = t => t < 0 ? futSea(t) : t > 0.5 ? 0 : interp(SEA, t);
+const iceF = t => clamp01(-(t < 0 ? futClim(t).sea || 0 : seaLevel(t)) / 125);
+const DAY = [[FUT_END, 28], [-1300, 28], [-600, 27], [-200, 25], [0, 24], [70, 23.5], [250, 22.7], [400, 22], [620, 21.9], [1000, 19], [2000, 19], [2500, 17], [3200, 13], [4500, 6]];
+const O2 = [[FUT_END, 0], [-1150, 0.01], [-1050, 1], [-950, 20], [0, 21], [66, 25], [100, 26], [150, 22], [200, 18], [230, 16], [260, 25], [300, 32], [350, 25], [400, 17], [450, 14], [541, 13], [700, 5], [800, 1], [1800, 1], [2050, 2], [2300, 1], [2450, 0.001], [4567, 0]];
 function climate(t) {
   // ritorna: neve globale, latitudine del ghiaccio polare a sud e a nord (null = nessuno), aridità della fascia subtropicale
   const c = {snow: 0, s: null, n: null, arid: .45, note: ""};
+  if (t < 0) {
+    const f = futClim(t);
+    c.s = f.iceS; c.n = f.iceN; c.arid = .5 + .3 * clamp01((f.dT - 3) / 25); c.note = f.note; c.fut = f;
+    return c;
+  }
   if (t <= 717 && t >= 660) { c.snow = 1; c.note = "Glaciazione sturtiana: la Terra è quasi tutta coperta di ghiaccio («Terra a palla di neve»)."; }
   else if (t <= 650 && t >= 635) { c.snow = 1; c.note = "Glaciazione marinoana: un'altra «Terra a palla di neve»."; }
   else if (t <= 2450 && t >= 2220) { c.snow = .75; c.note = "Glaciazioni uroniane: dopo l'arrivo dell'ossigeno il metano crolla e la Terra si raffredda."; }
@@ -227,7 +301,7 @@ function climate(t) {
   if (t > 300) c.arid = .35; else if (t > 200) c.arid = .85; else if (t > 145) c.arid = .55; else if (t > 66) c.arid = .35; else if (t > 34) c.arid = .2; else c.arid = .5;
   return c;
 }
-const plantF = t => t > 470 ? 0 : t > 420 ? (470 - t) / 50 * .35 : t > 385 ? .35 + (420 - t) / 35 * .35 : t > 360 ? .7 + (385 - t) / 25 * .3 : 1;
+const plantF = t => t < 0 ? clamp01(futClim(t).plants == null ? 1 : futClim(t).plants) : t > 470 ? 0 : t > 420 ? (470 - t) / 50 * .35 : t > 385 ? .35 + (420 - t) / 35 * .35 : t > 360 ? .7 + (385 - t) / 25 * .3 : 1;
 
 /* ---------- etichette dei continenti antichi (punto d'appoggio attuale, intervallo in Ma) ---------- */
 const PLABELS = [
@@ -402,7 +476,8 @@ const C = {
   desert: [224, 198, 146], redDesert: [200, 156, 112], tundra: [140, 138, 114], bareDry: [190, 156, 116], bareWet: [118, 108, 96], basalt: [84, 80, 76],
   high: [150, 126, 100], rock: [136, 130, 124], snow: [242, 246, 250], ice: [234, 241, 247],
   shallow: [104, 190, 206], shelf: [58, 142, 186], slope: [28, 92, 156], deep: [14, 48, 102], tropShallow: [92, 204, 210], seaIce: [214, 228, 238],
-  archSea: [44, 98, 84], crust: [44, 28, 22], lava: [255, 112, 36], magma: [170, 58, 24]
+  archSea: [44, 98, 84], crust: [44, 28, 22], lava: [255, 112, 36], magma: [170, 58, 24],
+  salt: [222, 204, 168], scorch: [132, 86, 62], brine: [70, 118, 112]
 };
 // tabella colore dei biomi (temperatura × umidità) per l'epoca t
 function biomeLUT(t) {
@@ -472,10 +547,13 @@ function buildTex(t, tw) {
   // 2) ghiacci dell'ultima glaciazione (maschera a parte)
   const cl = climate(t), fI = iceF(t);
   let iceM = null;
-  if (t < 2.7 && state.layers.climate) {
+  const fc = t < 0 ? cl.fut : null;
+  // nel futuro: calotte disegnate solo finché i continenti sono quasi fermi e fa abbastanza freddo
+  if (t < 2.7 && t > -3 && state.layers.climate && (!fc || fc.iceN != null)) {
     rc.clearRect(0, 0, tw, th); rc.fillStyle = "#fff";
     for (const sh of ICE_SHEETS) {
-      const f = sh.off >= 0 ? clamp01((fI - sh.off) / (1 - sh.off)) : (-sh.off + (1 + sh.off) * fI);
+      let f = sh.off >= 0 ? clamp01((fI - sh.off) / (1 - sh.off)) : (-sh.off + (1 + sh.off) * fI);
+      if (fc && sh.off === -1) f = Math.max(fI, clamp01((80 - fc.iceN) / 6));   // Groenlandia: si ritira se il ghiaccio artico arretra
       if (f < .04) continue; rc.beginPath(); epath(iceSheetGeo(sh, Math.min(1, f))); rc.fill();
     }
     iceM = rc.getImageData(0, 0, tw, th).data;
@@ -487,8 +565,23 @@ function buildTex(t, tw) {
   for (let y = 0; y < th; y++) latC[y] = 90 - (y + .5) / th * 180;
   for (let i = 0; i < n; i++) { const a = idd[4 * i + 3]; RI[i] = a > 127 ? (idd[4 * i] + (idd[4 * i + 1] << 8)) - 1 : -1; }
   const useDem = DEM && t <= 540, sl = seaLevel(t);
-  if (useDem) {
-    const g = demGrid(t);
+  if (useDem && t <= -0.02) {
+    // futuro con i continenti spostati: rilievo di oggi letto nelle coordinate attuali di ogni pixel di terra,
+    // fondali oceanici stimati dalla distanza dalla terra
+    const g = demGrid(0), m0 = new Uint8Array(n);
+    for (let y = 0; y < th; y++) {
+      const la = latC[y] * RAD, cla = Math.cos(la), sla = Math.sin(la);
+      for (let x = 0; x < tw; x++) {
+        const i = y * tw + x, r = RI[i], o = r >= 0 ? land.list[r] : null;
+        if (!o || !o.q) continue;
+        const lo = lonC[x] * RAD, q = o.q, p = rotV([q[0], -q[1], -q[2], -q[3]], cla * Math.cos(lo), cla * Math.sin(lo), sla);
+        E[i] = demAt(g, Math.atan2(p[1], p[0]) / RAD, Math.asin(clamp(p[2], -1, 1)) / RAD); m0[i] = 1;
+      }
+    }
+    const dS0 = distField(m0, tw, th, 0);
+    for (let i = 0; i < n; i++) { if (!m0[i]) E[i] = -60 - 4300 * smooth(0, 5, dS0[i] * kmPx / 111); E[i] -= sl; mask[i] = E[i] > 0 ? 1 : 0; }
+  } else if (useDem) {
+    const g = demGrid(Math.max(0, t));
     for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) { const i = y * tw + x; E[i] = demAt(g, lonC[x], latC[y]) - (t < 0.5 ? sl : 0); mask[i] = E[i] > 0 ? 1 : 0; }
   } else {
     for (let i = 0; i < n; i++) mask[i] = RI[i] >= 0 ? 1 : 0;
@@ -513,7 +606,9 @@ function buildTex(t, tw) {
     else E[i] = -60 - 4300 * smooth(0, 5, dSea[i] * kmPx / 111);
   }
   // 4) colori
-  const LUT = biomeLUT(t), dT = interp(GT, t) - (t < 0.5 ? 6 * fI : 0), arid = (cl.arid - .45) * .45;
+  const LUT = biomeLUT(t), dT = fc ? clamp(fc.dT, -15, 60) : interp(GT, t) - (t < 0.5 ? 6 * fI : 0), arid = (cl.arid - .45) * .45;
+  // futuro rovente: terre bruciate, poi superficie fusa; fondali rimasti all'asciutto quando gli oceani evaporano
+  const scorch = fc ? smooth(45, 300, fc.dT) : 0, molten = fc ? smooth(700, 1400, fc.dT) : 0, dryBed = fc && sl < -150;
   const rgba = new Uint8ClampedArray(n * 4), sea = new Uint8Array(n), o = [0, 0, 0], tmp = [0, 0, 0];
   const hadean = t > 4400, hadeanOcean = t > 4000 && !hadean, archean = t > 2400, proter = t > 541;
   for (let y = 0; y < th; y++) {
@@ -544,6 +639,14 @@ function buildTex(t, tw) {
           if (iceM && iceM[4 * i + 3] > 127) ice = 1;
         }
         if (ice > 0) mixC(o, o, C.ice, ice);
+        if (fc) {
+          if (dryBed && e + sl < 0) mixC(o, o, C.salt, .45 * smooth(0, -2000, e + sl) + .45);
+          if (scorch > 0) mixC(o, o, C.scorch, scorch * (.8 + .2 * nz));
+          if (molten > 0) {
+            const lo = lonC[x], r1 = 1 - Math.abs((nz - noiseAt(lo + 4, lat + 3)) * 2.4);
+            mixC(o, o, C.crust, molten * .8); mixC(o, o, C.lava, molten * smooth(.8, .97, r1));
+          }
+        }
         sea[i] = 0;
       } else {
         const d = -e;
@@ -553,6 +656,7 @@ function buildTex(t, tw) {
         if (d < 160 && Tlat > 18) mixC(o, o, C.tropShallow, .5 * (1 - d / 160));
         if (archean) mixC(o, o, C.archSea, .55); else if (proter) mixC(o, o, C.archSea, .18);
         if (hadeanOcean && mask[i]) mixC(o, o, C.basalt, .8);
+        if (dryBed) mixC(o, o, C.brine, .55);
         let si = 0;
         if (state.layers.climate) {
           if (cl.snow) si = cl.snow * (.85 + .15 * nz);
@@ -589,6 +693,25 @@ function ensureTex() {
   if (TEX.t !== t || !TEX.rgba) buildTex(t, busy ? 512 : TEX_FULL());
   if (TEX.res < TEX_FULL()) { clearTimeout(texTimer); texTimer = setTimeout(() => { if (!(state.playing || tdrag)) { buildTex(state.t, TEX_FULL()); draw(); } }, 220); }
 }
+// colore dell'atmosfera: arancione nell'Archeano, azzurro oggi, giallastro e poi rovente nel futuro lontano
+function atmRGB(t) {
+  if (t > 2400) return [235, 160, 90];
+  const o = [150, 196, 240];
+  if (t < 0) { const f = futClim(t); mixC(o, o, [236, 196, 128], smooth(20, 150, f.dT)); mixC(o, o, [255, 112, 52], smooth(500, 1400, f.dT)); }
+  return o;
+}
+// raggio del Sole (raggi di oggi) nel futuro: Schröder & Smith 2008, MNRAS 386
+const SUN_R = [[FUT_END, 256], [-7590, 256], [-7550, 100], [-7450, 20], [-7300, 5], [-7000, 2.3], [-5400, 1.6], [0, 1]];
+function drawSun(t) {
+  if (t > -5000) return;
+  const R = interp(SUN_R, t), k = clamp01(Math.log(R / 1.4) / Math.log(256 / 1.4));
+  const [cx, cy] = proj.translate(), sx = -W * .25, sy = cy - H * .15;
+  const rad = 40 + (cx - sx + proj.scale() * 1.25) * Math.pow(k, 1.3);
+  const g = ctx.createRadialGradient(sx, sy, rad * .2, sx, sy, rad);
+  const core = k < .5 ? "255,214,120" : "255,120,60";
+  g.addColorStop(0, `rgba(${core},${.55 + .4 * k})`); g.addColorStop(.75, `rgba(240,90,40,${.25 + .5 * k})`); g.addColorStop(1, "rgba(200,40,20,0)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
 const PCV = document.createElement("canvas");
 function renderOrtho(c) {
   const R = proj.scale(), [cx, cy] = proj.translate(), rot = proj.rotate(), lam = rot[0] * RAD, phi = rot[1] * RAD, cP = Math.cos(phi), sP = Math.sin(phi);
@@ -602,8 +725,7 @@ function renderOrtho(c) {
   const pc = PCV.getContext("2d"), img = pc.createImageData(w, h), out = img.data;
   const tw = TEX.w, th = TEX.h, src = TEX.rgba, sea = TEX.sea, bil = Z > 1.6 && !MOVING;
   const Lx = -.5, Ly = .55, Lz = .67, Hn = Math.hypot(Lx, Ly, Lz + 1), Hx = Lx / Hn, Hy = Ly / Hn, Hz = (Lz + 1) / Hn;
-  const atm = t => t > 2400 ? [235, 160, 90] : [150, 196, 240];
-  const AC = atm(state.t), inv2pi = 1 / (2 * Math.PI), invpi = 1 / Math.PI;
+  const AC = atmRGB(state.t), inv2pi = 1 / (2 * Math.PI), invpi = 1 / Math.PI;
   let k = 0;
   for (let j = 0; j < h; j++) {
     const sy = (cy - (y0 + (j + .5) / s)) / R;
@@ -651,19 +773,21 @@ function draw() {
   ensureTex();
   if (GL) {
     const [cx, cy] = proj.translate(), R0 = proj.scale();
-    const atm = t > 4400 ? "rgba(255,90,30,.42)" : t > 2400 ? "rgba(225,150,70,.42)" : "rgba(120,175,235,.5)";
+    drawSun(t);
+    const ac = atmRGB(t), atm = t > 4400 ? "rgba(255,90,30,.42)" : t > 2400 ? "rgba(225,150,70,.42)" : `rgba(${ac.map(Math.round).join(",")},.5)`;
     const g = c.createRadialGradient(cx, cy, R0 * .97, cx, cy, R0 * 1.12);
     g.addColorStop(0, atm); g.addColorStop(1, "rgba(0,0,0,0)");
     c.fillStyle = g; c.beginPath(); c.arc(cx, cy, R0 * 1.12, 0, 7); c.fill();
     renderOrtho(c);
+    if (t < -7450) { c.fillStyle = `rgba(255,96,40,${.6 * smooth(-7450, -7590, t)})`; c.beginPath(); c.arc(cx, cy, R0, 0, 7); c.fill(); }
     drawMoon(t, cx, cy, R0);
   } else renderFlat(c);
   // reticolo ed equatore, discreti
   c.strokeStyle = "rgba(255,255,255,.09)"; c.lineWidth = .6; c.beginPath(); gp(GRAT); c.stroke();
   c.strokeStyle = "rgba(255,255,255,.35)"; c.setLineDash([4, 4]); c.beginPath(); gp(EQUATOR); c.stroke(); c.setLineDash([]);
   // posizioni schematiche prima di 1 miliardo di anni fa
-  if (t > TECT_MAX && t <= 4000) { c.strokeStyle = "rgba(255,255,255,.55)"; c.lineWidth = .8; c.setLineDash([3, 3]); c.beginPath(); gp(landAt(t).geo); c.stroke(); c.setLineDash([]); }
-  if (L.today && t > 0.02) {
+  if ((t > TECT_MAX && t <= 4000) || (t < -FUT_TECT && t > -1300)) { c.strokeStyle = "rgba(255,255,255,.55)"; c.lineWidth = .8; c.setLineDash([3, 3]); c.beginPath(); gp(landAt(t).geo); c.stroke(); c.setLineDash([]); }
+  if (L.today && (t > 0.02 || t < 0)) {
     c.strokeStyle = "#ffe08a"; c.lineWidth = 1; c.globalAlpha = .85; c.setLineDash([2, 3]);
     c.beginPath(); gp(TODAY); c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
   }
@@ -739,7 +863,7 @@ function drawTaxa(t) {
     });
   }
 }
-const CATCOL = {geo: "#8d6e63", clima: "#4f8fc0", vita: "#2e9e6a", estinzione: "#c0392b", umani: "#d4882a"};
+const CATCOL = {geo: "#8d6e63", clima: "#4f8fc0", vita: "#2e9e6a", estinzione: "#c0392b", umani: "#d4882a", cosmo: "#6c5ce7"};
 function eventsNear(t, pw) {
   const p = t2p(t);
   return EVENTS_.filter(e => {
@@ -768,7 +892,7 @@ function drawLabels(t) {
   if (t > TECT_MAX) return;
   const f = `italic 600 ${clamp(13 + Z * 1.5, 14, 22)}px Alegreya, Georgia, serif`;
   for (const l of PLAB) {
-    if (t > l.from || t < l.to) continue;
+    if (t > l.from || (t < l.to && !(l.to === 0 && t > -FUT_TECT * 1.2))) continue;
    const ll = paleo(l.lon, l.lat, t); if (!ll || !visible(ll[0], ll[1])) continue;
     const p = proj(ll); if (!p) continue;
     halo(l.n.toUpperCase().split("").join(" "), p[0], p[1], f, COL.ink);
@@ -795,7 +919,7 @@ function drawScenarioBelow(t) {
     if (b && state.layers.names) { const ll = scPos(b[1], b[0], t); if (ll && visible(ll[0], ll[1])) { const p = proj(ll); if (p) halo(a.label, p[0], p[1], `600 13px ${getComputedStyle(document.body).fontFamily}`, a.color || COL.ink); } }
   }
 }
-function scPos(lon, lat, t) { return t < 2 ? [lon, lat] : paleo(lon, lat, t); }
+function scPos(lon, lat, t) { return Math.abs(t) < 2 ? [lon, lat] : paleo(lon, lat, t); }
 function drawScenarioAbove(t) {
   const sc = state.sc;
   for (const r of sc.routes || []) {
@@ -953,29 +1077,43 @@ function linksHtml(o) {
   if (o.pbdb) L.push(`<a href="${pbdbLink(o.pbdb)}" target="_blank" rel="noopener">🦴 Paleobiology DB</a>`);
   return L.length ? `<div class="links">${L.join("")}</div>` : "";
 }
+// futuro: quanto è sicura la previsione, legame con l'oggi (accordi, leggi, missioni), curiosità, fonti
+const CERT = {alta: ["Previsione solida", "#2e9e6a", "si basa su leggi fisiche o misure ben note"], media: ["Previsione probabile", "#b8901c", "molti studi sono d'accordo, ma i tempi sono incerti"], bassa: ["Previsione incerta", "#d4682a", "dipende da modelli diversi tra loro"], ipotesi: ["Ipotesi", "#9d4edd", "possibile ma non prevedibile: un esempio di ciò che potrebbe accadere"]};
+function certHtml(o) { const c = o && CERT[o.certezza]; return c ? `<div class="cert" style="--cc:${c[1]}" title="${esc(c[2])}"><b>${esc(c[0])}</b><span>${esc(c[2])}</span></div>` : ""; }
+function futExtras(o) {
+  let h = "";
+  if (o.oggi) h += `<div class="oggi"><b>📜 Oggi</b><p>${esc(o.oggi)}</p></div>`;
+  if (o.curiosita) h += `<div class="curio"><b>💡 Lo sapevi?</b><p>${esc(o.curiosita)}</p></div>`;
+  const f = Array.isArray(o.fonti) ? o.fonti : o.fonti ? [o.fonti] : [];
+  if (f.length) h += `<details class="fonti"><summary>Fonti scientifiche</summary><ul>${f.map(s => `<li>${esc(s)}</li>`).join("")}</ul></details>`;
+  return h;
+}
 function showTaxon(x, site) {
   const g = G(x.group), s = site || x.sitesP[0];
   const facts = [["Quando", fmtRange(x.from, x.to)]];
+  if (x.fut && x.base) facts.push(["Da chi deriva", x.base]);
   if (x.size) facts.push(["Dimensioni", x.size]);
   if (x.diet) facts.push(["Alimentazione", x.diet]);
   if (x.habitat) facts.push(["Ambiente", x.habitat]);
   const sites = x.sitesP.map((p, i) => `<li><button data-site="${i}">📍 ${esc(p.name || (p.lat + ", " + p.lon))}</button></li>`).join("");
   const id = "img" + Math.random().toString(36).slice(2);
-  openSel(`<div class="eyebrow"><i class="cdot" style="background:${g.color}"></i>${esc(g.name)}</div>
-    <h3>${esc(x.common || x.name)}</h3><div class="sci">${esc(x.name)}</div>
-    ${imgBlock(id)}
+  const oz = x.fut ? (x.baseName || null) : x.name;
+  openSel(`<div class="eyebrow"><i class="cdot" style="background:${g.color}"></i>${esc(g.name)}${x.fut ? (x.ipotesi ? " · futuro ipotetico" : " · nel futuro") : ""}</div>
+    <h3>${esc(x.common || x.name)}</h3><div class="sci">${x.fut && x.baseName ? `${x.ipotesi ? "discendente ipotetico di" : ""} <i>${esc(x.baseName)}</i>` : esc(x.name)}</div>
+    ${x.fut && x.ipotesi ? certHtml({certezza: "ipotesi"}) : ""}
+    ${imgBlock(id)}${x.fut && x.ipotesi ? `<div class="note" style="margin:-4px 0 6px">L'immagine mostra l'antenato di oggi, non l'organismo del futuro.</div>` : ""}
     <dl class="facts">${facts.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("")}</dl>
     <p>${esc(x.text || "")}</p>
-    ${window.Cerca ? window.Cerca.reconHtml(x.name) : ""}
-    ${sites ? `<div class="note" style="margin-top:10px">Dove sono stati trovati i fossili (clicca per andarci):</div><ul class="sites">${sites}</ul>` : ""}
-    ${linksHtml({wiki: x.wiki, wikiEn: x.wikiEn, ozName: x.name, ott: x.ott, pbdb: x.name})}
+    ${x.fut ? futExtras(x) : window.Cerca ? window.Cerca.reconHtml(x.name) : ""}
+    ${sites ? `<div class="note" style="margin-top:10px">${x.fut ? "Dove potrebbe vivere (posizioni di oggi; clicca per andarci):" : "Dove sono stati trovati i fossili (clicca per andarci):"}</div><ul class="sites">${sites}</ul>` : ""}
+    ${linksHtml({wiki: x.wiki, wikiEn: x.wikiEn, ozName: oz, ott: x.fut ? null : x.ott, pbdb: x.fut ? null : x.name})}
     ${x.from >= state.t && x.to <= state.t ? "" : `<div class="links"><button id="goWhen">⏱ Vai a quando viveva</button></div>`}`,
     s ? {ll: () => paleo(s.lon, s.lat, state.t)} : null);
   $("selBox").querySelectorAll("[data-site]").forEach(b => b.onclick = () => { const p = x.sitesP[+b.dataset.site]; state.sel.mark = {ll: () => paleo(p.lon, p.lat, state.t)}; flyToPresent(p.lon, p.lat, Math.max(Z, 2.2)); });
   if (window.Cerca) window.Cerca.bindRecon($("selBox"));
   const gw = $("goWhen"); if (gw) gw.onclick = () => { if (state.sc && ((x.from + x.to) / 2 > state.sc.from || (x.from + x.to) / 2 < state.sc.to)) exitScenario(); setTime((x.from + x.to) / 2); showTaxon(x, s); };
   if (s) flyToPresent(s.lon, s.lat, Math.max(Z, 1.8));
-  wikiBest(x.wiki, x.wikiEn, x.name).then(w => fillImg(id, w, x.common || x.name));
+  wikiBest(x.wiki, x.wikiEn, x.fut ? x.baseName : x.name).then(w => fillImg(id, w, x.common || x.name));
 }
 function showFossil(gk, e, s) {
   const g = G(gk), st = STG[s], ce = FCELL[e[0]];
@@ -995,9 +1133,10 @@ function showFossil(gk, e, s) {
 }
 function showEvent(ev) {
   const id = "img" + Math.random().toString(36).slice(2), col = CATCOL[ev.cat] || COL.accent;
-  const CN = {geo: "Geologia", clima: "Clima", vita: "Vita", estinzione: "Estinzione", umani: "Esseri umani"};
+  const CN = {geo: "Geologia", clima: "Clima", vita: "Vita", estinzione: "Estinzione", umani: "Esseri umani", cosmo: "Spazio e Sole"};
   openSel(`<div class="eyebrow"><i class="cdot" style="background:${col}"></i>${esc(CN[ev.cat] || "Evento")} · ${esc(fmtRange(ev.t, ev.t2))}</div>
-    <h3>${esc(ev.title)}</h3>${imgBlock(id)}<p>${esc(ev.text || "")}</p>
+    <h3>${esc(ev.title)}</h3>${certHtml(ev)}${imgBlock(id)}<p>${esc(ev.text || "")}</p>
+    ${futExtras(ev)}
     ${linksHtml({wiki: ev.wiki, wikiEn: ev.wikiEn})}
     ${Math.abs(t2p(ev.t) - t2p(state.t)) > .002 ? `<div class="links"><button id="goWhen">⏱ Vai a questo momento</button></div>` : ""}`,
     ev.lat != null ? {ll: () => paleo(ev.lon, ev.lat, state.t)} : null);
@@ -1009,7 +1148,7 @@ function showScMarker(m) {
   const x = m.taxon ? TAXA_.find(z => z.id === m.taxon) : null;
   if (x) { showTaxon(x); return; }
   const id = "img" + Math.random().toString(36).slice(2);
-  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${linksHtml({wiki: m.wiki, wikiEn: m.wikiEn})}`, {ll: () => scPos(m.lon, m.lat, state.t)});
+  openSel(`<div class="eyebrow">${esc(state.sc ? state.sc.title : "")}</div><h3>${esc(m.label)}</h3>${certHtml(m)}${m.wiki || m.wikiEn ? imgBlock(id) : ""}<p>${esc(m.text || "")}</p>${futExtras(m)}${linksHtml({wiki: m.wiki, wikiEn: m.wikiEn})}`, {ll: () => scPos(m.lon, m.lat, state.t)});
   if (m.wiki || m.wikiEn) wikiBest(m.wiki, m.wikiEn).then(w => fillImg(id, w, m.label));
 }
 
@@ -1017,6 +1156,12 @@ function showScMarker(m) {
 function unitAt(t, level) { return ERAS_.filter(u => u.level === level && t <= u.from + 1e-9 && t >= u.to - 1e-9).sort((a, b) => (a.from - a.to) - (b.from - b.to))[0]; }
 function chainAt(t) { return ["eone", "era", "periodo", "epoca"].map(l => unitAt(t, l)).filter(Boolean); }
 function supercontinent(t) {
+  if (t < 0) {
+    if (t > -0.02) return "Continenti come oggi (si spostano di pochi centimetri all'anno).";
+    if (t > -FUT_TECT) return "I continenti proseguono i moti di oggi: l'Atlantico si allarga, l'Africa spinge contro l'Europa e chiude il Mediterraneo, l'Australia sale verso il Sud-Est asiatico.";
+    if (t > -1300) return `Posizioni schematiche (quelle fra ${FUT_TECT} milioni di anni, tratteggiate). Fra 200 e 300 milioni di anni i continenti potrebbero riunirsi in un nuovo supercontinente, ma i modelli non sono d'accordo su quale.`;
+    return "Nessuna previsione possibile: senza oceani la tettonica delle placche potrebbe rallentare fino a fermarsi.";
+  }
   if (t > 4400) return "Nessun continente: la superficie è fusa o appena solidificata.";
   if (t > 4000) return "Una crosta primitiva, forse con piccoli frammenti di tipo continentale, in un oceano globale.";
   if (t > 2500) return "Piccoli nuclei di crosta continentale (cratoni) in un oceano globale.";
@@ -1038,17 +1183,28 @@ function updatePanel() {
   const t = state.t; panelT = t;
   const ch = chainAt(t), last = ch[ch.length - 1];
   const cl = climate(t);
-  const day = interp(DAY, t), o2 = interp(O2, t);
+  const day = interp(DAY, t), o2 = interp(O2, t), fc = cl.fut;
+  const sgn = v => (v > 0 ? "+" : v < 0 ? "−" : "") + nf(Math.abs(v), Math.abs(v) < 10 && v % 1 ? 1 : 0);
+  const life = !fc ? "" : fc.life != null && fc.life < .02 ? "nessuna forma di vita conosciuta potrebbe sopravvivere" : fc.animals != null && fc.animals < .05 ? "restano solo microbi, in rifugi sempre più piccoli" : fc.plants != null && fc.plants < .1 ? "senza piante: gli animali sono in declino" : fc.plants != null && fc.plants < .8 ? "piante in declino per la scarsità di CO₂" : "piante e animali, molto diversi da quelli di oggi";
+  const SC = FUT && FUT.supercontinenti && t < -150 && t > -500 ? FUT.supercontinenti : null;
   $("whenBox").innerHTML = `<h2>Quando</h2>
     <div class="chain">${ch.map(u => `<span style="background:${u.color}" title="${esc(fmtRange(u.from, u.to))}">${esc(u.name)}</span>`).join("")}</div>
     <h3>${esc(last ? last.name : "")}${last ? ` <small style="font-family:var(--f-body);font-size:14px;color:var(--muted);font-weight:400">${esc(fmtRange(last.from, last.to))}</small>` : ""}</h3>
     ${last && last.text ? `<p>${esc(last.text)}</p>` : ""}
+    ${fc ? `<p class="note futnote">🔭 <b>Futuro possibile.</b> Una ricostruzione basata sugli studi scientifici di oggi, non una profezia: più ci si allontana, più le previsioni sono incerte. Il futuro vicino degli esseri umani è in <a href="sapiens.html?t=-0.000074">«Sapiens in Tempore»</a>.</p>` : ""}
     <dl class="facts box">
       <dt>Continenti</dt><dd>${esc(supercontinent(t))}</dd>
       ${cl.note ? `<dt>Clima</dt><dd>${esc(cl.note)}</dd>` : ""}
+      ${fc && fc.dT != null ? `<dt>Temperatura media</dt><dd>${Math.abs(fc.dT) < .3 ? "come oggi" : "circa " + sgn(fc.dT) + " °C rispetto a oggi"}</dd>` : ""}
+      ${fc && fc.sea != null && (fc.ocean == null || fc.ocean > .97) ? `<dt>Livello del mare</dt><dd>${Math.abs(fc.sea) < .5 ? "come oggi" : "circa " + sgn(fc.sea) + " m rispetto a oggi"}</dd>` : ""}
+      ${fc && fc.ocean != null && fc.ocean <= .97 ? `<dt>Oceani</dt><dd>${fc.ocean < .01 ? "evaporati: non resta acqua liquida" : "ne resta circa il " + nfi(fc.ocean * 100) + "%"}</dd>` : ""}
+      ${fc && fc.co2 != null ? `<dt>CO₂ nell'aria</dt><dd>circa ${nfi(fc.co2)} ppm (oggi circa 425)</dd>` : ""}
+      ${fc && fc.lum != null ? `<dt>Il Sole</dt><dd>${Math.abs(fc.lum - 1) < .005 ? "come oggi" : fc.lum < 3 ? "circa il " + nfi((fc.lum - 1) * 100) + "% più luminoso di oggi" : "circa " + nfi(fc.lum) + " volte più luminoso di oggi"}</dd>` : ""}
+      ${life ? `<dt>Vita</dt><dd>${esc(life)}</dd>` : ""}
       <dt>Ossigeno nell'aria</dt><dd>${o2 < .01 ? "quasi assente" : "circa " + nf(o2, o2 < 3 ? 1 : 0) + "% (oggi 21%)"}</dd>
       <dt>Durata del giorno</dt><dd>circa ${nf(day, day < 20 ? 0 : 1)} ore</dd>
-    </dl>`;
+    </dl>
+    ${SC ? `<div class="note" style="margin-top:10px">Quattro modelli del prossimo supercontinente:</div><ul class="gen">${SC.map(s => `<li><span><b>${esc(s.name)}</b> · ${esc(s.author || "")}${s.year ? " " + s.year : ""}<br><span style="color:var(--muted);font-size:13px">${esc(s.text || "")}</span></span><span>${s.wiki ? `<a href="${wpLink(s.wiki, "it")}" target="_blank" rel="noopener">Wikipedia</a>` : s.wikiEn ? `<a href="${wpLink(s.wikiEn, "en")}" target="_blank" rel="noopener">Wikipedia</a>` : ""}</span></li>`).join("")}</ul>` : ""}`;
   // eventi vicini
   const pool = state.sc ? (state.sc.steps || []).map((s, i) => ({t: s.t, title: s.title, text: s.text, step: i})) : EVENTS_;
   const p = t2p(t);
@@ -1062,11 +1218,12 @@ function updatePanel() {
   $("taxaList").querySelectorAll("button").forEach(b => b.onclick = () => showTaxon(alive[+b.dataset.i]));
   const mb = $("taxaMore"); mb.hidden = alive.length <= 12; mb.textContent = taxaAll ? "Mostra meno" : `Mostra tutti (${alive.length})`;
   mb.onclick = () => { taxaAll = !taxaAll; updatePanel(); };
-  $("taxaNote").textContent = alive.length ? "Clicca un organismo per la scheda, le immagini e i collegamenti all'albero della vita." :
+  $("taxaNote").textContent = alive.length ? (t < 0 ? "Organismi possibili del futuro: alcuni sono specie di oggi destinate a resistere a lungo, altri sono ipotesi basate sull'evoluzione. Clicca per la scheda." : "Clicca un organismo per la scheda, le immagini e i collegamenti all'albero della vita.") :
+    t < 0 ? (fc && fc.life != null && fc.life < .02 ? "Nessuna forma di vita: la Terra è diventata sterile." : "Nessun organismo previsto per questo momento.") :
     t > 3500 ? "Non ci sono ancora tracce sicure di vita." : t > 541 ? "La vita è fatta soprattutto di microbi: i fossili sono rari e microscopici." : "Nessun protagonista scelto per questo momento: guarda i fossili sul globo.";
   // gruppi di fossili
   const s = stageOf(t);
-  $("stageNote").textContent = s >= 0 ? `Piano geologico: ${STG[s].name} (${fmtRange(STG[s].from, STG[s].to)}). Ogni pallino riunisce i ritrovamenti di una zona di circa 200 km.` : "In quest'epoca non ci sono fossili di animali o piante: solo tracce di microbi.";
+  $("stageNote").textContent = s >= 0 ? `Piano geologico: ${STG[s].name} (${fmtRange(STG[s].from, STG[s].to)}). Ogni pallino riunisce i ritrovamenti di una zona di circa 200 km.` : t < 0 ? "Il futuro non ha ancora fossili: forse, fra milioni di anni, saranno i nostri resti e quelli degli animali di oggi." : "In quest'epoca non ci sono fossili di animali o piante: solo tracce di microbi.";
   $("grpList").innerHTML = GKEYS.map(k => {
     const g = G(k), arr = s >= 0 && FIDX[k][s] ? FIDX[k][s] : [], n = arr.reduce((a, e) => a + e[2], 0);
     return `<label class="${n ? "" : "empty"}" title="${esc(g.text)}"><input type="checkbox" data-g="${k}" ${state.groups[k] ? "checked" : ""}><span>${g.emoji}</span><span><i class="cdot" style="background:${g.color}"></i>${esc(g.name)}</span><span class="n">${n ? nfi(n) : "—"}</span></label>`;
@@ -1109,6 +1266,7 @@ function buildTrack() {
     const lv = span > 150 ? ["era", "periodo"] : span > 8 ? ["periodo", "epoca"] : ["epoca", "epoca"];
     L1 = ERAS_.filter(u => u.level === lv[0]); L2 = ERAS_.filter(u => u.level === lv[1]);
     if (span <= 8) { L1 = ERAS_.filter(u => u.level === "periodo"); L2 = ERAS_.filter(u => u.level === "epoca"); }
+    if (sc.to < 0) { L1 = ERAS_.filter(u => u.fut && u.level === "eone"); L2 = ERAS_.filter(u => u.fut && u.level === "periodo"); }
   }
   row(L1, $("band1")); row(L2, $("band2"));
   // puntini: eventi principali o tappe dello scenario
@@ -1117,10 +1275,16 @@ function buildTrack() {
   $("evdots").querySelectorAll("[data-step]").forEach(d => d.addEventListener("pointerdown", e => { e.stopPropagation(); goStep(+d.dataset.step); }));
   // tacche
   let ticks;
-  if (!sc) ticks = [[4567, "4,57 Ga", 1], [4000, "4 Ga"], [3000, "3 Ga"], [2500, "2,5 Ga"], [2000, "2 Ga"], [1000, "1 Ga", 1], [541, "541 Ma"], [444, "444"], [359, "359"], [252, "252 Ma", 1], [201, "201"], [145, "145"], [66, "66 Ma", 1], [23, "23"], [2.58, "2,6 Ma"], [0.3, "300 ka"], [0, "oggi", 1]];
+  if (!sc) ticks = [[4567, "4,57 Ga", 1], [4000, "4 Ga"], [3000, "3 Ga"], [2500, "2,5 Ga"], [2000, "2 Ga"], [1000, "1 Ga", 2], [541, "541 Ma"], [444, "444"], [359, "359"], [252, "252 Ma", 1], [201, "201"], [145, "145"], [66, "66 Ma", 1], [23, "23"], [2.58, "2,6 Ma"], [0.3, "300 ka"], [0, "oggi", 1], [-10, "+10 Ma"], [-1000, "+1 Ga", 2], [FUT_END, "+7,6 Ga", 2]];
   else {
-    const n = 6; ticks = d3.range(n + 1).map(i => { const tt = sc.from - (sc.from - sc.to) * i / n; return [tt, fmtUnit(tt, sc.unit), i === 0 || i === n || i === n / 2 ? 1 : 0]; });
+    const n = 6; ticks = d3.range(n + 1).map(i => { const tt = sc.dom ? p2t(i / n) : sc.from - (sc.from - sc.to) * i / n; return [tt, fmtUnit(tt, sc.unit), i === 0 || i === n || i === n / 2 ? 1 : 0]; });
   }
+  // zona del futuro sulla linea del tempo
+  const pf = sc ? (sc.to < 0 ? clamp01(t2p(0)) : null) : P_NOW;
+  $("futZone").hidden = pf == null || pf >= 1; if (pf != null) $("futZone").style.left = pf * 100 + "%";
+  // tacche «2»: chiave solo se la linea è larga (sul telefono si sovrapporrebbero)
+  const wide = track.getBoundingClientRect().width >= 760;
+  ticks = ticks.map(([tt, lab, key]) => [tt, lab, key === 1 || (key === 2 && wide) ? 1 : 0]);
   $("ticks").innerHTML = ticks.map(([tt, lab, key], i) => `<div class="tick${key ? " key" : ""}${i === 0 ? " edge-l" : i === ticks.length - 1 ? " edge-r" : ""}" style="left:${t2p(tt) * 100}%">${esc(lab)}</div>`).join("");
   thumb.setAttribute("aria-valuemin", "0"); thumb.setAttribute("aria-valuemax", "1000");
   track.classList.toggle("narrow", track.getBoundingClientRect().width < 760);
@@ -1166,8 +1330,10 @@ function updateHead() {
   const msg = t > 4400 ? "Superficie fusa o appena solidificata: nessun continente, nessun oceano stabile." :
     t > 4000 ? "I primi oceani: la crosta dell'Adeano è quasi tutta scomparsa, ne restano solo minuscoli cristalli di zircone." :
     t > TECT_MAX ? "Prima di 1 miliardo di anni fa la posizione dei continenti è molto incerta: sono mostrati solo i nuclei di crosta già esistenti." :
-    cl.snow >= 1 ? "Terra a palla di neve: ghiaccio fino all'equatore." : "";
-  $("subLabel").textContent = msg || (t > 0.02 ? "Continenti nella posizione dell'epoca" : "");
+    cl.snow >= 1 ? "Terra a palla di neve: ghiaccio fino all'equatore." :
+    t < -7450 ? "Il Sole, diventato una gigante rossa, raggiunge l'orbita della Terra: probabilmente la inghiotte." :
+    t < -FUT_TECT ? "Futuro lontano: continenti in posizione schematica, previsioni sempre più incerte." : "";
+  $("subLabel").textContent = msg || (t > 0.02 ? "Continenti nella posizione dell'epoca" : t < -0.02 ? "Futuro possibile: i continenti proseguono i moti di oggi" : t < 0 ? "Futuro possibile: dipende anche dalle nostre scelte" : "");
   $("subLabel").classList.toggle("warn", !!msg);
 }
 
@@ -1213,7 +1379,7 @@ function openScenChooser() {
   stopPlay();
   const box = $("scenList");
   if (!SCENARI_.length) { box.innerHTML = `<p class="note">Gli scenari non sono disponibili.</p>`; }
-  else box.innerHTML = `<section><div class="ch-grid">${SCENARI_.map((s, i) => `<button class="ch-card" data-i="${i}" style="--cc:${s.color || "var(--accent)"}"><span class="ch-sw"></span><span class="ch-name">${esc(s.title)}</span><span class="ch-when">${esc(fmtUnit(s.from, s.unit))} → ${esc(s.to <= 2e-7 ? "oggi" : fmtUnit(s.to, s.unit))}</span><span class="ch-intro">${esc(s.sub || firstSentence(s.intro))}</span></button>`).join("")}</div></section>`;
+  else box.innerHTML = `<section><div class="ch-grid">${SCENARI_.map((s, i) => `<button class="ch-card" data-i="${i}" style="--cc:${s.color || "var(--accent)"}"><span class="ch-sw"></span><span class="ch-name">${esc(s.title)}</span><span class="ch-when">${esc(fmtUnit(s.from, s.unit))} → ${esc(fmtUnit(s.to, s.unit))}</span><span class="ch-intro">${esc(s.sub || firstSentence(s.intro))}</span></button>`).join("")}</div></section>`;
   box.querySelectorAll(".ch-card").forEach(b => b.onclick = () => { closeChooser("scenChooser"); enterScenario(SCENARI_[+b.dataset.i]); });
   $("scenChooser").hidden = false; const f = box.querySelector(".ch-card"); if (f) f.focus();
 }
@@ -1227,9 +1393,9 @@ $("scenBtn").onclick = openScenChooser;
 function enterScenario(sc) {
   stopPlay(); closeSel();
   state.sc = sc; state.step = -1;
-  TL = d3.scaleLinear().domain([sc.from, sc.to]).range([0, 1]).clamp(true);
+  TL = d3.scaleLinear().domain(sc.dom || [sc.from, sc.to]).range(sc.rng || [0, 1]).clamp(true);
   $("scBar").hidden = false; $("scBarT").textContent = sc.title;
-  $("tlHint").innerHTML = `<span>Scenario: ${esc(sc.title)} · la linea del tempo va da ${esc(fmtUnit(sc.from, sc.unit))} a ${esc(sc.to <= 2e-7 ? "oggi" : fmtUnit(sc.to, sc.unit))}</span><span>I cerchi sulla linea sono le tappe della visita</span>`;
+  $("tlHint").innerHTML = `<span>Scenario: ${esc(sc.title)} · la linea del tempo va da ${esc(fmtUnit(sc.from, sc.unit))} a ${esc(fmtUnit(sc.to, sc.unit))}</span><span>I cerchi sulla linea sono le tappe della visita</span>`;
   buildTrack(); renderScenBox();
   goStep(0);
 }
@@ -1263,7 +1429,7 @@ function goStep(i) {
   i = clamp(i, 0, sc.steps.length - 1); state.step = i;
   const s = sc.steps[i];
   setTime(s.t);
-  if (s.view) { const [lon, lat, z] = s.view; const ll = s.t < 2 ? [lon, lat] : (paleo(lon, lat, s.t) || [lon, lat]); flyTo(ll[0], ll[1], z ? clamp(z * 1.0, .9, 8) : 1.2); }
+  if (s.view) { const [lon, lat, z] = s.view; const ll = Math.abs(s.t) < 2 ? [lon, lat] : (paleo(lon, lat, s.t) || [lon, lat]); flyTo(ll[0], ll[1], z ? clamp(z * 1.0, .9, 8) : 1.2); }
   renderScenBox(); buildTrack(); updateThumb();
   if (window.innerWidth <= 860) $("scenBox").scrollIntoView({behavior: "smooth", block: "nearest"}); else $("panel").scrollTo({top: 0, behavior: "smooth"});
 }

@@ -1,12 +1,13 @@
 # Vita in Tempore — il globo della storia della Terra
 
-Un globo interattivo per la scuola che ripercorre la storia della Terra, dalla sua formazione a oggi: continenti in movimento, climi e ghiacci, fossili reali, organismi con immagini e schede, eventi geologici e biologici, scenari ingranditi (dinosauri, estinzioni, Homo sapiens, Neanderthal e Denisova, megafauna…) e ambienti 3D di ogni epoca.
+Un globo interattivo per la scuola che ripercorre la storia della Terra, dalla sua formazione a oggi: continenti in movimento, climi e ghiacci, fossili reali, organismi con immagini e schede, eventi geologici e biologici, scenari ingranditi (dinosauri, estinzioni, Homo sapiens, Neanderthal e Denisova, megafauna…) e ambienti 3D di ogni epoca. Oltre «oggi» la linea del tempo prosegue nei **futuri possibili**, fino a quando il Sole diventerà una gigante rossa: continenti in movimento, nuovo supercontinente, fine delle piante e degli oceani, con eventi che dicono quanto è sicura ogni previsione e la collegano ad accordi, leggi e missioni di oggi.
 
 Accanto c'è un secondo globo, **«Sapiens in Tempore»** (`sapiens.html`), dedicato agli ultimi 60 000 anni. Mostra:
 - Homo sapiens che colonizza il mondo, insieme alle altre specie umane (Neanderthal, Denisoviani, Homo floresiensis, Homo luzonensis);
 - la fine della megafauna e le estinzioni storiche;
 - la biodiversità di oggi, con oltre 200 specie, il loro stato nella Lista Rossa IUCN, le osservazioni GBIF sul globo e i punti caldi della biodiversità;
-- gli scienziati della vita, da Linneo, Darwin e Mendel a Pääbo.
+- gli scienziati della vita, da Linneo, Darwin e Mendel a Pääbo;
+- i futuri possibili fino a un milione di anni, in tre scenari (ottimistico, probabile, pessimistico): clima, mare che sale, ghiacci, coralli, specie che potrebbero scomparire o evolversi, e gli impegni di oggi (Accordo di Parigi, Agenda 2030, Kunming-Montréal, legge europea sul ripristino della natura, AI Act…).
 
 Entrambi i globi hanno una **ricerca** per qualsiasi specie o genere. Mostra quando è comparso (Paleobiology Database), dove vive (GBIF), lo stato IUCN e il collegamento a OneZoom.
 

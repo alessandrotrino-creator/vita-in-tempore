@@ -104,6 +104,24 @@ a{color:var(--accent)}
 #band2{top:16px;border-radius:0 0 4px 4px;overflow:hidden}
 .rail{position:absolute;left:0;right:0;top:40px;height:4px;background:var(--line);border-radius:2px}
 .fill{position:absolute;left:0;top:40px;height:4px;background:var(--accent);border-radius:2px}
+.futz{position:absolute;right:0;top:35px;height:14px;border-radius:3px;pointer-events:none;background:repeating-linear-gradient(135deg,#7b6cd944 0 4px,transparent 4px 8px);border-left:2px solid #7b6cd9}
+.futz span{position:absolute;right:2px;top:-14px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#7b6cd9;font-weight:600}
+.cert{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;margin:2px 0 8px;font-size:12.5px;color:var(--muted)}
+.cert b{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--cc);color:#fff;font-weight:600;font-size:12px}
+.oggi,.curio{margin:10px 0 0;padding:8px 11px;border-radius:var(--r);font-size:13.5px;line-height:1.45}
+.oggi{background:#3b82c41a;border-left:3px solid #3b82c4}.curio{background:#e9a8261c;border-left:3px solid #d99a1e}
+.oggi p,.curio p{margin:3px 0 0}
+.fonti{margin-top:10px;font-size:12.5px;color:var(--muted)}.fonti ul{margin:6px 0 0;padding-left:18px}.fonti li{margin:2px 0}
+.futsel{display:flex;gap:5px;margin:6px 0 2px;flex-wrap:wrap;pointer-events:auto}
+.futsel button{font:inherit;font-size:13px;line-height:1.2;padding:4px 10px;border-radius:999px;border:1.5px solid var(--cc);background:var(--panel);color:var(--ink);cursor:pointer}
+.futsel button[aria-pressed=true]{background:var(--cc);color:#fff;font-weight:600}
+.futsel.inpanel{margin:8px 0 4px}
+@media (orientation:landscape) and (max-height:520px){.yearbox .futsel{display:none}}
+.agl{padding-left:18px;margin:8px 0}.agl li{margin:0 0 9px;font-size:13.5px;line-height:1.4}.agl .note{font-size:12.5px}
+.fate{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px;margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r)}
+.fate b{white-space:nowrap}.fate .cur{font-weight:600}
+.meter{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:3px}.meter i{display:block;height:100%}
+.futnote{margin:8px 0 0;padding:7px 10px;border-radius:var(--r);background:#7b6cd91a;border-left:3px solid #7b6cd9}
 .evdot{position:absolute;top:48px;width:6px;height:6px;margin-left:-3px;border-radius:50%;opacity:.85}
 .stepdot{position:absolute;top:36px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--panel);border:2px solid var(--accent);cursor:pointer}
 .stepdot.cur{background:var(--accent)}
@@ -252,7 +270,7 @@ details ul{padding-left:18px;margin:8px 0}
   #timeline{position:static;padding:4px 10px calc(4px + env(safe-area-inset-bottom,0px))}
   #track{height:58px}
   .band{height:12px}#band2{top:12px}
-  .rail,.fill{top:30px}.stepdot{top:26px}.evdot{top:37px}.tick{top:42px;font-size:11px}#thumb{top:20px}
+  .rail,.fill{top:30px}.futz{top:25px}.stepdot{top:26px}.evdot{top:37px}.tick{top:42px;font-size:11px}#thumb{top:20px}
   .brand p,.wt-mark{display:none}.brand h1{font-size:18px}
   .layers{top:40px}
   .yearbox .yr{font-size:28px}
@@ -272,7 +290,7 @@ details ul{padding-left:18px;margin:8px 0}
   .tl-btns button{width:48px;height:48px}
   #track{height:84px}
   .band{height:20px}#band2{top:20px}.band div{font-size:13px}
-  .rail,.fill{top:48px}.stepdot{top:43px;width:16px;height:16px;margin-left:-8px}.evdot{top:57px;width:8px;height:8px}.tick{top:64px;font-size:14px}#thumb{top:37px}
+  .rail,.fill{top:48px}.futz{top:43px}.stepdot{top:43px;width:16px;height:16px;margin-left:-8px}.evdot{top:57px;width:8px;height:8px}.tick{top:64px;font-size:14px}#thumb{top:37px}
   .sec h2{font-size:15px}.sec h3{font-size:23px}
   .evlist .t{font-size:17px}.evlist .d,.evlist .y{font-size:15px}
   .sel h3{font-size:27px}.sel p{font-size:16.5px}
@@ -289,8 +307,8 @@ details ul{padding-left:18px;margin:8px 0}
     <header class="brand">
       <div class="wt-mark" title="Wolf Team · Istituto Comprensivo di Almese">Wolf Team · I.C. Almese</div>
       <h1>Vita in Tempore</h1>
-      <p>Il globo della storia della Terra: continenti, climi e forme di vita dalla nascita del pianeta a oggi</p>
-      <a class="other-globe" href="sapiens.html" title="Il globo dell'umanità e della biodiversità, da 60 000 anni fa a oggi">🧍 Vai a «Sapiens in Tempore»</a>
+      <p>Il globo della storia della Terra: continenti, climi e forme di vita dalla nascita del pianeta a oggi, e i futuri possibili fino al Sole gigante rossa</p>
+      <a class="other-globe" href="sapiens.html" title="Il globo dell'umanità e della biodiversità, da 60 000 anni fa ai futuri possibili">🧍 Vai a «Sapiens in Tempore»</a>
     </header>
     <div class="layers" role="group" aria-label="Livelli del globo">
       <label class="chip"><input type="checkbox" id="l-fossils" checked><span class="dot"></span>Fossili</label>
@@ -335,6 +353,7 @@ details ul{padding-left:18px;margin:8px 0}
         <div class="band" id="band1"></div>
         <div class="band" id="band2"></div>
         <div class="rail"></div>
+        <div class="futz" id="futZone" title="Il futuro possibile"><span>futuro</span></div>
         <div class="fill" id="fill"></div>
         <div id="evdots"></div>
         <div id="ticks"></div>
@@ -347,7 +366,7 @@ details ul{padding-left:18px;margin:8px 0}
 
   <aside id="panel" aria-label="Informazioni sull'epoca scelta">
     <div id="searchBox" role="search"></div>
-    <a class="other-globe only-mob" href="sapiens.html">🧍 Vai a «Sapiens in Tempore»: da 60 000 anni fa a oggi</a>
+    <a class="other-globe only-mob" href="sapiens.html">🧍 Vai a «Sapiens in Tempore»: da 60 000 anni fa ai futuri possibili</a>
     <div id="selBox" hidden></div>
     <div id="scenBox" hidden></div>
     <section class="sec when" id="whenBox"></section>
